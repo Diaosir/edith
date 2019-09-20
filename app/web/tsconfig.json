@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "lib": ["es6", "dom", "scripthost", "es2015.symbol"],
+    "target": "es5",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "jsx": "preserve",
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "declaration": true,
+    "noEmitHelpers": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noImplicitUseStrict": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true
+  }
+}
