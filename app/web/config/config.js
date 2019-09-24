@@ -1,4 +1,5 @@
 import { resolve } from 'path';
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 export default {
   disableCSSSourceMap: true,
   hash: true,
@@ -46,6 +47,7 @@ export default {
     services: resolve(__dirname, '../web/services'),
     utils: resolve(__dirname, '../web/utils'),
     libs: resolve(__dirname, '../web/libs'),
-    enums: resolve(__dirname, '../web/enums')
+    enums: resolve(__dirname, '../web/enums'),
+    'packages': resolve(__dirname, '../packages')
   }
 };

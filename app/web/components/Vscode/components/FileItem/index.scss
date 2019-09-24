@@ -1,0 +1,31 @@
+.file-item {
+  position: relative;
+  display: flex;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 400;
+  min-width: 100px;
+  cursor: pointer;
+  user-select: none;
+  padding: 0.4rem 3rem 0.4rem calc(1rem - 2px);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  &.html {
+    background-color: rgba(131, 226, 252, 0.2) !important;
+    padding: 0.4rem 3rem 0.4rem calc(2rem - 2px);
+    text-decoration: none;
+    border-left: 2px solid;
+    border-color: rgb(97, 218, 251) !important;
+  }
+  .file-icon{
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    -webkit-font-smoothing: antialiased;
+    vertical-align: top;
+    flex-shrink: 0;
+  }
+  .file-title-container{
+    margin-left: 5px;
+  }
+}
