@@ -15,10 +15,10 @@ export default class FileItem extends Component<FileItemProps, any> {
   render() {
     const { data: { name, type }, data} = this.props;
     return (
-      <div className="file-item html" onClick={() => { this.setState({open: !this.state.open})}}>
+      <div className="file-item" onClick={() => { this.setState({open: !this.state.open})}}>
         <div className="file-type-icon-wrap">
           <span className="file-icon">
-            <Icon type={data.getIconName()}></Icon>
+            <Icon type={this.state.open ? data.getOpenIconName() : data.getIconName()}></Icon>
           </span>
         </div>
         <div className="file-title-container">{name}</div>

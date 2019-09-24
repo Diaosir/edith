@@ -35,6 +35,19 @@ export class File {
     this.value = options.value;
   }
   public getIconName(): string {
-    return 'folder'
+    switch(this.type) {
+      case FileType.FOLDER:
+        return 'folder'
+      default:
+        return 'file'
+    }
+  }
+  public getOpenIconName(): string {
+    switch(this.type) {
+      case FileType.FOLDER:
+        return 'folder-open'
+      default:
+        return 'file'
+    }
   }
 }

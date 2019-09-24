@@ -4,11 +4,16 @@ import {File} from '../../../interface/File'
 const fileList = [
   new File(
     {
-      type: 1,
-      name: 'package.json',
+      type: 7,
+      name: 'public',
       isLock: false
     }
-  )
+  ),
+  new File({
+    type: 7,
+    name: 'src',
+    isLock: false,
+  })
 ]
 export default class Vscode extends Component {
   constructor(props) {
