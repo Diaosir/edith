@@ -1,22 +1,60 @@
 import { Component } from 'react'
 import FileItem from '../components/FileItem'
+import { File } from '../../../../interface/File'
 import './index.scss'
 interface MenuProps {
-  filelist?: Array<any>;
+  fileList?: Array<File>;
+  eventListener?: Function;
+  dispatch: Function;
 }
 export default class Menu extends Component<MenuProps> {
   constructor(props) {
     super(props);
   }
+  handleFileClick = (file: File) => {
+    this.props.dispatch({
+      type: 'menuFileClickEvent',
+      payload: file
+    })
+  }
+  renderChildren(children: Array<File> = [], level: number = 0) {
+
+    return (
+      <>
+        {
+          children.map(file => {
+            return (
+              <div key={file.fid} >
+                {
+                  file.isDelete || (
+                    <FileItem 
+                      data={file}
+                      level={level}
+                      onClick={() => this.handleFileClick(file)}
+                      dispatch={this.props.dispatch}
+                    />
+                  )
+                }
+                {
+                  (file.children.length > 0 && file.isOpenChildren) && (
+                    <div className="children">
+                      {this.renderChildren(file.children, level+1)}
+                    </div>
+                  )
+                }
+              </div>
+            )
+          })
+        }
+      </>
+    )
+  }
   render() {
-    const { filelist } = this.props;
-    console.log(filelist)
+    const { fileList } = this.props;
     return (
       <div className="menu">
         {
-          filelist.map(file => {
-            return <FileItem data={file} key={file.name}/>
-          })
+          this.renderChildren(fileList, 0)
         }
       </div>
     )

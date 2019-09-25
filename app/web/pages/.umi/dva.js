@@ -20,7 +20,7 @@ export function _onCreate() {
     app.use(plugin);
   });
   app.use(require('/Users/fengzhihao/Projects/ironman/Edith/node_modules/_dva-immer@0.4.5@dva-immer/dist/index.js')());
-  
+  app.model({ namespace: 'global', ...(require('/Users/fengzhihao/Projects/ironman/Edith/app/web/models/global.ts').default) });
   return app;
 }
 

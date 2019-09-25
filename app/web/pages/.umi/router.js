@@ -23,6 +23,14 @@ const routes = [
         exact: true,
         component: __IS_BROWSER
           ? _dvaDynamic({
+              app: require('@tmp/dva').getApp(),
+              models: () => [
+                import('/Users/fengzhihao/Projects/ironman/Edith/app/web/pages/home/models/home.ts').then(
+                  m => {
+                    return { namespace: 'home', ...m.default };
+                  },
+                ),
+              ],
               component: () => import('../home/index.tsx'),
               LoadingComponent: require('/Users/fengzhihao/Projects/ironman/Edith/app/web/components/Loading')
                 .default,
