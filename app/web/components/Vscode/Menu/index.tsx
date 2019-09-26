@@ -6,6 +6,7 @@ interface MenuProps {
   fileList?: Array<File>;
   eventListener?: Function;
   dispatch: Function;
+  activeFileId: number;
 }
 export default class Menu extends Component<MenuProps> {
   constructor(props) {
@@ -18,7 +19,6 @@ export default class Menu extends Component<MenuProps> {
     })
   }
   renderChildren(children: Array<File> = [], level: number = 0) {
-
     return (
       <>
         {

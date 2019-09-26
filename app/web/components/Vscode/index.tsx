@@ -1,10 +1,15 @@
 import { Component } from 'react'
 import Menu from './Menu'
 import {File, FileType } from '../../../interface/File'
-
+import TopBar from './components/TopBar'
+import './index.scss'
+import MonacoEditor from './MonacoEditor'
+import Preview from './components/Preview'
 interface VscodeProps {
   data: {
     fileList: Array<File>;
+    editFileList: Array<File>;
+    [key:string]: any
   },
   dispatch: Function;
 }
@@ -12,50 +17,45 @@ export default class Vscode extends Component<VscodeProps, any>{
   constructor(props) {
     super(props);
   }
-  // setFileActive(fid) {
-  //   function recursion(filelist: Array<File>) {
-  //     if(filelist.length > 0) {
-  //       filelist.forEach(file => {
-  //         if(file.fid === fid) {
-  //           file.active = true;
-  //         } else {
-  //           file.active = false;
-  //         }
-  //         if (file.children.length > 0) {
-  //           recursion(file.children);
-  //         }
-  //       })
-  //     }
-  //   }
-  //   recursion(this.state.fileList);
-  // }
-  // menuEventListener = (name: string, eventData: any) => {
-
-  //   switch(name) {
-  //     case 'fileClick':
-  //       const file: File = eventData;
-  //       if (file.type === FileType.FOLDER) {
-  //         file.isOpenChildren = !file.isOpenChildren
-  //       } else {
-  //         this.setFileActive(file.fid);
-  //       }
-  //       break;
-  //     case 'addFile':
-  //       break;
-  //   }
-  //   this.forceUpdate()
-  // }
   render(){
-    const { fileList } = this.props.data;
+    const { fileList, editFileList, activeFileId } = this.props.data;
     return (
       <div className="vscode">
-        <div className="files">
-          <Menu
-            dispatch={this.props.dispatch}
-            fileList={fileList}></Menu>
+        <TopBar></TopBar>
+        <div className="vscode-project-container">
+          <div className="vscode-left-bar"></div>
+          <div className="vscode-split-pane">
+            <div style={{
+              width: 249,
+              position: 'relative',
+              flex: '0 0 auto',
+              height: '100vh'
+            }}>
+              <div className="project-file-pane">
+                <div className="">
+                  <div className="project-title">
+                    <span style={{display: 'inline-block', width: '100%'}}>Explorer</span>
+                    <div className="project-title-control"></div>
+                  </div>
+                  <div className="files">
+                    <Menu
+                      activeFileId={activeFileId}
+                      dispatch={this.props.dispatch}
+                      fileList={fileList} />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="monaco-workbench mac nopanel">
+              <MonacoEditor 
+                fileList={editFileList}
+                activeFileId={activeFileId}
+              />
+              <Preview></Preview>
+            </div>
+          </div>
+          <div className="vscode-editor-statusBar"></div>
         </div>
-        <div className="editor"></div>
-        <div className="preview"></div>
       </div>
     )
   }

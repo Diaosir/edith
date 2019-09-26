@@ -9,7 +9,10 @@ interface HomeProps {
   dispatch: Function;
   home: {
     vscode: {
-      fileList: Array<any>
+      fileList: Array<any>,
+      editFileList: Array<any>
+      activeFileId: number;
+      [key: string]: any
     }
   }
 }
@@ -32,7 +35,7 @@ export default class extends React.Component<HomeProps> {
     })
   }
   render() {
-    const { home: { vscode: { fileList }} } = this.props;
+    const { home: { vscode: { fileList, editFileList, activeFileId}} } = this.props;
     return (
       <div className="home-page">
         {/* <MonacoEditor 
@@ -43,7 +46,7 @@ export default class extends React.Component<HomeProps> {
           <Vscode
             dispatch={this.dispatch}
             data={
-            {fileList}
+            {fileList, editFileList, activeFileId}
           } />
       </div>
     ) 

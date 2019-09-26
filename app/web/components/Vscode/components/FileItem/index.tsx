@@ -66,18 +66,20 @@ export default class FileItem extends Component<FileItemProps, FileItemState> {
     const { onClick } = this.props;
     typeof onClick === 'function' && onClick()
   }
-  handleEditInputChange(value) {
-    this.nameInputValue = value;
-  }
   handleBlur() {
     const { dispatch, data } = this.props;
     dispatch({
       type: 'renameFile',
       payload: {
         fid: data.fid,
-        name: this.nameInputValue
+        name: this.inputRef.current.value
       }
     })
+  }
+  handleKeyUp = (e) => {
+    if (e.keyCode === 13) {
+      this.handleBlur();
+    }
   }
   componentDidUpdate() {
     const {data: { isEdit }} = this.state;
@@ -128,7 +130,7 @@ export default class FileItem extends Component<FileItemProps, FileItemState> {
                 className="file-title-input"
                 ref={this.inputRef} 
                 defaultValue={name} 
-                onChange={(e) => this.handleEditInputChange(e.target.value)}
+                onKeyUp={this.handleKeyUp}
                 onBlur={e => this.handleBlur()}
                 />
             ) : name

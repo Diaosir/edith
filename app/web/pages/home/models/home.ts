@@ -61,6 +61,10 @@ const fileList = [
     isLock: false
   })
 ]
+function fileIsExit(fid: number, fileList: Array<File>) {
+  const target = fileList.filter(file => file.fid === fid);
+  return target.length > 0
+}
 function recursion(fid: number, fileList: Array<File>, matchCallback?:Function, noMatchCallBack?: Function){
   if(fileList.length > 0) {
     fileList.forEach(item => {
@@ -79,7 +83,9 @@ export default {
   namespace: 'home',
   state: {
     vscode: {
-      fileList: fileList
+      fileList: fileList,
+      editFileList: [],
+      activeFileId: -1
     }
   },
   effects: {
@@ -172,13 +178,18 @@ export default {
       }
     },
     setFileActive(state, { payload }) {
-      const { vscode: {fileList} } = state;
+      let { vscode: {fileList, editFileList, activeFileId} } = state;
+      let activeFileList = [], newActiveFileId = -1;
       const file: File = payload;
       function recursion(filelist: Array<File>,) {
         if(filelist.length > 0) {
           filelist.forEach(item => {
             if(item.fid === file.fid) {
               item.active = true;
+              if(!fileIsExit(file.fid, editFileList)) {
+                activeFileList.push(file);
+              }
+              newActiveFileId = file.fid;
             } else {
               item.active = false;
             }
@@ -192,7 +203,11 @@ export default {
       recursion(fileList);
       return {
         ...state,
-        fileList
+        vscode: {
+          fileList,
+          editFileList: [].concat(editFileList, activeFileList),
+          activeFileId: newActiveFileId > -1 ? newActiveFileId : activeFileId
+        }
       };
     }
   }
