@@ -18,7 +18,8 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["*"],
+      "@edith/*": ["packages/*"]
     },
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true

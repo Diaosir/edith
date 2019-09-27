@@ -1,6 +1,6 @@
 import { Component } from 'react'
 import FileItem from '../components/FileItem'
-import { File } from '../../../../interface/File'
+import File from '@/datahub/project/entities/file';
 import './index.scss'
 interface MenuProps {
   fileList?: Array<File>;
@@ -28,6 +28,7 @@ export default class Menu extends Component<MenuProps> {
                 {
                   file.isDelete || (
                     <FileItem 
+                      activeFileId={this.props.activeFileId}
                       data={file}
                       level={level}
                       onClick={() => this.handleFileClick(file)}

@@ -1,9 +1,10 @@
 import { Component } from 'react'
 import './index.scss'
 import * as polished from 'polished';
-import { Tabs, Icon } from 'antd';
-import Editor from '@monaco-editor/react';
-import { File } from '../../../../interface/File'
+import { Tabs, Icon, Tooltip } from 'antd';
+import { ControlledEditor } from '@monaco-editor/react';
+import File from '@/datahub/project/entities/file';
+
 const { TabPane } = Tabs;
 interface State {
   panes: Array<File>;
@@ -25,20 +26,37 @@ export default class EditorGroup extends Component<any, State> {
         activeKey: activeFileId
       }
     }
-    // if (`${monacoEditorActiveFileId}` !== preState.activeKey) {
-    //   return {
-    //     activeKey: monacoEditorActiveFileId
-    //   }
-    // }
+    if (`${activeFileId}` !== preState.activeKey) {
+      return {
+        activeKey: activeFileId
+      }
+    }
     return null;
   }
-  handleTabClick(activeKey: string) {
+  handleTabClick(file: File) {
     this.setState({
-      activeKey
+      activeKey: `${file.fid}`
+    })
+    this.props.dispatch({
+      type: 'setFileActive',
+      payload: file
     })
   }
-  closeItem = (pane) => {
-
+  closeItem = (file: File, e: Event) => {
+    e.stopPropagation();
+    this.props.dispatch({
+      type: 'editorRemoveItem',
+      payload: file
+    })
+  }
+  handleEditorChange (file: File, ev, value) {
+    this.props.dispatch({
+      type: 'editorSaveFileContent',
+      payload: {
+        file,
+        value
+      }
+    })
   }
   renderTabBar = (props) => {
     return (
@@ -46,23 +64,35 @@ export default class EditorGroup extends Component<any, State> {
         {
             this.state.panes.map(pane => {
               return (
-                <div className={`${props.className} monaco-editor-tab ${`${pane.fid}` === props.activeKey ? 'monaco-editor-tab-active' : ''}`} 
+                <div className={`${props.className} show-file-icons monaco-editor-tab ${`${pane.fid}` === props.activeKey ? 'monaco-editor-tab-active' : ''}`} 
                   key={pane.fid} 
-                  onClick={() => this.handleTabClick(`${pane.fid}`)}
+                  onClick={() => this.handleTabClick(pane)}
                   >
-                    <div className="monaco-icon-label">
-                      <div className="monaco-icon-label-description-container">
-                        <a className="label-name">
-                          {
-                            pane.name
-                          }
-                        </a>
-                      </div>
+                    <div className={`edith-icon-label file-icon index.js-name-file-icon js-ext-file-icon ext-file-icon ${pane.getIconName()}-lang-file-icon tab-label`}>
+                      <Tooltip 
+                        placement="topLeft" 
+                        title={pane.path}
+                        overlayStyle={{
+                          fontSize: 12
+                          }}
+                        >
+                        <div className="monaco-icon-label-description-container">
+                          <a className="label-name">
+                            {
+                              pane.name
+                            }
+                          </a>
+                        </div>
+                      </Tooltip>
+                      
                     </div>
-                    <div className="tab-close" onClick={() => this.closeItem(pane)}>
+                    <div className={`tab-close ${pane.isDirty() ? 'is-dirty': ''}`}>
                       <div className="monaco-action-bar">
                         <a className="action-label close-editor-action">
-                          <Icon type="close"></Icon>
+                          <Icon type="close" onClick={this.closeItem.bind(this, pane)}></Icon>
+                        </a>
+                        <a className="action-label dirty-editor-action">
+                          <span className="dirty-icon"></span>
                         </a>
                       </div>
                     </div>
@@ -81,14 +111,17 @@ export default class EditorGroup extends Component<any, State> {
             <Tabs
               activeKey={`${this.state.activeKey}`}
               renderTabBar={this.renderTabBar}
+              animated={false}
             >
-              {this.state.panes.map(pane => (
-                <TabPane tab={pane.name} key={`${pane.fid}`} className="tab-pane">
+              {this.state.panes.map(file => (
+                <TabPane tab={file.name} key={`${file.fid}`} className="tab-pane">
                   <div className="monaco-editor">
-                    <Editor 
+                    <ControlledEditor 
                       height="100%" 
                       width="100%"
-                      language="typescript"
+                      value={file.getValue()}
+                      language={file.getIconName()}
+                      onChange={this.handleEditorChange.bind(this, file)}
                       theme='dark' 
                       />
                   </div>

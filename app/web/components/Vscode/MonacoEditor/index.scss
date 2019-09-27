@@ -22,68 +22,6 @@
       width: 100%;
     }
   }
-  .monaco-editor-top-bar{
-    width: 100%;
-    display: flex;
-    height: 35px;
-  }
-  .monaco-editor-tab{
-    padding: 0;
-    color: rgba(255, 255, 255, 0.5);
-    border-right: 1px solid rgb(17, 21, 24);
-    font-size: 13px;
-    align-items: center;
-    display: flex;
-    position: relative;
-    white-space: nowrap;
-    cursor: pointer;
-    height: 35px;
-    box-sizing: border-box;
-    padding-left: 10px;
-    &.monaco-editor-tab-active{
-      color: rgb(255, 255, 255);
-      border-right: 1px solid rgb(17, 21, 24);
-      background: rgb(28, 32, 34);
-      .tab-close{
-        visibility: visible;
-      }
-    }
-    .monaco-icon-label{
-      white-space: nowrap;
-      flex: 1;
-      display: flex;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      &:before{
-        background-size: 16px;
-        background-position: 0;
-        background-repeat: no-repeat;
-        padding-right: 6px;
-        width: 16px;
-        height: 22px;
-        display: inline-block;
-        -webkit-font-smoothing: antialiased;
-        vertical-align: top;
-        flex-shrink: 0;
-        color: #519aba;
-        content: '\E01A';
-      }
-      .monaco-icon-label-description-container{
-        text-overflow: ellipsis;
-        a{
-          text-decoration: none;
-          font-size: 13px;
-          color: inherit;
-        }
-      }
-    }
-    .tab-close{
-      visibility: hidden;
-      margin-top: auto;
-      margin-bottom: auto;
-      width: 28px;
-    }
-  }
   .monaco-editor{
     background-color: #1c2022;
     color: #bbbbbb;
@@ -94,18 +32,50 @@
     width: 100%;
     height: calc(100vh - 80px);
   }
-  .monaco-action-bar{
-    text-align: right;
-    overflow: hidden;
-    white-space: nowrap;
-    display: flex;
-    justify-content: center;
-    .action-label{
-      color: inherit;
-      display: block;
-      height: 16px;
-      width: 16px;
-      margin-right: .5em;
+  .tab-close{
+    margin-top: auto;
+    margin-bottom: auto;
+    width: 28px;
+    position: relative;
+    .dirty-editor-action{
+      position: absolute;
+      display: none;
+      width: 10px !important;
+      height: 10px !important;
+      left: 50%;
+      top: 50%;
+      margin-left: -5px;
+      margin-top: -8px;
+    }
+    &.is-dirty{
+      .dirty-editor-action{
+        display: block;
+      }
+      .close-editor-action{
+        display: none;
+      }
+    }
+    .monaco-action-bar{
+      text-align: right;
+      overflow: hidden;
+      white-space: nowrap;
+      display: flex;
+      justify-content: center;
+      .action-label{
+        color: inherit;
+        height: 16px;
+        width: 16px;
+        margin-right: .5em;
+        .dirty-icon{
+          display: inline-block;
+          width: 100%;
+          height: 100%;
+          z-index: 10;
+          background: #c5c5c5;
+          border-radius: 100%;
+          
+        }
+      }
     }
   }
 }

@@ -1,5 +1,4 @@
 import path from 'path'
-console.log(path)
 export enum FileStatus {
   ERROR,
   HAS_CHANGE_NO_SAVE,
@@ -15,6 +14,7 @@ export enum FileType {
   JSON = 'json',
   FOLDER = 'folder',
   HTML = 'html',
+  MD = 'md',
   DEFAULT = 'default'
 }
 const FILE_COLOR = {
@@ -92,13 +92,14 @@ export interface IFile {
   isEdit?: boolean;
   [key: string]: any;
 }
-export class File {
+export default class File {
   public name: string;
   public type?: FileType;
   public createDate?: Date;
   public modifyDate?: Date;
   public owner?: string;
-  public value?: string;
+  protected value?: string;
+  protected originalValue?: string;
   public projectId?: number;
   public isLock?: boolean;
   public children: Array<File> = [];
@@ -108,16 +109,19 @@ export class File {
   static uid?: number = 0;
   public isEdit: boolean = false;
   public isDelete: boolean = false;
+  public path: string = ''
   constructor(options?: IFile) {
     this.name = options.name;
-    this.type = options.type;
+    this.type = File.filenameToFileType(options.name);
     this.value = options.value;
+    this.originalValue = options.value;
     this.children = options.children || [];
     this.isOpenChildren = options.isOpenChildren;
     this.active = options.active;
-    this.fid = options.fid || options.id || File.uid++;
+    this.fid = options.fid || File.uid++;
     this.isEdit = options.isEdit;
     this.isDelete = options.isDelete;
+    this.path = options.path;
   }
   public getIconName(): string {
     switch(this.type) {
@@ -137,8 +141,12 @@ export class File {
         return 'sass'
       case FileType.LESS:
         return 'less'
+      case FileType.HTML: 
+        return 'html';
       case FileType.FOLDER:
         return 'folder'
+      case FileType.MD:
+        return 'markdown'
       default:
         return 'file'
     }
@@ -164,6 +172,20 @@ export class File {
   }
   static filenameToFileType(filename: string): FileType {
     const extname = path.extname(filename).replace(/\./g, '').toLocaleUpperCase();
+    if (filename.indexOf('.') == -1) {
+      return FileType.FOLDER
+    }
     return FileType[extname] || FileType.DEFAULT
+  }
+  public isDirty(): Boolean {
+    console.log(this.originalValue)
+    return this.value !== this.originalValue;
+  }
+  public getValue() {
+    return this.value;
+  }
+  public setVaule(value:any, isSetOriginalValue) {
+    this.value = value;
+    isSetOriginalValue && (this.originalValue = value);
   }
 }

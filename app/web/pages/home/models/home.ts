@@ -1,66 +1,67 @@
-import { File, FileType } from '../../../../interface/File'
-const fileList = [
-  new File(
-    {
-      type: FileType.FOLDER,
-      name: 'public',
-      isLock: false,
-      isOpenChildren: true,
-      children: [
-        new File({
-          type: FileType.FOLDER,
-          name: 'components',
-          isLock: false,
-          isOpenChildren: true,
-          children: [
-            new File({
-              type: FileType.TS,
-              name: 'index.ts',
-              isLock: false
-            })
-          ]
-        }),
-        new File({
-          type: FileType.JS,
-          name: 'index.js',
-          isLock: false,
-        }),
-        new File({
-          type: FileType.CSS,
-          name: 'index.css',
-          isLock: false
-        })
-      ]
-    }
-  ),
-  new File({
-    type: FileType.FOLDER,
-    name: 'src',
-    isLock: false,
-    children:[
-      new File({
-        type: FileType.LESS,
-        name: 'index.less',
-        isLock: false
-      })
-    ]
-  }),
-  new File({
-    type: FileType.SCSS,
-    name: 'index.scss',
-    isLock: false
-  }),
-  new File({
-    type: FileType.HTML,
-    name: 'index.html',
-    isLock: false
-  }),
-  new File({
-    type: FileType.JSON,
-    name: 'package.json',
-    isLock: false
-  })
-]
+import File, { FileType } from '@/datahub/project/entities/file'
+import ProjectService from '@/datahub/project/service';
+// const fileList = [
+//   new File(
+//     {
+//       type: FileType.FOLDER,
+//       name: 'public',
+//       isLock: false,
+//       isOpenChildren: true,
+//       children: [
+//         new File({
+//           type: FileType.FOLDER,
+//           name: 'components',
+//           isLock: false,
+//           isOpenChildren: true,
+//           children: [
+//             new File({
+//               type: FileType.TS,
+//               name: 'index.ts',
+//               isLock: false
+//             })
+//           ]
+//         }),
+//         new File({
+//           type: FileType.JS,
+//           name: 'index.js',
+//           isLock: false,
+//         }),
+//         new File({
+//           type: FileType.CSS,
+//           name: 'index.css',
+//           isLock: false
+//         })
+//       ]
+//     }
+//   ),
+//   new File({
+//     type: FileType.FOLDER,
+//     name: 'src',
+//     isLock: false,
+//     children:[
+//       new File({
+//         type: FileType.LESS,
+//         name: 'index.less',
+//         isLock: false
+//       })
+//     ]
+//   }),
+//   new File({
+//     type: FileType.SCSS,
+//     name: 'index.scss',
+//     isLock: false
+//   }),
+//   new File({
+//     type: FileType.HTML,
+//     name: 'index.html',
+//     isLock: false
+//   }),
+//   new File({
+//     type: FileType.JSON,
+//     name: 'package.json',
+//     isLock: false
+//   })
+// ]
 function fileIsExit(fid: number, fileList: Array<File>) {
   const target = fileList.filter(file => file.fid === fid);
   return target.length > 0
@@ -82,26 +83,45 @@ function recursion(fid: number, fileList: Array<File>, matchCallback?:Function, 
 export default {
   namespace: 'home',
   state: {
+    projectId: 4260,
     vscode: {
-      fileList: fileList,
+      fileList: [],
       editFileList: [],
       activeFileId: -1
     }
   },
   effects: {
-    *menuFileClickEvent({payload}, { put }) {
+    *menuFileClickEvent({payload}, { put, call, select }) {
       const file: File = payload;
+      console.log(file)
+      const { projectId } = yield select(({home}) => home);
       if (file.type === FileType.FOLDER) {
+        if (!file.isOpenChildren) {
+          const childrenFileList = yield call(() => ProjectService.getProjectFileList(projectId, file.path));
+          file.children = childrenFileList
+        }
         yield put({
           type: 'triggerFileChilrenOpen',
           payload: file
         })
       } else {
+        if (!file.getValue()) {
+          const fileContent = yield call(() => ProjectService.getProjectFileContent(projectId, file.path));
+          file.setVaule(fileContent, true);
+        }
         yield put({
           type: 'setFileActive',
           payload: file
         })
       }
+    },
+    *getProjectFileList( { payload }, { call, put, select }) {
+      const { projectId } = yield select(({home}) => home);
+      const fileList = yield call(() => ProjectService.getProjectFileList(projectId, payload.path));
+      yield put({
+        type: 'saveFileList',
+        payload: fileList
+      })
     }
   },
   reducers: {
@@ -178,37 +198,45 @@ export default {
       }
     },
     setFileActive(state, { payload }) {
-      let { vscode: {fileList, editFileList, activeFileId} } = state;
-      let activeFileList = [], newActiveFileId = -1;
+      let { vscode: {fileList, editFileList } } = state;
       const file: File = payload;
-      function recursion(filelist: Array<File>,) {
-        if(filelist.length > 0) {
-          filelist.forEach(item => {
-            if(item.fid === file.fid) {
-              item.active = true;
-              if(!fileIsExit(file.fid, editFileList)) {
-                activeFileList.push(file);
-              }
-              newActiveFileId = file.fid;
-            } else {
-              item.active = false;
-            }
-            if (item.children.length > 0) {
-              recursion(item.children);
-            }
-          })
-        }
-        return filelist;
-      }
-      recursion(fileList);
       return {
         ...state,
         vscode: {
           fileList,
-          editFileList: [].concat(editFileList, activeFileList),
-          activeFileId: newActiveFileId > -1 ? newActiveFileId : activeFileId
+          editFileList: fileIsExit(file.fid, editFileList) ? editFileList : [].concat(editFileList, [file]),
+          activeFileId: file.fid
         }
       };
+    },
+    saveFileList(state, { payload } ){
+      return {
+        ...state,
+        vscode: {
+          ...state.vscode,
+          fileList: payload
+        }
+      }
+    },
+    editorSaveFileContent(state, { payload }) {
+      const file: File = payload.file;
+      file.setVaule(payload.value, false);
+      return {
+        ...state
+      }
+    },
+    editorRemoveItem(state, { payload }) {
+      let { vscode: { editFileList } } = state;
+      const file: File = payload;
+      const newEditFileList = editFileList.filter((item: File) => { return item.fid !== file.fid})
+      return {
+        ...state,
+        vscode: {
+          ...state.vscode,
+          editFileList: newEditFileList,
+          activeFileId: newEditFileList.length > 0 ? newEditFileList[newEditFileList.length - 1].fid : ''
+        }
+      }
     }
   }
 }

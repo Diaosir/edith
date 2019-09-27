@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import Icon from '../../../icons';
-import { FileType } from '../../../../../interface/File'
+import { FileType } from '@/datahub/project/entities/file'
 interface Props {
   type: FileType;
   onAddFolder?: Function;

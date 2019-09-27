@@ -1,5 +1,5 @@
 import { Component, createRef } from 'react'
-import { File, FileType } from '../../../../../interface/File';
+import File, { FileType } from '@/datahub/project/entities/file';
 import './index.scss'
 import Icon from '../../../../components/icons'
 import * as polished from 'polished';
@@ -88,10 +88,11 @@ export default class FileItem extends Component<FileItemProps, FileItemState> {
     }
   }
   render() {
-    const { level } = this.props;
-    const {data: {name, type, isOpenChildren, active, isEdit }, data} = this.state;
+    const { level, activeFileId } = this.props;
+    const {data: {name, type, isOpenChildren, fid, isEdit }, data} = this.state;
     const { background, borderLeftColor } = data.getColorObject();
     const hoverBackgroundColor = data.getDefaultHoverBackground();
+    const active = activeFileId === fid;
     let hoverStyles = this.state.hover ? {
       background: `${polished.rgbToColorString(hoverBackgroundColor)}`,
       borderColor: `${polished.rgbToColorString({

@@ -26,6 +26,10 @@ export default class extends React.Component<HomeProps> {
   }
   componentDidMount() {
     // console.log(fs)
+    this.props.dispatch({
+      type: 'home/getProjectFileList',
+      payload: { projectId: 4260, path: ''}
+    })
   }
   dispatch = ({type, payload}) => {
     const { dispatch } = this.props;

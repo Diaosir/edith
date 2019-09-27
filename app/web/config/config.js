@@ -48,6 +48,7 @@ export default {
     utils: resolve(__dirname, '../web/utils'),
     libs: resolve(__dirname, '../web/libs'),
     enums: resolve(__dirname, '../web/enums'),
-    'packages': resolve(__dirname, '../packages')
+    'packages': resolve(__dirname, '../packages'),
+    '@edith/devtools': resolve(__dirname, '../packages/devtools')
   }
 };

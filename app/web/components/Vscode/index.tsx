@@ -1,6 +1,6 @@
 import { Component } from 'react'
 import Menu from './Menu'
-import {File, FileType } from '../../../interface/File'
+import File, { FileType } from '@/datahub/project/entities/file';
 import TopBar from './components/TopBar'
 import './index.scss'
 import MonacoEditor from './MonacoEditor'
@@ -50,6 +50,7 @@ export default class Vscode extends Component<VscodeProps, any>{
               <MonacoEditor 
                 fileList={editFileList}
                 activeFileId={activeFileId}
+                dispatch={this.props.dispatch}
               />
               <Preview></Preview>
             </div>
