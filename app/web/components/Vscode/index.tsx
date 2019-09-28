@@ -5,6 +5,7 @@ import TopBar from './components/TopBar'
 import './index.scss'
 import MonacoEditor from './MonacoEditor'
 import Preview from './components/Preview'
+import Resizer from '@/components/Resizer'
 interface VscodeProps {
   data: {
     fileList: Array<File>;
@@ -47,12 +48,18 @@ export default class Vscode extends Component<VscodeProps, any>{
               </div>
             </div>
             <div className="monaco-workbench mac nopanel">
-              <MonacoEditor 
-                fileList={editFileList}
-                activeFileId={activeFileId}
-                dispatch={this.props.dispatch}
+              <Resizer 
+                LeftComponent={
+                  <MonacoEditor 
+                    fileList={editFileList}
+                    activeFileId={activeFileId}
+                    dispatch={this.props.dispatch}
+                  />
+                }
+                RightComponent={
+                  <Preview/>
+                }
               />
-              <Preview></Preview>
             </div>
           </div>
           <div className="vscode-editor-statusBar"></div>

@@ -20,18 +20,11 @@ export default class EditorGroup extends Component<any, State> {
   }
   static getDerivedStateFromProps(nextProps, preState) {
     const { fileList, activeFileId } = nextProps;
-    if(fileList !== preState.panes) {
-      return {
-        panes: fileList,
-        activeKey: activeFileId
-      }
+    return {
+      panes: fileList,
+      activeKey: activeFileId
     }
-    if (`${activeFileId}` !== preState.activeKey) {
-      return {
-        activeKey: activeFileId
-      }
-    }
-    return null;
+    // return null;
   }
   handleTabClick(file: File) {
     this.setState({

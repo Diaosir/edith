@@ -1,67 +1,67 @@
 import File, { FileType } from '@/datahub/project/entities/file'
 import ProjectService from '@/datahub/project/service';
-// const fileList = [
-//   new File(
-//     {
-//       type: FileType.FOLDER,
-//       name: 'public',
-//       isLock: false,
-//       isOpenChildren: true,
-//       children: [
-//         new File({
-//           type: FileType.FOLDER,
-//           name: 'components',
-//           isLock: false,
-//           isOpenChildren: true,
-//           children: [
-//             new File({
-//               type: FileType.TS,
-//               name: 'index.ts',
-//               isLock: false
-//             })
-//           ]
-//         }),
-//         new File({
-//           type: FileType.JS,
-//           name: 'index.js',
-//           isLock: false,
-//         }),
-//         new File({
-//           type: FileType.CSS,
-//           name: 'index.css',
-//           isLock: false
-//         })
-//       ]
-//     }
-//   ),
-//   new File({
-//     type: FileType.FOLDER,
-//     name: 'src',
-//     isLock: false,
-//     children:[
-//       new File({
-//         type: FileType.LESS,
-//         name: 'index.less',
-//         isLock: false
-//       })
-//     ]
-//   }),
-//   new File({
-//     type: FileType.SCSS,
-//     name: 'index.scss',
-//     isLock: false
-//   }),
-//   new File({
-//     type: FileType.HTML,
-//     name: 'index.html',
-//     isLock: false
-//   }),
-//   new File({
-//     type: FileType.JSON,
-//     name: 'package.json',
-//     isLock: false
-//   })
-// ]
+const fileList = [
+  new File(
+    {
+      type: FileType.FOLDER,
+      name: 'public',
+      isLock: false,
+      isOpenChildren: true,
+      children: [
+        new File({
+          type: FileType.FOLDER,
+          name: 'components',
+          isLock: false,
+          isOpenChildren: true,
+          children: [
+            new File({
+              type: FileType.TS,
+              name: 'index.ts',
+              isLock: false
+            })
+          ]
+        }),
+        new File({
+          type: FileType.JS,
+          name: 'index.js',
+          isLock: false,
+        }),
+        new File({
+          type: FileType.CSS,
+          name: 'index.css',
+          isLock: false
+        })
+      ]
+    }
+  ),
+  new File({
+    type: FileType.FOLDER,
+    name: 'src',
+    isLock: false,
+    children:[
+      new File({
+        type: FileType.LESS,
+        name: 'index.less',
+        isLock: false
+      })
+    ]
+  }),
+  new File({
+    type: FileType.SCSS,
+    name: 'index.scss',
+    isLock: false
+  }),
+  new File({
+    type: FileType.HTML,
+    name: 'index.html',
+    isLock: false
+  }),
+  new File({
+    type: FileType.JSON,
+    name: 'package.json',
+    isLock: false
+  })
+]
 function fileIsExit(fid: number, fileList: Array<File>) {
   const target = fileList.filter(file => file.fid === fid);
   return target.length > 0
@@ -85,7 +85,7 @@ export default {
   state: {
     projectId: 4260,
     vscode: {
-      fileList: [],
+      fileList: fileList,
       editFileList: [],
       activeFileId: -1
     }
@@ -96,7 +96,7 @@ export default {
       console.log(file)
       const { projectId } = yield select(({home}) => home);
       if (file.type === FileType.FOLDER) {
-        if (!file.isOpenChildren) {
+        if (!file.isOpenChildren && file.children.length === 0) {
           const childrenFileList = yield call(() => ProjectService.getProjectFileList(projectId, file.path));
           file.children = childrenFileList
         }
