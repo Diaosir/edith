@@ -7,7 +7,7 @@ export default class HomeController extends Controller {
     const ctx = this.ctx;
     const { path } = this.ctx.request.body;
     const { id } = this.ctx.params;
-    const data = await ctx.service.gitlab.getFileList(id, path);
+    const data = await ctx.service.filesystem.getFileList('test');
     ctx.body = {
       code: 200,
       payload: data,

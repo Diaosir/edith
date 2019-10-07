@@ -1,13 +1,25 @@
-import { Component } from 'react'
+import { Component, createRef } from 'react'
 import './index.scss'
 import { Icon } from 'antd';
-
+import eventBus from '@/utils/event'
 
 export default class Browser extends Component<any, any> {
+  public browserRef: any = createRef();
   constructor(props) {
     super(props);
     this.state = {
-      url: ''
+      url: 'http://localhost:8000/#/preview'
+    }
+  }
+  componentDidMount() {
+    
+    this.browserRef.current.onload = function() {
+      eventBus.on('saveFileList', (fileList) => {
+        this.contentWindow.postMessage({
+          type: 'init',
+          payload: fileList
+        }, '*');
+      })
     }
   }
   render() {
@@ -23,7 +35,7 @@ export default class Browser extends Component<any, any> {
           <Icon type="chrome" className="browser-action"></Icon>
         </div>
         <div className="browser-iframe">
-          {/* <iframe src={this.state.url} /> */}
+          <iframe src={this.state.url} ref={this.browserRef}/>
         </div>
       </div>
     )

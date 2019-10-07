@@ -49,6 +49,18 @@ export default {
     libs: resolve(__dirname, '../web/libs'),
     enums: resolve(__dirname, '../web/enums'),
     'packages': resolve(__dirname, '../packages'),
-    '@edith/devtools': resolve(__dirname, '../packages/devtools')
+    '@edith/devtools': resolve(__dirname, '../packages/devtools'),
+    'fs': 'browserfs/dist/shims/fs.js',
+    'buffer': 'browserfs/dist/shims/buffer.js',
+    'path': 'browserfs/dist/shims/path.js',
+    'processGlobal': 'browserfs/dist/shims/process.js',
+    'bufferGlobal': 'browserfs/dist/shims/bufferGlobal.js',
+    'bfsGlobal': require.resolve('browserfs')
+  },
+  chainWebpack(config, { webpack }) {
+    // 设置 alias
+  
+    // 删除进度条插件
+    config.plugin('ProvidePlugin').use(webpack.ProvidePlugin, [{ BrowserFS: 'bfsGlobal', process: 'processGlobal', Buffer: 'bufferGlobal'}]);
   }
 };

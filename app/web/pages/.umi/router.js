@@ -53,6 +53,27 @@ const routes = [
         _title_default: '333',
       },
       {
+        path: '/preview',
+        exact: true,
+        component: __IS_BROWSER
+          ? _dvaDynamic({
+              app: require('@tmp/dva').getApp(),
+              models: () => [
+                import('G:/github/edith/app/web/pages/preview/models/preview.ts').then(
+                  m => {
+                    return { namespace: 'preview', ...m.default };
+                  },
+                ),
+              ],
+              component: () => import('../preview/index.tsx'),
+              LoadingComponent: require('G:/github/edith/app/web/components/Loading')
+                .default,
+            })
+          : require('../preview/index.tsx').default,
+        _title: '333',
+        _title_default: '333',
+      },
+      {
         component: () =>
           React.createElement(
             require('G:/github/edith/node_modules/_umi-build-dev@1.12.0@umi-build-dev/lib/plugins/404/NotFound.js')

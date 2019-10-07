@@ -178,7 +178,6 @@ export default class File {
     return FileType[extname] || FileType.DEFAULT
   }
   public isDirty(): Boolean {
-    console.log(this.originalValue)
     return this.value !== this.originalValue;
   }
   public getValue() {
@@ -187,5 +186,25 @@ export default class File {
   public setVaule(value:any, isSetOriginalValue) {
     this.value = value;
     isSetOriginalValue && (this.originalValue = value);
+  }
+  static generateFileList(data: Array<any>): Array<File> {
+    let fileList: Array<File> = data.map(fileData => {
+      let file = new File(fileData);
+      if (file.children.length > 0) {
+        file.children = File.generateFileList(fileData.children);
+      }
+      return file;
+    });
+    return fileList;
+  }
+  static recursion(fileList: Array<File>, callback: Function){
+    if(fileList.length > 0) {
+      fileList.forEach(item => {
+        callback(item)
+        if (item.children.length > 0) {
+          File.recursion(item.children, callback);
+        }
+      })
+    }
   }
 }

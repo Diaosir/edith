@@ -1,6 +1,6 @@
 import request from '../../utils/request';
 import { stringify } from 'qs';
-import File from './entities/file'
+import File, { FileType } from './entities/file'
 const prefix = '/api'
 export default class ProjectServie{
   static getProjectFileList(projectId: number, path: string) {
@@ -10,12 +10,7 @@ export default class ProjectServie{
         path
       })
     }).then(({ data }) => {
-      let fileList = []
-      if (data.code == 200 && Array.isArray(data.payload)) {
-        fileList = data.payload.map(file => {
-          return new File(file)
-        })
-      }
+      let fileList = File.generateFileList(data.payload)
       return fileList
     })
   }
