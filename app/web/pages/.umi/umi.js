@@ -5,7 +5,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import findRoute, {
   getUrlQuery,
-} from 'G:/github/edith/node_modules/_umi-build-dev@1.12.0@umi-build-dev/lib/findRoute.js';
+} from '/Users/fengzhihao/Projects/ironman/Edith/node_modules/_umi-build-dev@1.12.0@umi-build-dev/lib/findRoute.js';
 import FastClick from '../../../../node_modules/_fastclick@1.0.6@fastclick/lib/fastclick.js';
 
 // runtime plugins

@@ -21,6 +21,6 @@ export default class PackageJsonFile extends File {
     }
     public getDependencies() {
         const dependencies = this.json.dependencies || {};
-        
+        return dependencies;
     }
 }

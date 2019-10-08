@@ -1,5 +1,6 @@
 import * as browserfs from 'browserfs';
 const fs = require('fs');
+const path = require('path')
 let isConfigure = false;
 export default class BrowserFs {
   public fs: any = browserfs;
@@ -28,15 +29,29 @@ export default class BrowserFs {
     }
     return new Promise((resolve, reject) => {
       fs.readFile(filePath, function (err, contents) {
-        resolve(contents.toString());
-        console.log(contents.toString());
+        resolve(contents ? contents.toString() : null);
       });
     })
+  }
+  static async checkAndMakeDir(dir: string) {
+    const dirArray = dir.split('/');
+    dirArray.push('')
+    dirArray.reduce((previousValue, currentValue) => {
+      if (!fs.existsSync(previousValue) && !!previousValue) {
+        fs.mkdirSync(previousValue);
+      }
+      return previousValue + '/' + currentValue
+    })
+    // if(!fs.existsSync(dir)) {
+    //   console.log(dir)
+    // }
   }
   static async setFileContent(filePath: string, content: string) {
     if (!isConfigure) {
       await BrowserFs.configure()
     }
+    const { dir } = path.parse(filePath);
+    await BrowserFs.checkAndMakeDir(dir);
     return new Promise((resolve, reject) => {
       fs.writeFile(filePath, content, function (err) {
         if (err) {

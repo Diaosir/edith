@@ -1,8 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
-
 import './styles.css'
-
+require('zepto')
 function App() {
   return (
     <div className="App">
@@ -12,5 +11,5 @@ function App() {
   );
 }
 
-const rootElement = document.getElementById("root");
-ReactDOM.render(<App />, rootElement);
+// const rootElement = document.getElementById("root");
+// ReactDOM.render(<App />, rootElement);

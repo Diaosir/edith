@@ -6,11 +6,11 @@
   "main": "src/index.jsx",
   "dependencies": {
     "react": "16.8.6",
-    "react-dom": "16.8.6",
-    "react-scripts": "3.0.1"
+    "react-dom": "16.8.6"
   },
   "devDependencies": {
-    "typescript": "3.3.3"
+    "typescript": "3.3.3",
+    "react-scripts": "3.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
