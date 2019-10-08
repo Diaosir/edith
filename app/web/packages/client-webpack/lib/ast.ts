@@ -15,7 +15,8 @@ export default class Ast {
       plugins: [
         // enable jsx and flow syntax
         "jsx",
-        "flow"
+        "flow",
+        'css'
       ]
     });
   }
@@ -24,7 +25,12 @@ export default class Ast {
    * @param code 
    */
   public static getAllPackages(code: string){
-    const ast = Ast.parse(code);
+    let ast = null;
+    try{
+      ast = Ast.parse(code);
+    } catch(error) {
+      return new Set()
+    }
     let packages = new Set()
     traverse(ast, {
       ImportDeclaration: function(nodePath) {

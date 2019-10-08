@@ -8,9 +8,11 @@ import Browserfs from '../browserfs'
 import LazyLoad from './lib/lazyload'
 import Ast from './lib/ast'
 import Packager from './lib/packager';
-import Transpiler from './lib/transpiler'
-const transpiler = new Transpiler();
+import Transpiler from './lib/transpiler/transpiler'
+import * as path from 'path'
+
 const packaker = new Packager();
+const transpiler = new Transpiler(packaker);
 export default class ClientWebpack{
   protected fileList: Array<File> = [];
   protected template: string = '';
@@ -18,6 +20,7 @@ export default class ClientWebpack{
   private entryFile: File | null;
   private packageFile: PackageFile;
   protected packages: Array<string>;
+  public name: string = 'test'
   constructor(options: IClientWebpackOption = {}){
     this.fileList  = options.fileList;
     this.template = options.template;
@@ -39,9 +42,11 @@ export default class ClientWebpack{
   }
   async init() {
     await packaker.init(this.packageFile.getDependencies());
+    this.saveFileToBrowserFs(this.name);
     const fileContent = await packaker.getPackageFile('react', '16.10.2', 'index.js');
     console.log(fileContent)
-    transpiler.traverse(this.entryFile)
+    const a = await transpiler.traverse(this.name, this.entryFile.getValue(), path.join(this.name, this.entryFile.path));
+    console.log(a)
   }
   private getEntryFile() {
     const entryFilePath = this.packageFile.getEntryFilePath();
@@ -70,5 +75,12 @@ export default class ClientWebpack{
       }
     });
     return packages
+  }
+  private saveFileToBrowserFs(name) {
+    File.recursion(this.fileList, (file: File) => {
+      if(file.type !== FileType.FOLDER) {
+        Browserfs.setFileContent(path.join(name, file.path), file.getValue());
+      }
+    })
   }
 }

@@ -20,7 +20,7 @@ export default class Lazyload {
     }
     public static async getPackageFileContent(packageName, version, filepath) {
         const url = `https://unpkg.com/${packageName}@${version}/${filepath}`;
-        const browserfsFilePath = `${ROOT}/${packageName}@${version}/${filepath}`
+        const browserfsFilePath = `${ROOT}/${packageName}_${version}/${filepath}`
         const cacheFileContent = await BrowserFs.getFileContent(browserfsFilePath);
         if (!!cacheFileContent) {
             return cacheFileContent;

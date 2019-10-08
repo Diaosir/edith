@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import './styles.css'
+import AA from './aa/index.ts'
 require('zepto')
 function App() {
   return (

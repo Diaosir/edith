@@ -23,7 +23,7 @@ export default class BrowserFs {
       })
     })
   }
-  static async getFileContent(filePath: string) {
+  static async getFileContent(filePath: string): Promise<string> {
     if (!isConfigure) {
       await BrowserFs.configure()
     }
