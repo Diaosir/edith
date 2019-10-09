@@ -43,8 +43,6 @@ export default class ClientWebpack{
   async init() {
     await packaker.init(this.packageFile.getDependencies());
     this.saveFileToBrowserFs(this.name);
-    const fileContent = await packaker.getPackageFile('react', '16.10.2', 'index.js');
-    console.log(fileContent)
     const a = await transpiler.traverse(this.name, this.entryFile.getValue(), path.join(this.name, this.entryFile.path));
     console.log(a)
   }

@@ -16,7 +16,8 @@ export default class Packager {
         semver: string,
         resolved: string,
         parents: Set<String>,
-        entries: Array<string>
+        entries: Array<string>,
+        name: string
     }> = new Set()
     constructor(){
         
@@ -62,32 +63,30 @@ export default class Packager {
                 parents: new Set().add(parent),
                 semver: dependency.semver,
                 resolved: dependency.version,
-                entry: dependency.entry || 'index.js'
+                entry: dependency.entry,
+                name: dependency.name
             }
         }
     }
-    public getPackageFile(packageName, version, filepath: string = 'index.js') {
-        return LazyLoad.getPackageFileContent(packageName, version, filepath)
-    }
     public async getPackageFileOnlyPath(filepath: string) {
         // const { ext, dir, name } = path.parse(filepath);
+        const dependency = this.getDependencyByFilePath(filepath);
+        if (dependency) {
+            const { name, resolved, entry} = dependency;
+            let [projectName, realPath] = filepath.split(`node_modules/${name}`);
+            const result = await LazyLoad.getPackageFileContent(name, resolved, realPath || entry, projectName);
+            return result;
+        }
+        return {}
+    }
+    public getDependencyByFilePath(filepath: string) {
         const matchReg = /node_modules\/([\w_.-]+)/
         let packageName = matchReg.exec(filepath)[1];
+        // let dependency = this.dependencies.filter((item) => {
+        //     return item.name === packageName;
+        // })[0];
+        // console.log(this.dependencies)
         const dependency = this.dependencyDependencies[packageName];
-        if (dependency) {
-            let version = dependency.resolved;
-            let main = dependency.entry
-            let realPath = filepath.split(packageName)[1];
-            console.log(packageName, version)
-            const code = await this.getPackageFile(packageName, version, realPath || main);
-            console.log(code)
-        }
-        // const packageName = 
-        return `'use strict';
-        if (process.env.NODE_ENV === 'production') {
-          module.exports = require('./cjs/react.production.min.js');
-        } else {
-          module.exports = require('./cjs/react.development.js');
-        }`
+        return dependency;
     }
 }

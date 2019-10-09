@@ -43,6 +43,7 @@
     "umi": "^2.2.2"
   },
   "devDependencies": {
+    "@types/jest": "^24.0.18",
     "@types/mongodb": "^3.3.2",
     "@types/mongoose": "^5.5.17",
     "@types/react": "^16.0.34",
@@ -50,6 +51,7 @@
     "antd-mobile": "^2.2.6",
     "autod": "^3.0.1",
     "autod-egg": "^1.0.0",
+    "babel-jest": "^24.9.0",
     "babel-plugin-dva-hmr": "^0.4.0",
     "babel-plugin-import": "^1.1.0",
     "egg-bin": "^4.9.0",
@@ -57,10 +59,12 @@
     "egg-ts-helper": "^1.9.0",
     "eslint": "^5.8.0",
     "eslint-config-egg": "^7.1.0",
+    "jest": "^24.9.0",
     "node-sass": "^4.12.0",
     "redbox-react": "^1.5.0",
     "sass-loader": "^8.0.0",
     "scss-loader": "^0.0.1",
+    "ts-jest": "^24.1.0",
     "ts-loader": "^4.0.0",
     "tslint": "^5.9.1",
     "tslint-loader": "^3.5.3",

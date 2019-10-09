@@ -13,7 +13,7 @@ const routes = [
     component: __IS_BROWSER
       ? _dvaDynamic({
           component: () => import('../../layouts/index.jsx'),
-          LoadingComponent: require('G:/github/edith/app/web/components/Loading')
+          LoadingComponent: require('/Users/fengzhihao/Projects/ironman/Edith/app/web/components/Loading')
             .default,
         })
       : require('../../layouts/index.jsx').default,
@@ -25,14 +25,14 @@ const routes = [
           ? _dvaDynamic({
               app: require('@tmp/dva').getApp(),
               models: () => [
-                import('G:/github/edith/app/web/pages/home/models/home.ts').then(
+                import('/Users/fengzhihao/Projects/ironman/Edith/app/web/pages/home/models/home.ts').then(
                   m => {
                     return { namespace: 'home', ...m.default };
                   },
                 ),
               ],
               component: () => import('../home/index.tsx'),
-              LoadingComponent: require('G:/github/edith/app/web/components/Loading')
+              LoadingComponent: require('/Users/fengzhihao/Projects/ironman/Edith/app/web/components/Loading')
                 .default,
             })
           : require('../home/index.tsx').default,
@@ -45,7 +45,7 @@ const routes = [
         component: __IS_BROWSER
           ? _dvaDynamic({
               component: () => import('../index.js'),
-              LoadingComponent: require('G:/github/edith/app/web/components/Loading')
+              LoadingComponent: require('/Users/fengzhihao/Projects/ironman/Edith/app/web/components/Loading')
                 .default,
             })
           : require('../index.js').default,
@@ -59,14 +59,14 @@ const routes = [
           ? _dvaDynamic({
               app: require('@tmp/dva').getApp(),
               models: () => [
-                import('G:/github/edith/app/web/pages/preview/models/preview.ts').then(
+                import('/Users/fengzhihao/Projects/ironman/Edith/app/web/pages/preview/models/preview.ts').then(
                   m => {
                     return { namespace: 'preview', ...m.default };
                   },
                 ),
               ],
               component: () => import('../preview/index.tsx'),
-              LoadingComponent: require('G:/github/edith/app/web/components/Loading')
+              LoadingComponent: require('/Users/fengzhihao/Projects/ironman/Edith/app/web/components/Loading')
                 .default,
             })
           : require('../preview/index.tsx').default,
@@ -76,7 +76,7 @@ const routes = [
       {
         component: () =>
           React.createElement(
-            require('G:/github/edith/node_modules/_umi-build-dev@1.12.0@umi-build-dev/lib/plugins/404/NotFound.js')
+            require('/Users/fengzhihao/Projects/ironman/Edith/node_modules/_umi-build-dev@1.12.0@umi-build-dev/lib/plugins/404/NotFound.js')
               .default,
             { pagesPath: 'pages', hasRoutesInConfig: false },
           ),
@@ -90,7 +90,7 @@ const routes = [
   {
     component: () =>
       React.createElement(
-        require('G:/github/edith/node_modules/_umi-build-dev@1.12.0@umi-build-dev/lib/plugins/404/NotFound.js')
+        require('/Users/fengzhihao/Projects/ironman/Edith/node_modules/_umi-build-dev@1.12.0@umi-build-dev/lib/plugins/404/NotFound.js')
           .default,
         { pagesPath: 'pages', hasRoutesInConfig: false },
       ),
