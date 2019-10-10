@@ -16,6 +16,7 @@ export default class Packager {
         semver: string,
         resolved: string,
         parents: Set<String>,
+        children: Set<String>,
         entries: Array<string>,
         name: string
     }> = new Set()
@@ -49,17 +50,18 @@ export default class Packager {
             const deps = _super.formatDependencies(dependencies)
             for( let i = 0; i < deps.length; i++) {
                 const { dependencies, name, version, main } = await LazyLoad.loadPackageJson(deps[i].name, deps[i].semver);
-                _super.setDependencyDependencies({ name, version, semver: deps[i].semver, entry: main}, parent);
+                _super.setDependencyDependencies({ name, version, semver: deps[i].semver, entry: main}, parent, dependencies);
                 await travsedDendencyDependencies(dependencies, deps[i].name);
             }
         }
         console.log(this.dependencyDependencies)
     }
-    protected setDependencyDependencies(dependency, parent: string) {
+    protected setDependencyDependencies(dependency, parent: string, children: Set<String>) {
         if (this.dependencyDependencies[dependency.name]) {
             this.dependencyDependencies[dependency.name].parents.add(parent)
         } else {
             this.dependencyDependencies[dependency.name] = {
+                children: children,
                 parents: new Set().add(parent),
                 semver: dependency.semver,
                 resolved: dependency.version,

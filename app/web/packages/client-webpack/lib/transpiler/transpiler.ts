@@ -27,6 +27,7 @@ export default class Transpiler {
   }
   public async init(projectName: string, code: string, filePath: string) {
     this.entryTanspilerModule = await this.traverse(projectName, code, filePath);
+    // this.entryTanspilerModule.moduleEval();
     console.log(this.entryTanspilerModule)
     console.log(this.transpilerModules)
   }
@@ -62,4 +63,5 @@ export default class Transpiler {
     transpiler.isTraverse = true;
     return transpiler;
   }
+
 }

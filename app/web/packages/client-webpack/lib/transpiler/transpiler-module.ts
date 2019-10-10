@@ -27,8 +27,9 @@ export default class TranspilerModule {
     }
     public moduleEval() {
         const translateCode = this.translate().code;
+        console.log(translateCode)
         try{
-            this.evalResult = eval(translateCode);
+            // this.evalResult = eval(translateCode);
         } catch(error) {
 
         }

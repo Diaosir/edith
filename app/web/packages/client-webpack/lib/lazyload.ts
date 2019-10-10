@@ -2,7 +2,7 @@ let caches = {}
 import BrowserFs from '@/packages/browserfs';
 import path from 'path'
 import { parse, normalize } from '@/utils/path'
-import { Base64 } from 'js-base64';
+import md5 from '@/utils/md5'
 const ROOT = '/node_modules';
 const UNPKG_URL = 'https://unpkg.com';
 export default class Lazyload {
@@ -11,12 +11,12 @@ export default class Lazyload {
     }
     public static async loadPackageJson(dep: string, version: string = '') {
         const url = `${UNPKG_URL}/${dep}${version ? `@${version}` : '' }/package.json`;
-        const baseUrl = Base64.encode(url);
+        const baseUrl = md5(url);
         const { code } = await BrowserFs.getFileContent(baseUrl);
         if (code) {
             return JSON.parse(code)
         }
-        const result = await fetch(url).then((response) => response.json()).catch((error) => { return {}});
+        const result = await fetch(normalize(url)).then((response) => response.json()).catch((error) => { return {}});
         BrowserFs.setFileContent(baseUrl, JSON.stringify(result));
         return result
     }
@@ -34,7 +34,7 @@ export default class Lazyload {
                 fullPath
             };
         }
-        const result: any = await fetch(url).then(async response => {
+        const result: any = await fetch(normalize(url)).then(async response => {
             const { url } = response;
             const parseUrl =  parse(url);
             const code = await response.text();

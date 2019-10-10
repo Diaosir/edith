@@ -1,9 +1,9 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import 'scheduler'
+// import React from "react";
+// import ReactDOM from "react-dom";
+// import 'scheduler'
 // import 'antd-mobile';
 // import './styles.css'
-import AA from './aa/index'
+import AA from './aa/index.ts'
 function App() {
   return (
     <div className="App">
