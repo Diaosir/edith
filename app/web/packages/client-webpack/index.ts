@@ -31,9 +31,6 @@ export default class ClientWebpack{
         this.packageFile = new PackageFile(packageFile);
       }
       this.entryFile = this.getEntryFile();
-      BrowserFs.getFileContent('test/node_modules/scheduler/tracing').then(data => {
-        console.log(data)
-      })
       this.packages = this.buildUsedPackages();
       this.init()
       // console.log(Ast.getNpmPackages(this.entryFile.getValue()))
@@ -42,8 +39,7 @@ export default class ClientWebpack{
   async init() {
     await packaker.init(this.packageFile.getDependencies());
     this.saveFileToBrowserFs(this.name);
-    const a = await transpiler.traverse(this.name, this.entryFile.getValue(), path.join(this.name, this.entryFile.path));
-    console.log(a)
+    await transpiler.init(this.name, this.entryFile.getValue(), path.join(this.name, this.entryFile.path))
   }
   private getEntryFile() {
     const entryFilePath = this.packageFile.getEntryFilePath();
@@ -62,7 +58,7 @@ export default class ClientWebpack{
     File.recursion(this.fileList, function(file: File) {
       // const value = file.getValue();
       if ([FileType.JS, FileType.JSX, FileType.TS, FileType.TSX].includes(file.type)) {
-        const fileDependencies = Ast.getNpmPackages(file.getValue());
+        const fileDependencies = new Ast(file.getValue()).getNpmPackages();
         fileDependencies.forEach((dependencie: string)=> {
           packages = {
             ...packages,

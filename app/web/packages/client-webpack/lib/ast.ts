@@ -1,22 +1,21 @@
-import * as babylon from 'babylon'
+import { parse } from '@babel/parser';
 import traverse from '@babel/traverse';
 import path from 'path'
 export default class Ast {
-  protected code: string;
+  public allPackages: Set<any> = new Set();
   constructor(code, options?: any) {
-    this.code = code;
+    this.allPackages = this.getAllPackages(code);
   }
   /**
    * parse code
    */
-  public static parse(code) {
-    return babylon.parse(code, {
+  protected getAst(code) {
+    return parse(code, {
       sourceType: "module",
       plugins: [
         // enable jsx and flow syntax
         "jsx",
-        "flow",
-        'css'
+        "flow"
       ]
     });
   }
@@ -24,10 +23,10 @@ export default class Ast {
    * 获取代码中所有通过require和import引入的文件名称
    * @param code 
    */
-  public static getAllPackages(code: string){
+  protected getAllPackages(code){
     let ast = null;
     try{
-      ast = Ast.parse(code);
+      ast = this.getAst(code);
     } catch(error) {
       return new Set()
     }
@@ -54,8 +53,8 @@ export default class Ast {
    * 获取代码中所有通过require和import引入的npm包名称
    * @param code 
    */
-  public static getNpmPackages(code: string) {
-    const allPackages = Array.from(Ast.getAllPackages(code));
+  public  getNpmPackages() {
+    const allPackages = Array.from(this.allPackages);
     return allPackages.filter((packageName: string) => {
       return path.parse(packageName).dir === '';
     })

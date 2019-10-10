@@ -1,6 +1,5 @@
 import File, { FileType } from '@/datahub/project/entities/file';
-import Ast from '../ast'
-import TranspiledModule from './transpiler-module'
+import TranspilerModule from './transpiler-module'
 import Packager from '../packager'
 import BrowserFs from '@/packages/browserfs';
 import * as path from 'path';
@@ -20,13 +19,16 @@ export const isDir = (filepath) => {
  * 编译阶段
  */
 export default class Transpiler {
-  public TranspiledModules: Array<TranspiledModule> = [];
+  public transpilerModules: Map<string, TranspilerModule> = new Map();
   public packager: Packager;
+  public entryTanspilerModule: TranspilerModule;
   constructor(packaker: Packager) {
     this.packager = packaker;
   }
-  public async init(entryFile: File) {
-
+  public async init(projectName: string, code: string, filePath: string) {
+    this.entryTanspilerModule = await this.traverse(projectName, code, filePath);
+    console.log(this.entryTanspilerModule)
+    console.log(this.transpilerModules)
   }
   /**
    * 递归编译入口文件
@@ -34,26 +36,30 @@ export default class Transpiler {
    */
   public async traverse(projectName: string, code: string, filePath: string) {
     let basePath = filePath;
-    const dependencies = await Ast.getAllPackages(code);
-    const transpiler = new TranspiledModule({code, path: basePath});
-    dependencies.forEach(async (value: string) => {
-      if(isNodeModules(value)) {
-        const filePath =  path.join(projectName, 'node_modules', value);
-        const { code, fullPath } = await this.packager.getPackageFileOnlyPath(filePath);
-        const childrenTranspiler = await this.traverse(projectName, code, fullPath)
-        transpiler.denpencies.push(childrenTranspiler)
-      } else {
-        const filePath = resolve(basePath, value);
-        if (filePath.match(/node_modules/)) {
-          const { code, fullPath }  = await this.packager.getPackageFileOnlyPath(filePath);
-          transpiler.denpencies.push(await this.traverse(projectName, code, fullPath))
+    const transpiler = this.transpilerModules.get(TranspilerModule.getIdByPath(basePath)) || new TranspilerModule({code, path: basePath});
+    this.transpilerModules.set(transpiler.id, transpiler);
+    if (!transpiler.isTraverse) {
+      transpiler.ast.allPackages.forEach(async (value: string) => {
+        if(isNodeModules(value)) {
+          const filePath =  path.join(projectName, 'node_modules', value);
+          const { code, fullPath } = await this.packager.getPackageFileOnlyPath(filePath);
+          const childrenTranspiler = await this.traverse(projectName, code, fullPath)
+          transpiler.denpencies.push(childrenTranspiler.id);
         } else {
-          const {code, fullPath } = await BrowserFs.getFileContent(filePath);
-          transpiler.denpencies.push(await this.traverse(projectName, code, fullPath))
+          const filePath = resolve(basePath, value);
+          if (filePath.match(/node_modules/)) {
+            const { code, fullPath }  = await this.packager.getPackageFileOnlyPath(filePath);
+            const { id } = await this.traverse(projectName, code, fullPath);
+            transpiler.denpencies.push(id)
+          } else {
+            const {code, fullPath } = await BrowserFs.getFileContent(filePath);
+            const { id } = await this.traverse(projectName, code, fullPath);
+            transpiler.denpencies.push(id);
+          }
         }
-        
-      }
-    })
+      })
+    }
+    transpiler.isTraverse = true;
     return transpiler;
   }
 }

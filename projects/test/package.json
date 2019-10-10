@@ -3,12 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "keywords": [],
-  "main": "src/index.jsx",
+  "main": "src/index.tsx",
   "dependencies": {
     "react": "16.8.6",
     "react-dom": "16.8.6",
-    "scheduler": "0.13.6",
-    "zepto": ""
+    "scheduler": "0.13.6"
   },
   "devDependencies": {
     "typescript": "3.3.3",
