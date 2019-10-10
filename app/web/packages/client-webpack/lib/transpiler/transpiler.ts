@@ -48,8 +48,8 @@ export default class Transpiler {
           const { code, fullPath }  = await this.packager.getPackageFileOnlyPath(filePath);
           transpiler.denpencies.push(await this.traverse(projectName, code, fullPath))
         } else {
-          const code = await BrowserFs.getFileContent(filePath);
-          transpiler.denpencies.push(await this.traverse(projectName, code, filePath))
+          const {code, fullPath } = await BrowserFs.getFileContent(filePath);
+          transpiler.denpencies.push(await this.traverse(projectName, code, fullPath))
         }
         
       }

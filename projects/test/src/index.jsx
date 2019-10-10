@@ -1,7 +1,9 @@
 import React from "react";
-// import ReactDOM from "react-dom";
+import ReactDOM from "react-dom";
+import 'scheduler'
+import 'zepto'
 // import './styles.css'
-// import AA from './aa/index.ts'
+import AA from './aa/index.ts'
 // require('zepto')
 // function App() {
 //   return (

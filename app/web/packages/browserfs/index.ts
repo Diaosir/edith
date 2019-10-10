@@ -1,6 +1,8 @@
 import * as browserfs from 'browserfs';
+import { parse } from '@/utils/path'
 const fs = require('fs');
-const path = require('path')
+import path from 'path'
+
 let isConfigure = false;
 export default class BrowserFs {
   public fs: any = browserfs;
@@ -23,13 +25,34 @@ export default class BrowserFs {
       })
     })
   }
-  static async getFileContent(filePath: string): Promise<string> {
+  static getRealPath(filePath: string): string {
+    const filePathParse = parse(filePath);
+    const folderJsPath = path.join(filePath, 'index.js');
+    if (fs.existsSync(folderJsPath)){
+      return folderJsPath
+    }
+    const jsPath = path.format({
+      ...filePathParse,
+      ext: '.js',
+      base: `${filePathParse.base}.js`
+    })
+    if (fs.existsSync(jsPath)){
+      return jsPath
+    }
+    return filePath;
+    // console.log(ext);
+  }
+  static async getFileContent(filePath: string): Promise<any> {
     if (!isConfigure) {
       await BrowserFs.configure()
     }
+    const realPath = BrowserFs.getRealPath(filePath);
     return new Promise((resolve, reject) => {
-      fs.readFile(filePath, function (err, contents) {
-        resolve(contents ? contents.toString() : null);
+      fs.readFile(realPath, function (err, contents) {
+        resolve({
+          code: contents ? contents.toString() : null,
+          fullPath: realPath
+        });
       });
     })
   }

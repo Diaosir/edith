@@ -4,7 +4,7 @@ import {
 import File, { FileType } from '@/datahub/project/entities/file';
 import PackageFile from './type/packageFile'
 import is from 'is';
-import Browserfs from '../browserfs'
+import BrowserFs from '../browserfs'
 import LazyLoad from './lib/lazyload'
 import Ast from './lib/ast'
 import Packager from './lib/packager';
@@ -31,10 +31,9 @@ export default class ClientWebpack{
         this.packageFile = new PackageFile(packageFile);
       }
       this.entryFile = this.getEntryFile();
-      // Browserfs.setFileContent('/test/a/a.txt', 'dddd');
-      // BrowserFs.getFileContent('/test/a/a.txt').then(data => {
-      //   console.log(data)
-      // })
+      BrowserFs.getFileContent('test/node_modules/scheduler/tracing').then(data => {
+        console.log(data)
+      })
       this.packages = this.buildUsedPackages();
       this.init()
       // console.log(Ast.getNpmPackages(this.entryFile.getValue()))
@@ -77,7 +76,7 @@ export default class ClientWebpack{
   private saveFileToBrowserFs(name) {
     File.recursion(this.fileList, (file: File) => {
       if(file.type !== FileType.FOLDER) {
-        Browserfs.setFileContent(path.join(name, file.path), file.getValue());
+        BrowserFs.setFileContent(path.join(name, file.path), file.getValue());
       }
     })
   }

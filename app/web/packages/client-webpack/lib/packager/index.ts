@@ -70,6 +70,7 @@ export default class Packager {
     }
     public async getPackageFileOnlyPath(filepath: string) {
         // const { ext, dir, name } = path.parse(filepath);
+        filepath = filepath.replace(/@\d+.\d+.\d+/, '');
         const dependency = this.getDependencyByFilePath(filepath);
         if (dependency) {
             const { name, resolved, entry} = dependency;
@@ -82,10 +83,6 @@ export default class Packager {
     public getDependencyByFilePath(filepath: string) {
         const matchReg = /node_modules\/([\w_.-]+)/
         let packageName = matchReg.exec(filepath)[1];
-        // let dependency = this.dependencies.filter((item) => {
-        //     return item.name === packageName;
-        // })[0];
-        // console.log(this.dependencies)
         const dependency = this.dependencyDependencies[packageName];
         return dependency;
     }

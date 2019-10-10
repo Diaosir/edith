@@ -1,13 +1,15 @@
 let caches = {}
 import BrowserFs from '@/packages/browserfs';
 import path from 'path'
+import { parse, normalize } from '@/utils/path'
 const ROOT = '/node_modules';
+const UNPKG_URL = 'https://unpkg.com';
 export default class Lazyload {
     constructor(packageName: string, version: string) {
         
     }
-    public static async loadPackageJson(dep: string, version: string = 'lastest') {
-        const url = `https://unpkg.com/${dep}@${version || 'lastest'}/package.json`;
+    public static async loadPackageJson(dep: string, version: string = '') {
+        const url = `${UNPKG_URL}/${dep}${version ? `@${version}` : '' }/package.json`;
         if (caches[url]) {
             return caches[url]
         }
@@ -20,28 +22,32 @@ export default class Lazyload {
 
     }
     public static async getPackageFileContent(packageName, version, filepath, projectName: string = '') {
-        const url = `https://unpkg.com/${packageName}@${version}${filepath ? `/${filepath}` : ''}`;
-        const browserfsFilePath = path.join(projectName, ROOT, `${packageName}@${version}`, filepath || '');
-        // const browserfsFilePath = `${projectName}/${ROOT}/${packageName}@${version}/${filepath}`
-        const parsePath = path.parse(browserfsFilePath);
-        // const cacheFileContent = await BrowserFs.getFileContent(browserfsFilePath);
-        // if (!!cacheFileContent) {
-        //     return cacheFileContent;
-        // }
-        const result: any = await fetch(url).then(async response => {
-            const { url } = response;
-            const parseUrl =  path.parse(url);
-            const code = await response.text();
+        const url = `${UNPKG_URL}/${packageName}@${version}${filepath ? `/${filepath}` : ''}`;
+        const browserfsFilePath = normalize(path.join(projectName, ROOT, `${packageName}@${version}`, filepath || ''));
+        const {code, fullPath} = await BrowserFs.getFileContent(browserfsFilePath);
+        if (!!code) {
+            // console.log(fullPath)
             return {
                 code,
-                fullPath: path.format({
-                    ...parsePath,
-                    dir: parsePath.dir.replace(`@${version}`, ''),
-                    base: parseUrl.base
-                })
+                fullPath
+            };
+        }
+        const result: any = await fetch(url).then(async response => {
+            const { url } = response;
+            const parseUrl =  parse(url);
+            const code = await response.text();
+            const dir = parseUrl.dir.replace(UNPKG_URL, path.join(projectName, ROOT))
+            const fullPath = path.format({
+                ...parseUrl,
+                dir: dir,
+                base: parseUrl.base
+            })
+            return {
+                code,
+                fullPath: normalize(fullPath)
             }
         });
-        // BrowserFs.setFileContent(result.filepath, result.code);
+        BrowserFs.setFileContent(result.fullPath, result.code);
         return result;
     }
 }
