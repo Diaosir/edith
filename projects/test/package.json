@@ -8,8 +8,9 @@
     "react": "16.8.6",
     "react-dom": "16.8.6",
     "scheduler": "0.13.6",
-    "antd-mobile": "",
-    "rmc-cascader": ""
+    "rmc-cascader": "",
+    "classnames": "",
+    "zepto": ""
   },
   "devDependencies": {
     "typescript": "3.3.3",
