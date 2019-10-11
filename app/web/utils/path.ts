@@ -22,9 +22,9 @@ export function parse(pathString: string) {
   };
 }
 
-export function normalize(pathString: string) {
+export function normalize(pathString: string = '') {
   if (pathString[0] === '/') {
     pathString = pathString.split('').splice(1).join('');
   }
-  return path.normalize(pathString)
+  return path.normalize(pathString || '')
 }

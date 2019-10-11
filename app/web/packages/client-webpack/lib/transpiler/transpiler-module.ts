@@ -59,18 +59,18 @@ export default class TranspilerModule {
             presets: [["typescript", { allExtensions: true , isTSX: true}], 'es2015', 'react'],
             plugins: [[plugins, {path: this.path}]]
         });
-        this.transpiledCode = transformResult.code
-            .replace(/\\n/g, '\\\n')
-            .replace(/\n/g, '\\n')
-            .replace(/"/g, '\\"')
+        this.transpiledCode = transformResult.code;
         // console.log(transformResult.code.replace(/\n/g, '\n').replace(/"/g, '\"'))
         this.isTranspiled = true;
     }
     public getModuleFunction() {
+        const _this = this;
         if(!this.isTranspiled) {
             this.translate();
         }
-        return new Function('module','exports', '__edith_require__', `eval("${this.transpiledCode}")`)
+        return function(module, exports, __edith_require__) {
+            eval(_this.transpiledCode)
+        }
     }
     public static getIdByPath(path: string) {
         return md5(path);

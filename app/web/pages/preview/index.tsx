@@ -20,6 +20,7 @@ export default class PreviewPage extends Component<Props, any> {
                 payload: data
             })
         }, false)
+        console.log(window)
     }
     render() {
         return (

@@ -9,7 +9,7 @@
     "dev": "egg-bin dev -r egg-ts-helper/register",
     "debug": "egg-bin debug",
     "build": "npm run umi:build",
-    "umi:dev": "umi dev",
+    "umi:dev": "umi dev --PORT=3012",
     "umi:build": "UMI_ENV=prod CI=true umi build",
     "test": "egg-bin test",
     "cov": "egg-bin cov",

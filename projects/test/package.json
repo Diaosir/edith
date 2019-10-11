@@ -7,10 +7,7 @@
   "dependencies": {
     "react": "16.8.6",
     "react-dom": "16.8.6",
-    "scheduler": "0.13.6",
-    "rmc-cascader": "",
-    "classnames": "",
-    "zepto": ""
+    "antd-mobile": ""
   },
   "devDependencies": {
     "typescript": "3.3.3",

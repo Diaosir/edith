@@ -91,8 +91,7 @@ function __edith_require__(moduleId) {
       isLoad: false,
       exports: {}
   }
-  const moduleFunction = transpilter.getModuleFunction();
-  moduleFunction.call(module.exports, module, module.exports, __edith_require__);
+  transpilter.getModuleFunction().call(module.exports, module, module.exports, __edith_require__);
   module.isLoad = true;
   transpilter.module = module;
   return module.exports

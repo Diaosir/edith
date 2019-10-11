@@ -170,7 +170,7 @@ export default class File {
   public getColorObject(): any{
     return FILE_COLOR[this.type] || FILE_COLOR.default;
   }
-  static filenameToFileType(filename: string): FileType {
+  static filenameToFileType(filename: string = ''): FileType {
     const extname = path.extname(filename).replace(/\./g, '').toLocaleUpperCase();
     if (filename.indexOf('.') == -1) {
       return FileType.FOLDER
