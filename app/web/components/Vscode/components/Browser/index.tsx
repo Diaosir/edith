@@ -8,7 +8,7 @@ export default class Browser extends Component<any, any> {
   constructor(props) {
     super(props);
     this.state = {
-      url: 'http://localhost:8001/#/preview'
+      url: 'http://localhost:8000/#/preview'
     }
   }
   componentDidMount() {
@@ -18,6 +18,15 @@ export default class Browser extends Component<any, any> {
         this.contentWindow.postMessage({
           type: 'init',
           payload: fileList
+        }, '*');
+      })
+      eventBus.on('changeFileList', (fileList, file) => {
+        this.contentWindow.postMessage({
+          type: 'changeFileList',
+          payload: {
+            fileList,
+            file
+          }
         }, '*');
       })
     }

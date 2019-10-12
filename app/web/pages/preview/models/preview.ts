@@ -1,31 +1,26 @@
 import File from '@/datahub/project/entities/file'
 import ClientWebpack from '@/packages/client-webpack';
+const clientWebpack = new ClientWebpack();
 export default {
     namespace: 'preview',
     state: {
-        clientWebpack: new ClientWebpack()
     },
     effects: {
         *onMessage({ payload }, { call, put }) {
             if(payload.type === 'init') {
-                yield put({
-                    type: 'init',
-                    payload: File.generateFileList(payload.payload)
+                const fileList = File.generateFileList(payload.payload);
+                clientWebpack.init({
+                    template: 'create-react-app',
+                    fileList: fileList,
+                    document: ''
                 })
+            }
+            if (payload.type === 'changeFileList') {
+                const { fileList, file } = payload.payload;
+                clientWebpack.changeFile(new File(file));
             }
         }
     },
     reducers: {
-        init(state, { payload }) {
-            return {
-                ...state,
-                fileList: payload,
-                clientWebpack: new ClientWebpack({
-                    template: 'create-react-app',
-                    fileList: payload,
-                    document: ''
-                })
-            }
-        }
     }
 }

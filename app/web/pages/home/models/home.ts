@@ -116,6 +116,16 @@ export default {
         })
       }
     },
+    *handleMonacoEditorChange({ payload }, { call, put, select }) {
+      const file: File = payload.file;
+      file.setVaule(payload.value, false);
+      const { vscode: { fileList } } = yield select(state => state.home);
+      eventBus.emit('changeFileList', fileList, file);
+      yield put({
+        type: 'editorSaveFileContent',
+        payload: payload
+      })
+    },
     *getProjectFileList( { payload }, { call, put, select }) {
       const { projectId } = yield select(({home}) => home);
       const fileList = yield call(() => ProjectService.getProjectFileList(projectId, payload.path));
@@ -221,8 +231,6 @@ export default {
       }
     },
     editorSaveFileContent(state, { payload }) {
-      const file: File = payload.file;
-      file.setVaule(payload.value, false);
       return {
         ...state
       }

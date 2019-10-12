@@ -29,10 +29,10 @@ const plugins = function({types: BabelTypes}, options) {
       };
 }
 export default class TranspilerModule {
-    path: string;
-    type: FileType;
-    code: string;
-    transpiledCode: string;
+    public path: string;
+    public type: FileType;
+    protected code: string;
+    protected transpiledCode: string;
     public id: string;
     public denpencies: Array<string> = [];
     public ast: Ast;
@@ -46,22 +46,27 @@ export default class TranspilerModule {
         exports: {},
         isLoad: false
     };
-    public isLoad: boolean = false;
     constructor({code, path}){
         this.code = code;
         this.path = path;
         this.type = File.filenameToFileType(path);
-        this.ast = new Ast(code);
         this.id = TranspilerModule.getIdByPath(path);
+        this.ast = new Ast(code);
     }
     translate() {
-        const transformResult = babel.transform(this.code, {
-            presets: [["typescript", { allExtensions: true , isTSX: true}], 'es2015', 'react'],
-            plugins: [[plugins, {path: this.path}]]
-        });
-        this.transpiledCode = transformResult.code;
-        // console.log(transformResult.code.replace(/\n/g, '\n').replace(/"/g, '\"'))
-        this.isTranspiled = true;
+        try{
+            const transformResult = babel.transform(this.code, {
+                presets: [["typescript", { allExtensions: true , isTSX: true}], 'es2015', 'react'],
+                plugins: [[plugins, {path: this.path}]]
+            });
+            this.transpiledCode = transformResult.code;
+            // console.log(transformResult.code.replace(/\n/g, '\n').replace(/"/g, '\"'))
+            this.isTranspiled = true;
+        } catch(error) {
+            //Todo log
+            console.log(error)
+        }
+        
     }
     public getModuleFunction() {
         const _this = this;
@@ -69,11 +74,21 @@ export default class TranspilerModule {
             this.translate();
         }
         return function(module, exports, __edith_require__) {
-            eval(_this.transpiledCode)
+            try{
+                eval(`${_this.transpiledCode}\n//# sourceURL=edith:${_this.path}?`)
+            } catch(error){
+                console.log(error)
+            }
+            
         }
     }
     public static getIdByPath(path: string) {
         return md5(path);
     }
-
+    public reset(newCode: string) {
+        this.code = newCode;
+        this.ast = new Ast(newCode);
+        this.isTranspiled = false;
+        this.translate();
+    }
 }

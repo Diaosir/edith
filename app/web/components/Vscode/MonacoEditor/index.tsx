@@ -2,7 +2,7 @@ import { Component } from 'react'
 import './index.scss'
 import * as polished from 'polished';
 import { Tabs, Icon, Tooltip } from 'antd';
-import { ControlledEditor } from '@monaco-editor/react';
+import ControlledEditor from '../ControlledEditor';
 import File from '@/datahub/project/entities/file';
 
 const { TabPane } = Tabs;
@@ -44,7 +44,7 @@ export default class EditorGroup extends Component<any, State> {
   }
   handleEditorChange (file: File, ev, value) {
     this.props.dispatch({
-      type: 'editorSaveFileContent',
+      type: 'handleMonacoEditorChange',
       payload: {
         file,
         value
