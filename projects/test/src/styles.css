@@ -1,3 +1,7 @@
-.a{
-    
+@font-face {
+    font-family: iconfont;
+    src: url(https://special.ppmoney.com/PPava/ppmoney/h5-mobile/dist/static/iconfont.43cf5ffc.eot);
+}
+body{
+    background: url('../asset/a.png')
 }

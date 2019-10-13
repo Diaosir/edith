@@ -35,7 +35,7 @@ export default class Transpiler {
     Transpiler.traverseModuleEval(Transpiler.entryTanspilerModule);
   }
   /**
-   * 递归编译入口文件
+   * 递归编译入口文件找到所有依赖文件
    * @param entryFile
    */
   public async traverse(projectName: string, code: string, filePath: string) {
@@ -43,9 +43,8 @@ export default class Transpiler {
     const transpiler = Transpiler.transpilerModules.get(basePath) || new TranspilerModule({code, path: basePath});
     Transpiler.transpilerModules.set(transpiler.path, transpiler);
     if (!transpiler.isTraverse) {
-      const allPackages = Array.from(transpiler.ast.allPackages);
-      for(let i = 0; i < allPackages.length; i++) {
-        let value = allPackages[i];
+      for(let i = 0; i < transpiler.allPackages.length; i++) {
+        let value = transpiler.allPackages[i];
         if(isNodeModules(value)) {
           const filePath =  path.join(projectName, 'node_modules', value);
           const { code, fullPath } = await this.packager.getPackageFileOnlyPath(filePath);
@@ -77,9 +76,11 @@ export default class Transpiler {
    */
   public static rebuildTranspilerModule(path: string, newCode: string) {
     const targetTranspilerModule = Transpiler.getTranspilerModuleByPath(path);
-    targetTranspilerModule.reset(newCode);
-    __edith_require__(path, true);
-    Transpiler.traverseModuleEval(Transpiler.entryTanspilerModule);
+    if (!!targetTranspilerModule) {
+      targetTranspilerModule.reset(newCode);
+      __edith_require__(path, true);
+      Transpiler.traverseModuleEval(Transpiler.entryTanspilerModule);
+    }
   }
   public static getTranspilerModuleByPath(path: string) {
     return Transpiler.transpilerModules.get(path) || null;

@@ -30,7 +30,6 @@ export default class ClientWebpack{
     this.template = options.template;
     this.document = options.document;
     this.buildFileMap(options.fileList);
-    console.log(ClientWebpack.fileMap)
     await this.build();
   }
   public async build() {

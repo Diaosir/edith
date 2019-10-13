@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
-// import  Button  from 'antd-mobile/lib/button'
+import  './styles.css'
+import Button from './Button/index.jsx';
 class App extends React.Component {
     constructor(props) {
         super(props);
@@ -10,9 +11,9 @@ class App extends React.Component {
     render() {
         return (
             <div className="App">
-                {/* <Button>11</Button> */}
-              <h1>Hello world</h1>
-              <h2>Start editing to see some magic happen!</h2>
+                <Button>11</Button>
+                <h1>Hello world</h1>
+                <h2>Start editing to see some magic happen!</h2>
             </div>
           );
     }
