@@ -2,13 +2,12 @@ import File, { FileType } from '@/datahub/project/entities/file';
 import md5 from '@/utils/md5'
 import Loader, { BaseLoader } from '../../loader'
 export default class TranspilerModule {
-    private _oldAllPackages: Array<string>;
     public path: string;
     public type: FileType;
     public code: string;
     protected transpiledCode: string;
     public id: string;
-    public denpencies: Array<string> = [];
+    public denpencies: Array<string> = []; //TODO 去重
     public allPackages:  Array<string> = [];
     public evalResult: any;
     public parents: Array<string> = [];

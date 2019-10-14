@@ -58,21 +58,27 @@ export default class Transpiler {
       const filePath =  path.join(Transpiler.projectName, 'node_modules', moduleName);
       const { code, fullPath } = await Transpiler.packager.getPackageFileOnlyPath(filePath);
       const childrenTranspiler = await Transpiler.traverse(code, fullPath);
-      parentTranspiler.denpencies.push(childrenTranspiler.path);
-      Transpiler.setDenpenciesIdMap(basePath, moduleName, childrenTranspiler.path);
+      if (childrenTranspiler.path) {
+        parentTranspiler.denpencies.push(childrenTranspiler.path);
+        Transpiler.setDenpenciesIdMap(basePath, moduleName, childrenTranspiler.path);
+      }
     } else {
       const filePath = resolve(basePath, moduleName);
       if (filePath.match(/node_modules/)) {
         const { code, fullPath }  = await Transpiler.packager.getPackageFileOnlyPath(filePath);
         const { path } = await Transpiler.traverse(code, fullPath);
-        parentTranspiler.denpencies.push(path);
-        Transpiler.setDenpenciesIdMap(basePath, moduleName, path);
+        if(path) {
+          parentTranspiler.denpencies.push(path);
+          Transpiler.setDenpenciesIdMap(basePath, moduleName, path);
+        }
       } else {
         // const {code, fullPath } = await BrowserFs.getFileContent(filePath);
         const { code , fullPath } = await ClientWebpack.getFileContentByFilePath(filePath);
         const { path } = await Transpiler.traverse(code, fullPath);
-        parentTranspiler.denpencies.push(path);
-        Transpiler.setDenpenciesIdMap(basePath, moduleName, path);
+        if (path) {
+          parentTranspiler.denpencies.push(path);
+          Transpiler.setDenpenciesIdMap(basePath, moduleName, path);
+        }
       }
     }
   }

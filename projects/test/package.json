@@ -6,7 +6,8 @@
   "main": "src/index.jsx",
   "dependencies": {
     "react": "16.8.6",
-    "react-dom": "16.8.6"
+    "react-dom": "16.8.6",
+    "is": ""
   },
   "devDependencies": {
     "typescript": "3.3.3",
