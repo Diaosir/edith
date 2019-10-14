@@ -2,9 +2,10 @@ import File, { FileType } from '@/datahub/project/entities/file';
 import md5 from '@/utils/md5'
 import Loader, { BaseLoader } from '../../loader'
 export default class TranspilerModule {
+    private _oldAllPackages: Array<string>;
     public path: string;
     public type: FileType;
-    protected code: string;
+    public code: string;
     protected transpiledCode: string;
     public id: string;
     public denpencies: Array<string> = [];
@@ -30,9 +31,10 @@ export default class TranspilerModule {
         this.setAllPackages(code);
     }
     public async translate() {
-        // if (this._isTranslate){
-        //     return;
-        // }
+        //TODO 处理less类型
+        if (this._isTranslate){
+            return;
+        }
         const { result, isError } = await this.loader.translate(this.code);
   
         if (!isError) {
@@ -50,11 +52,18 @@ export default class TranspilerModule {
     }
     public async reset(newCode: string) {
         this.code = newCode;
-        this.setAllPackages(newCode);
         this._isTranslate = false;
-        await this.translate();
+        this.isTraverse = false;
     }
     public setAllPackages(code: string) {
         this.allPackages = this.loader.getDependencies(code);
+    }
+    public async getNewPackages(newCode: string): Promise<any> {
+        const newAllPackages =  this.loader.getDependencies(newCode);
+        const diffPackages = newAllPackages.filter((packageName => {
+            return !this.allPackages.includes(packageName);
+        }))
+        this.allPackages = newAllPackages;
+        return diffPackages;
     }
 }

@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import  './styles.css'
 import Button from './Button/index.jsx';
+import Input from './Input/index.jsx';
 class App extends React.Component {
     constructor(props) {
         super(props);

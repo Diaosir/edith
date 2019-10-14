@@ -24,67 +24,82 @@ export const isDir = (filepath) => {
 export default class Transpiler {
   public static transpilerModules: Map<string, TranspilerModule> = new Map();
   public static denpenciesIdMap: Map<string, string> = new Map();
-  public packager: Packager;
+  public static packager: Packager;
   public static entryTanspilerModule: TranspilerModule;
+  public static projectName: string;
   constructor(packaker: Packager) {
-    this.packager = packaker;
+    Transpiler.packager = packaker;
   }
   public async init(projectName: string, code: string, filePath: string) {
-    Transpiler.entryTanspilerModule = await this.traverse(projectName, code, filePath);
+    Transpiler.projectName = projectName;
+    Transpiler.entryTanspilerModule = await Transpiler.traverse(code, filePath);
     await Transpiler.traverseTranslate(Transpiler.entryTanspilerModule.path);
-    console.log(Transpiler.transpilerModules)
     Transpiler.traverseExecute(Transpiler.entryTanspilerModule);
   }
   /**
    * 递归编译入口文件找到所有依赖文件
    * @param entryFile
    */
-  public async traverse(projectName: string, code: string, filePath: string) {
+  public static async traverse(code: string, filePath: string) {
     let basePath = filePath;
     const transpiler = Transpiler.transpilerModules.get(basePath) || new TranspilerModule({code, path: basePath});
     Transpiler.transpilerModules.set(transpiler.path, transpiler);
     if (!transpiler.isTraverse) {
       for(let i = 0; i < transpiler.allPackages.length; i++) {
-        let value = transpiler.allPackages[i];
-        if(isNodeModules(value)) {
-          const filePath =  path.join(projectName, 'node_modules', value);
-          const { code, fullPath } = await this.packager.getPackageFileOnlyPath(filePath);
-          const childrenTranspiler = await this.traverse(projectName, code, fullPath);
-          transpiler.denpencies.push(childrenTranspiler.path);
-          Transpiler.setDenpenciesIdMap(basePath, value, childrenTranspiler.path);
-        } else {
-          const filePath = resolve(basePath, value);
-          if (filePath.match(/node_modules/)) {
-            const { code, fullPath }  = await this.packager.getPackageFileOnlyPath(filePath);
-            const { path } = await this.traverse(projectName, code, fullPath);
-            transpiler.denpencies.push(path);
-            Transpiler.setDenpenciesIdMap(basePath, value, path);
-          } else {
-            // const {code, fullPath } = await BrowserFs.getFileContent(filePath);
-            const { code , fullPath } = await ClientWebpack.getFileContentByFilePath(filePath);
-            const { path } = await this.traverse(projectName, code, fullPath);
-            transpiler.denpencies.push(path);
-            Transpiler.setDenpenciesIdMap(basePath, value, path);
-          }
-        }
+        await Transpiler.traverseChildren(transpiler, transpiler.allPackages[i]);
       }
     }
     transpiler.isTraverse = true;
     return transpiler;
+  }
+  public static async traverseChildren(parentTranspiler: TranspilerModule, moduleName: string) {
+    const basePath = parentTranspiler.path;
+    if(isNodeModules(moduleName)) {
+      const filePath =  path.join(Transpiler.projectName, 'node_modules', moduleName);
+      const { code, fullPath } = await Transpiler.packager.getPackageFileOnlyPath(filePath);
+      const childrenTranspiler = await Transpiler.traverse(code, fullPath);
+      parentTranspiler.denpencies.push(childrenTranspiler.path);
+      Transpiler.setDenpenciesIdMap(basePath, moduleName, childrenTranspiler.path);
+    } else {
+      const filePath = resolve(basePath, moduleName);
+      if (filePath.match(/node_modules/)) {
+        const { code, fullPath }  = await Transpiler.packager.getPackageFileOnlyPath(filePath);
+        const { path } = await Transpiler.traverse(code, fullPath);
+        parentTranspiler.denpencies.push(path);
+        Transpiler.setDenpenciesIdMap(basePath, moduleName, path);
+      } else {
+        // const {code, fullPath } = await BrowserFs.getFileContent(filePath);
+        const { code , fullPath } = await ClientWebpack.getFileContentByFilePath(filePath);
+        const { path } = await Transpiler.traverse(code, fullPath);
+        parentTranspiler.denpencies.push(path);
+        Transpiler.setDenpenciesIdMap(basePath, moduleName, path);
+      }
+    }
   }
   /**
    * 修改模块代码
    */
   public static async rebuildTranspilerModule(path: string, newCode: string) {
     const targetTranspilerModule = Transpiler.getTranspilerModuleByPath(path);
-    if (!!targetTranspilerModule) {
-      await targetTranspilerModule.reset(newCode);
-      //如果改动的是样式文件则重现编译所有less文件
-      if (File.filenameToFileType(path) === FileType.LESS) {
-        await Transpiler.traverseTranslate(Transpiler.entryTanspilerModule.path, /.less$/);
+    if (!!targetTranspilerModule && targetTranspilerModule.code !== newCode) {
+      try {
+        const newPackages = await targetTranspilerModule.getNewPackages(newCode);
+        for( let i = 0; i < newPackages.length; i++) {
+          await Transpiler.traverseChildren(targetTranspilerModule, newPackages[i]);
+        }
+        await targetTranspilerModule.reset(newCode);
+        await Transpiler.traverseTranslate(targetTranspilerModule.path);
+        // console.log(Transpiler.transpilerModules)
+        //如果改动的是样式文件则重现编译所有less文件
+        if (File.filenameToFileType(path) === FileType.LESS) {
+          await Transpiler.traverseTranslate(Transpiler.entryTanspilerModule.path, /.less$/);
+        }
+        console.log(Transpiler.transpilerModules)
+        __edith_require__(path, true);
+        Transpiler.traverseExecute(Transpiler.entryTanspilerModule);
+      } catch(error) {
+        console.log(error)
       }
-      __edith_require__(path, true);
-      Transpiler.traverseExecute(Transpiler.entryTanspilerModule);
     }
   }
   public static getTranspilerModuleByPath(path: string) {
