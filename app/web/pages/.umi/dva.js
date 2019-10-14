@@ -19,8 +19,8 @@ export function _onCreate() {
   (runtimeDva.plugins || []).forEach(plugin => {
     app.use(plugin);
   });
-  app.use(require('G:/github/edith/node_modules/_dva-immer@0.4.5@dva-immer/dist/index.js')());
-  app.model({ namespace: 'global', ...(require('G:/github/edith/app/web/models/global.ts').default) });
+  app.use(require('/Users/fengzhihao/Projects/ironman/Edith/node_modules/_dva-immer@0.4.5@dva-immer/dist/index.js')());
+  app.model({ namespace: 'global', ...(require('/Users/fengzhihao/Projects/ironman/Edith/app/web/models/global.ts').default) });
   return app;
 }
 

@@ -9,10 +9,10 @@ export default class CssLoader extends BaseLoader {
     constructor(options) {
         super(options)
     }
-    translate(code: string): {
+    async translate(code: string): Promise<{
         result: string,
         isError: boolean
-    } {
+    }> {
         try{
             const root = postcss.parse(code);
             root.walk(function(node) {

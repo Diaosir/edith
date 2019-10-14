@@ -31,8 +31,9 @@ export default class Transpiler {
   }
   public async init(projectName: string, code: string, filePath: string) {
     Transpiler.entryTanspilerModule = await this.traverse(projectName, code, filePath);
+    await Transpiler.traverseTranslate(Transpiler.entryTanspilerModule.path);
     console.log(Transpiler.transpilerModules)
-    Transpiler.traverseModuleEval(Transpiler.entryTanspilerModule);
+    Transpiler.traverseExecute(Transpiler.entryTanspilerModule);
   }
   /**
    * 递归编译入口文件找到所有依赖文件
@@ -74,12 +75,16 @@ export default class Transpiler {
   /**
    * 修改模块代码
    */
-  public static rebuildTranspilerModule(path: string, newCode: string) {
+  public static async rebuildTranspilerModule(path: string, newCode: string) {
     const targetTranspilerModule = Transpiler.getTranspilerModuleByPath(path);
     if (!!targetTranspilerModule) {
-      targetTranspilerModule.reset(newCode);
+      await targetTranspilerModule.reset(newCode);
+      //如果改动的是样式文件则重现编译所有less文件
+      if (File.filenameToFileType(path) === FileType.LESS) {
+        await Transpiler.traverseTranslate(Transpiler.entryTanspilerModule.path, /.less$/);
+      }
       __edith_require__(path, true);
-      Transpiler.traverseModuleEval(Transpiler.entryTanspilerModule);
+      Transpiler.traverseExecute(Transpiler.entryTanspilerModule);
     }
   }
   public static getTranspilerModuleByPath(path: string) {
@@ -91,14 +96,34 @@ export default class Transpiler {
   public static getDenpenciesIdMapValue(parentPath, filePath) {
     return Transpiler.denpenciesIdMap.get(`${parentPath}/${filePath}`) || null;
   }
-  public static traverseModuleEval(entryTanspilerModule: TranspilerModule) {
+  public static traverseExecute(entryTanspilerModule: TranspilerModule) {
     __edith_require__(entryTanspilerModule.path, true);
+  }
+  /**
+   * 遍历翻译所有的模块
+   * @static
+   * @memberof Transpiler
+   */
+  public static async traverseTranslate(modulePath: string, includes: RegExp = null) {
+    const targetTranspilerModule = Transpiler.getTranspilerModuleByPath(modulePath);
+    if (!targetTranspilerModule) {
+      return;
+    }
+    if (targetTranspilerModule.denpencies.length > 0) {
+      for(let i = 0; i < targetTranspilerModule.denpencies.length; i++) {
+        await Transpiler.traverseTranslate(targetTranspilerModule.denpencies[i], includes)
+      }
+    }
+    if (!includes || includes.exec(modulePath)) {
+      await targetTranspilerModule.translate();
+    }
   }
 }
 function __edith_require__(modulePath, isForce: boolean = false) {
   const transpilter = Transpiler.getTranspilerModuleByPath(modulePath);
-  if (!isForce && transpilter.module.isLoad) {
-      return transpilter.module.exports;
+  //TODO 判断是否取缓存数据
+  if (modulePath.match(/node_modules/) && !isForce && transpilter.module.isLoad) {
+    return transpilter.module.exports;
   }
   let module = {
       isLoad: false,

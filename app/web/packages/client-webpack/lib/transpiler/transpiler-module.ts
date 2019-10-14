@@ -10,8 +10,9 @@ export default class TranspilerModule {
     public denpencies: Array<string> = [];
     public allPackages:  Array<string> = [];
     public evalResult: any;
+    public parents: Array<string> = [];
     public isTraverse: boolean = false;
-    public isTranspiled: boolean = false;
+    private _isTranslate: boolean = false;
     public module: {
         exports: any;
         isLoad: Boolean;
@@ -28,27 +29,30 @@ export default class TranspilerModule {
         this.loader = Loader(this.type, {path: this.path})
         this.setAllPackages(code);
     }
-    translate() {
-        const { result, isError } = this.loader.translate(this.code);
+    public async translate() {
+        // if (this._isTranslate){
+        //     return;
+        // }
+        const { result, isError } = await this.loader.translate(this.code);
+  
         if (!isError) {
             this.transpiledCode = result;
-            this.isTranspiled = true;
+            //重新编译完成设置待执行
+            this._isTranslate = true;
+            this.module.isLoad = false;
         }
     }
     public getModuleFunction() {
-        if(!this.isTranspiled) {
-            this.translate();
-        }
         return this.loader.execute(this.transpiledCode);
     }
     public static getIdByPath(path: string) {
         return md5(path);
     }
-    public reset(newCode: string) {
+    public async reset(newCode: string) {
         this.code = newCode;
         this.setAllPackages(newCode);
-        this.isTranspiled = false;
-        this.translate();
+        this._isTranslate = false;
+        await this.translate();
     }
     public setAllPackages(code: string) {
         this.allPackages = this.loader.getDependencies(code);

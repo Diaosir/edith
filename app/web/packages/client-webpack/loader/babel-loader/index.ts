@@ -33,10 +33,10 @@ export default class BabelLoader extends BaseLoader {
     constructor(options) {
         super(options)
     }
-    translate(code: string): {
-        result: string;
-        isError: boolean;
-    } {
+    async translate(code: string): Promise<{
+        result: string,
+        isError: boolean
+    }> {
         try{
             const transformResult = babel.transform(code, {
                 presets: [["typescript", { allExtensions: true , isTSX: true}], 'es2015', 'react'],
