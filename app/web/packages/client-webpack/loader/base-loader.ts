@@ -11,7 +11,7 @@ export default abstract  class BaseLoader {
      *     }>}
      * @memberof BaseLoader
      */
-    abstract async translate(code: string): Promise<{
+    abstract async translate(code: string, childrenDenpenciesMap?: Map<string, string>): Promise<{
         result: string;
         isError: boolean;
     }>;

@@ -1,5 +1,6 @@
 const Walker = require('node-source-walk');
-const gonzales = require('gonzales-pe');
+import { parse } from 'path'
+import * as postcssLess from 'postcss-less';
 /**
  *
  * base detective-less
@@ -7,45 +8,31 @@ const gonzales = require('gonzales-pe');
  * @returns
  */
 function isImportStatement(node) {
-  if (!node || node.type !== 'atrule') { return false; }
-  if (!node.content.length || node.content[0].type !== 'atkeyword') { return false; }
-
-  const atKeyword = node.content[0];
-
-  if (!atKeyword.content.length) { return false; }
-
-  const importKeyword = atKeyword.content[0];
-
-  if (importKeyword.type !== 'ident' || importKeyword.content !== 'import') { return false; }
-
-  return true;
+  return !!node && node.type === 'atrule' && node.name === 'import' && node.import;
 }
 
 function extractDependencies(importStatementNode) {
-  return importStatementNode.content
-  .filter(function(innerNode) {
-    return innerNode.type === 'string' || innerNode.type === 'ident';
-  })
-  .map(function(identifierNode) {
-    return identifierNode.content.replace(/["']/g, '');
-  });
+  let { filename } = importStatementNode;
+  filename = filename.replace(/["']/g, '');
+  if (parse(filename).ext === '') {
+    return `${filename}.less`;
+  }
+  return filename
 }
 
 
-export default  function getLessdependencies(content) {
-  let dependencies = [];
-  let ast;
+export default function getLessdependencies(content) {
+  let ast = {};
   try {
-    ast = gonzales.parse(content, { syntax: 'less' });
-  } catch (e) {
-    ast = {};
+    ast = postcssLess.parse(content, {});
+  } catch(error) {
+    //TODO log
   }
+  let dependencies = [];
   const walker = new Walker();
   walker.walk(ast, function(node) {
     if (!isImportStatement(node)) { return; }
-
     dependencies = dependencies.concat(extractDependencies(node));
   });
-
   return dependencies;
 }

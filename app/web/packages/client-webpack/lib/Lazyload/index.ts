@@ -1,10 +1,14 @@
+import LoadWorker from 'worker-loader!./load.worker';
 let caches = {}
-import BrowserFs from '@/packages/browserfs';
+
 import path from 'path'
 import { parse, normalize } from '@/utils/path'
 import md5 from '@/utils/md5'
+import BrowserFs from '@/packages/browserfs';
+import FileManager from '../../lib/file-manager'
 const ROOT = '/node_modules';
 const UNPKG_URL = 'https://unpkg.com';
+const loadWorker = new LoadWorker();
 export default class Lazyload {
     constructor(packageName: string, version: string) {
         
@@ -16,6 +20,25 @@ export default class Lazyload {
         if (code) {
             return JSON.parse(code)
         }
+        // const resultText = await new Promise((resolve, reject) => {
+        //     loadWorker.postMessage({
+        //         type: 'lazyload-npm-module',
+        //         payload: {
+        //             url: normalize(url)
+        //         }
+        //     })
+        //     loadWorker.onmessage = function(ev: MessageEvent) {
+        //         const { data } = ev;
+        //         if (data && data.type === `lazyload-npm-module-result-${normalize(url)}` ) {
+        //             const { result, error } = data.payload;
+        //             if (error) {
+        //                 resolve(null)
+        //             } else {
+        //                 resolve(result)
+        //             }
+        //         }
+        //     }
+        // })
         const result = await fetch(normalize(url)).then((response) => response.json()).catch((error) => { return {}});
         BrowserFs.setFileContent(baseUrl, JSON.stringify(result));
         return result
@@ -26,13 +49,15 @@ export default class Lazyload {
     public static async getPackageFileContent(packageName, version, filepath, projectName: string = '') {
         const url = `${UNPKG_URL}/${packageName}@${version}${filepath ? `/${filepath}` : ''}`;
         const browserfsFilePath = normalize(path.join(projectName, ROOT, `${packageName}@${version}`, filepath || ''));
+
         const {code, fullPath} = await BrowserFs.getFileContent(browserfsFilePath);
         if (!!code) {
-            // console.log(fullPath)
             return {
                 code,
                 fullPath
             };
+        } else {
+            console.log(`${browserfsFilePath}不在缓存中`)
         }
         const result: any = await fetch(normalize(url)).then(async response => {
             const { url } = response;

@@ -4,7 +4,7 @@ import syntax, { parser }  from 'postcss-less'
 import { setStylesheet } from '../../utils'
 import lessBrowser from '@/packages/less-browser'
 import getLessDependencies  from "./get-less-dependencies";
-const less = lessBrowser(window, {parentPath: ''})
+
 export default class LessLoader extends BaseLoader {
     constructor(options) {
         super(options);
@@ -17,16 +17,14 @@ export default class LessLoader extends BaseLoader {
             // const result = postcss().process(code, { syntax, parser }).then((res) => {
             //     console.log(res)
             // });
-            less.options = {
-                ...less.options,
-                parentPath: this.path
-            }
-            const { css, imports } = await less.render(code, { parentPath: this.path });
+            const less = lessBrowser(window, {filename: this.path, javascriptEnabled: true });
+            const { css, imports } = await less.render(code || '');
             return {
                 result: css,
                 isError: false
             }
         } catch(error) {
+            console.log(error)
             return {
                 result: '',
                 isError: true

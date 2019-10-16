@@ -23,8 +23,15 @@ export function parse(pathString: string) {
 }
 
 export function normalize(pathString: string = '') {
-  if (pathString[0] === '/') {
-    pathString = pathString.split('').splice(1).join('');
-  }
+  // if (pathString[0] === '/') {
+  //   pathString = pathString.split('').splice(1).join('');
+  // }
   return path.normalize(pathString || '')
+}
+
+export function isNodeModules(filename: string) {
+  if(typeof filename !== 'string' || filename === '') {
+    return false;
+  }
+  return !filename.match(/^.{1,2}\//)
 }

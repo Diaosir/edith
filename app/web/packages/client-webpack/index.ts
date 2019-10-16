@@ -14,8 +14,6 @@ import * as path from 'path'
 const packaker = new Packager();
 const transpiler = new Transpiler(packaker);
 
-
-
 export default class ClientWebpack{
   protected template: string = '';
   protected document: string;
@@ -30,6 +28,7 @@ export default class ClientWebpack{
     this.template = options.template;
     this.document = options.document;
     this.buildFileMap(options.fileList);
+    console.log(ClientWebpack.fileMap)
     await this.build();
   }
   public async build() {

@@ -42,7 +42,6 @@ export default environment => {
             const pluginLoader = this.context.pluginManager.Loader;
 
             this.queue.push(path);
-
             const fileParsedFunc = (e, root, fullPath) => {
                 importManager.queue.splice(importManager.queue.indexOf(path), 1); // Remove the path from the queue
 
@@ -66,7 +65,7 @@ export default environment => {
             const newFileInfo = {
                 rewriteUrls: this.context.rewriteUrls,
                 entryPath: currentFileInfo.entryPath,
-                rootpath: currentFileInfo.rootpath,
+                rootpath: currentFileInfo.rootpath, 
                 rootFilename: currentFileInfo.rootFilename
             };
 

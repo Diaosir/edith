@@ -58,8 +58,16 @@ export default {
     'bfsGlobal': require.resolve('browserfs')
   },
   chainWebpack(config, { webpack }) {
+    config.output.globalObject('this'); //worker-loader devServer 模式下报错 "window is not defined"
     // 设置 alias
-  
+    config.module
+          .rule('worker-loader')
+          .test(/\.worker\.js$/)
+          .use('worker')
+            .loader('worker-loader')
+            .options({
+              inline: true
+            })
     // 删除进度条插件
     config.plugin('ProvidePlugin').use(webpack.ProvidePlugin, [{ BrowserFS: 'bfsGlobal', process: 'processGlobal', Buffer: 'bufferGlobal'}]);
   }

@@ -88,7 +88,8 @@
     "typescript": "^3.0.0",
     "umi-plugin-ecma5-validator": "^0.1.0",
     "umi-plugin-react": "^1.2.0",
-    "webstorm-disable-index": "^1.2.0"
+    "webstorm-disable-index": "^1.2.0",
+    "worker-loader": "^2.0.0"
   },
   "engines": {
     "node": ">=8.9.0"

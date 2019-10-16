@@ -3,7 +3,7 @@
 // Should expose the additional browser functions on to the less object
 //
 import {addDataAttr} from './utils';
-import lessRoot from 'less/lib/less';
+import lessRoot from '../less';
 import browser from './browser';
 import FM from './file-manager';
 import PluginLoader from './plugin-loader';

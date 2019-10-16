@@ -57,11 +57,18 @@ export default class BrowserFs {
     })
   }
   static async checkAndMakeDir(dir: string) {
+    if (!isConfigure) {
+      await BrowserFs.configure();
+    }
     const dirArray = dir.split('/');
     dirArray.push('')
     dirArray.reduce((previousValue, currentValue) => {
       if (!fs.existsSync(previousValue) && !!previousValue) {
-        fs.mkdirSync(previousValue);
+        try{
+          fs.mkdirSync(previousValue);
+        } catch(error){
+
+        }
       }
       return previousValue + '/' + currentValue
     })
@@ -76,13 +83,12 @@ export default class BrowserFs {
     const { dir } = path.parse(filePath);
     await BrowserFs.checkAndMakeDir(dir);
     return new Promise((resolve, reject) => {
-      fs.writeFile(filePath, content, function (err) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve()
-        }
-      });
+      try{
+        fs.writeFileSync(filePath, content);
+        resolve()
+      } catch(error) {
+        resolve(error)
+      }
     })
   }
 }

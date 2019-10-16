@@ -1,12 +1,32 @@
 /* global window, XMLHttpRequest */
 import Transpiler from '../client-webpack/lib/transpiler/transpiler';
 import AbstractFileManager from '../less/environment/abstract-file-manager.js';
+import path from 'path'
+import { normalize } from '@/utils/path'
 let options;
 let logger;
 let fileCache = {};
 
 // TODOS - move log somewhere. pathDiff and doing something similar in node. use pathDiff in the other browser file for the initial load
 class FileManager extends AbstractFileManager {
+    getPath(filename) {
+        const { dir } = path.parse(filename);
+        // console.log(dir)
+        return dir || '';
+        // let j = filename.lastIndexOf('?');
+        // if (j > 0) {
+        //     filename = filename.slice(0, j);
+        // }
+        // j = filename.lastIndexOf('/');
+        // if (j < 0) {
+        //     j = filename.lastIndexOf('\\');
+        // }
+        // if (j < 0) {
+        //     return '';
+        // }
+        // return filename.slice(0, j + 1);
+
+    }
     alwaysMakePathsAbsolute() {
         return true;
     }
@@ -28,12 +48,12 @@ class FileManager extends AbstractFileManager {
     loadFile(filename, currentDirectory, options, environment) {
         // TODO: Add prefix support like less-node?
         // What about multiple paths?
-        if (currentDirectory && !this.isPathAbsolute(filename)) {
-            filename = currentDirectory + filename;
+        // if (currentDirectory && !this.isPathAbsolute(filename)) {
+        //     filename = currentDirectory + filename;
+        // }
+        if(path.parse(filename).ext === '') {
+            filename = `${filename}.less`
         }
-
-        filename = options.ext ? this.tryAppendExtension(filename, options.ext) : filename;
-
         options = options || {};
 
         // sheet may be set to the stylesheet for the initial load or a collection of properties including
@@ -41,7 +61,7 @@ class FileManager extends AbstractFileManager {
         // const hrefParts = this.extractUrlParts(filename, window.location.href);
         // const href      = hrefParts.url;
         const { pluginManager: { less: { options: { parentPath }}}} = options;
-        const href = Transpiler.getDenpenciesIdMapValue(parentPath, filename)
+        const href = normalize(path.resolve(currentDirectory, filename))
         return new Promise((resolve, reject) => {
             // if (options.useFileCache && fileCache[href]) {
             //     try {
@@ -55,7 +75,8 @@ class FileManager extends AbstractFileManager {
             if (!!targerTranspiler) {
                 resolve({contents: targerTranspiler.code, filename: href, webInfo: { lastModified: new Date() }});
             } else {
-                reject({ type: 'File', message: `'${url}' wasn't found (${status})`, href });
+                // resolve({contents: '', filename: parentPath, webI nfo: { lastModified: new Date() }});
+                reject({ type: 'File', message: `'${href}' wasn't found`, href });
             }
         });
     }

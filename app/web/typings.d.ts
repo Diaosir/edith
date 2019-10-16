@@ -17,6 +17,13 @@ declare var ENABLE_SENTRY;
 declare var SENTRY_RELEASE;
 declare var APP_CMS_KEY;
 declare var ppapp;
+declare var importScripts;
 declare class Swiper {
   constructor(el, props: any)
+}
+declare module "worker-loader!*" {
+  class WebpackWorker extends Worker {
+    constructor();
+  }
+  export default WebpackWorker;
 }

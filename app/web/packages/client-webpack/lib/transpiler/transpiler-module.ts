@@ -1,13 +1,14 @@
 import File, { FileType } from '@/datahub/project/entities/file';
 import md5 from '@/utils/md5'
 import Loader, { BaseLoader } from '../../loader'
+import Transpiler from './transpiler';
 export default class TranspilerModule {
     public path: string;
     public type: FileType;
     public code: string;
     protected transpiledCode: string;
     public id: string;
-    public denpencies: Array<string> = []; //TODO 去重
+    private _denpencies: Set<string>; //TODO 去重
     public allPackages:  Array<string> = [];
     public evalResult: any;
     public parents: Array<string> = [];
@@ -28,14 +29,14 @@ export default class TranspilerModule {
         this.id = TranspilerModule.getIdByPath(path);
         this.loader = Loader(this.type, {path: this.path})
         this.setAllPackages(code);
+        this._denpencies = new Set();
     }
     public async translate() {
         //TODO 处理less类型
         if (this._isTranslate){
             return;
         }
-        const { result, isError } = await this.loader.translate(this.code);
-  
+        const { result, isError } = await this.loader.translate(this.code, Transpiler.getChildrenDenpenciesIdMapValue(this.path));
         if (!isError) {
             this.transpiledCode = result;
             //重新编译完成设置待执行
@@ -64,5 +65,11 @@ export default class TranspilerModule {
         }))
         this.allPackages = newAllPackages;
         return diffPackages;
+    }
+    public addDenpency(denpency: string) {
+        this._denpencies.add(denpency);
+    }
+    public getDenpencies(): Array<string> {
+        return Array.from(this._denpencies);
     }
 }

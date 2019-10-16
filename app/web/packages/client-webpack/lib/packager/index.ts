@@ -1,4 +1,4 @@
-import LazyLoad from '../lazyload';
+import LazyLoad from '../Lazyload';
 import path from 'path'
 export default class Packager {
     public contents: {
@@ -83,8 +83,8 @@ export default class Packager {
         return {}
     }
     public getDependencyByFilePath(filepath: string) {
-        const matchReg = /node_modules\/([\w_.-]+)/
-        let packageName = matchReg.exec(filepath)[1];
+        const matchRegResult = /node_modules\/([\w_.-]+)/.exec(filepath);
+        let packageName = matchRegResult[1];
         const dependency = this.dependencyDependencies[packageName];
         return dependency;
     }
