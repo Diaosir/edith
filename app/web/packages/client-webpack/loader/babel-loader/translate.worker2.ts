@@ -9,7 +9,7 @@ ctx.addEventListener("message", (event: MessageEvent) => {
     translate(data.payload.code, data.payload.path, data.payload.childrenDenpenciesMap);
   }
 });
-self.name = 'babel-worker-1';
+self.name = 'babel-worker-2';
 
 // Post data to parent thread
 

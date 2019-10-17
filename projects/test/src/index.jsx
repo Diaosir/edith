@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import  './styles.css'
 import Button from './Button/index.jsx';
-import Input from './Input/index.jsx';
 import Tabs from './Tabs/index.jsx';
 import 'antd-mobile/dist/antd-mobile.less'
 class App extends React.Component {
@@ -29,6 +28,8 @@ class App extends React.Component {
 
 ReactDOM.render(<App></App>, document.getElementById('root'))
 
-
+// import aa from './test.js'
+// import hello from './test1.js'
+// hello(aa)
 //测试类似dom-helpers@5.1.0/addClass获取不到的情况
 // require('dom-helpers@5.1.0/addClass');

@@ -151,9 +151,9 @@ export default class Transpiler {
     const denpencies = targetTranspilerModule.getDenpencies();
     if (denpencies.length > 0) {
       if (targetTranspilerModule.type !== FileType.LESS) {
-        for(let i = 0; i < denpencies.length; i++) {
-          await Transpiler.traverseTranslate(denpencies[i], includes)
-        }
+        await Promise.all(denpencies.map(denpency => {
+          return Transpiler.traverseTranslate(denpency, includes)
+        }))
       }
     }
     if (!includes || includes.exec(modulePath)) {
