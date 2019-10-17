@@ -2,7 +2,7 @@ import LoadWorker from 'worker-loader!./load.worker';
 let caches = {}
 
 import path from 'path'
-import { parse, normalize } from '@/utils/path'
+import { parse, normalize, resolve } from '@/utils/path'
 import md5 from '@/utils/md5'
 import BrowserFs from '@/packages/browserfs';
 import FileManager from '../../lib/file-manager'
@@ -59,22 +59,32 @@ export default class Lazyload {
         } else {
             console.log(`${browserfsFilePath}不在缓存中`)
         }
-        const result: any = await fetch(normalize(url)).then(async response => {
-            const { url } = response;
-            const parseUrl =  parse(url);
-            const code = await response.text();
-            const dir = parseUrl.dir.replace(UNPKG_URL, path.join(projectName, ROOT))
-            const fullPath = path.format({
-                ...parseUrl,
-                dir: dir,
-                base: parseUrl.base
-            })
-            return {
-                code,
-                fullPath: normalize(fullPath)
+        async function doFetch(url) {
+            let result: any = await fetch(normalize(url)).then(async response => {
+                const { url, status } = response;
+                const parseUrl =  parse(url);
+                const code = await response.text();
+                const dir = parseUrl.dir.replace(UNPKG_URL, path.join(projectName, ROOT))
+                const fullPath = path.format({
+                    ...parseUrl,
+                    dir: dir,
+                    base: parseUrl.base
+                })
+                return {
+                    code,
+                    fullPath: normalize(fullPath),
+                    isError: status == 404
+                }
+            });
+            if (result.isError && result.code.indexOf('Cannot find an index') > -1) { //处理获取不到的情况
+                const packageJsonConent = await fetch(`${url}/package.json`).then((response) => response.json()).catch((error) => { return {}});
+                if (packageJsonConent.main) {
+                    result = await doFetch(resolve(url, packageJsonConent.main));
+                }
             }
-        });
-        BrowserFs.setFileContent(result.fullPath, result.code);
-        return result;
+            !result.isError && BrowserFs.setFileContent(result.fullPath, result.code);
+            return result;
+        }
+        return doFetch(url);
     }
 }

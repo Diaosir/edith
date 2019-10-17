@@ -12,14 +12,14 @@ export default class Packager {
         name: string,
         version: string
     }>;
-    public dependencyDependencies: Set<{
+    public dependencyDependencies: Map<string, {
         semver: string,
         resolved: string,
         parents: Set<String>,
         children: Set<String>,
-        entries: Array<string>,
+        entry: string,
         name: string
-    }> = new Set()
+    }> = new Map()
     constructor(){
         
     }
@@ -57,17 +57,18 @@ export default class Packager {
         console.log(this.dependencyDependencies)
     }
     protected setDependencyDependencies(dependency, parent: string, children: Set<String>) {
-        if (this.dependencyDependencies[dependency.name]) {
-            this.dependencyDependencies[dependency.name].parents.add(parent)
+        const dep = this.dependencyDependencies.get(dependency.name);
+        if (dep) {
+            dep.parents.add(parent);
         } else {
-            this.dependencyDependencies[dependency.name] = {
+            this.dependencyDependencies.set(dependency.name, {
                 children: children,
-                parents: new Set().add(parent),
+                parents: new Set([parent]),
                 semver: dependency.semver,
                 resolved: dependency.version,
                 entry: dependency.entry,
                 name: dependency.name
-            }
+            })
         }
     }
     public async getPackageFileOnlyPath(filepath: string) {
@@ -82,10 +83,26 @@ export default class Packager {
         }
         return {}
     }
+    /**
+     *
+     * 根据链接获取依赖包信息
+     * 如test/node_modules/@material-ui/core/lib/index.js，返回@material-ui/core
+     * 
+     * @param {string} filepath
+     * @returns
+     * @memberof Packager
+     */
     public getDependencyByFilePath(filepath: string) {
-        const matchRegResult = /node_modules\/([\w_.-]+)/.exec(filepath);
-        let packageName = matchRegResult[1];
-        const dependency = this.dependencyDependencies[packageName];
+        // const matchRegResult = /node_modules\/([\w@_.-]+)/.exec(filepath);
+        // let packageName = matchRegResult[1];
+        // let dependency = this.dependencyDependencies.get(packageName);
+        //如果找不到所依赖的包名，匹配开头为{packageName}的包名
+        let dependency = null;
+        this.dependencyDependencies.forEach((value, key) => {
+            if (new RegExp(`node_modules\\/${key}`).exec(filepath)) {
+                dependency = value;
+            }
+        })
         return dependency;
     }
 }

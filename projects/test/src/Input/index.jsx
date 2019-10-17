@@ -1,14 +1,17 @@
 import  React  from 'react'
-import './index.less'
-export default class Input extends React.Component {
-  constructor(props){
-    super(props);
-  }
-  render() {
-    return (
-      <div className="input">
-        <input></input>
-      </div>
-    )
-  }
+const useState = React.useState
+function Example() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div>
+      <p>You clicked {count} times</p>
+      <button onClick={() => setCount(count + 1)}>
+        Click me
+      </button>
+    </div>
+  );
 }
+
+
+export default Example

@@ -35,3 +35,11 @@ export function isNodeModules(filename: string) {
   }
   return !filename.match(/^.{1,2}\//)
 }
+
+export function resolve(base: string, filename: string) {
+  let result = path.resolve(base, filename);
+  if (result[0] === '/') {
+    result = result.split('').splice(1).join('');
+  }
+  return result;
+}
