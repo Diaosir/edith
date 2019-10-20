@@ -16,7 +16,7 @@
     "noImplicitUseStrict": true,
     "noImplicitThis": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedParameters": false,
     "paths": {
       "@/*": ["*"],
       "@edith/*": ["packages/*"]

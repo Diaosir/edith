@@ -144,6 +144,23 @@ export default class Transpiler {
    * @memberof Transpiler
    */
   public static async traverseTranslate(modulePath: string, includes: RegExp = null) {
+    // const targetTranspilerModule = Transpiler.getTranspilerModuleByPath(modulePath);
+    // if (!targetTranspilerModule) {
+    //   return;
+    // }
+    // const denpencies = targetTranspilerModule.getDenpencies();
+    // if (denpencies.length > 0) {
+    //   if (targetTranspilerModule.type !== FileType.LESS) {
+    //     await Promise.all(denpencies.map(denpency => {
+    //       return Transpiler.traverseTranslate(denpency, includes)
+    //     }))
+    //   }
+    // }
+    // if (!includes || includes.exec(modulePath)) {
+    //   await targetTranspilerModule.translate();
+    // }
+
+
     const targetTranspilerModule = Transpiler.getTranspilerModuleByPath(modulePath);
     if (!targetTranspilerModule) {
       return;
@@ -151,9 +168,9 @@ export default class Transpiler {
     const denpencies = targetTranspilerModule.getDenpencies();
     if (denpencies.length > 0) {
       if (targetTranspilerModule.type !== FileType.LESS) {
-        await Promise.all(denpencies.map(denpency => {
-          return Transpiler.traverseTranslate(denpency, includes)
-        }))
+        for(let i = 0; i < denpencies.length; i++) {
+          await Transpiler.traverseTranslate(denpencies[i], includes)
+        }
       }
     }
     if (!includes || includes.exec(modulePath)) {

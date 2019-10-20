@@ -21,7 +21,7 @@ declare var importScripts;
 declare class Swiper {
   constructor(el, props: any)
 }
-declare module "worker-loader!*" {
+declare module "worker-loader*" {
   class WebpackWorker extends Worker {
     constructor();
   }

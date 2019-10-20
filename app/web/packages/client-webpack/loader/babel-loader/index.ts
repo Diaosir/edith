@@ -1,76 +1,33 @@
 import BaseLoader from '../base-loader'
+import * as babel from '@babel/standalone';
+import * as BabelTypes from '@babel/types';
 import { parse } from '@babel/parser';
 import traverse from '@babel/traverse';
-import Worker from 'worker-loader!./translate.worker';
-import Worker2 from 'worker-loader!./translate.worker2';
+import path from 'path'
+import Worker from 'worker-loader!./translate.worker.js';
+import ReplaceRequire from './plugins/replace-require'
+const translateWorker = new Worker();
 export default class BabelLoader extends BaseLoader {
-    static workerNumber = 1;
-    static translateWorkers: Map<string, {
-        worker: any,
-        isBusy: boolean
-    }> = new Map();
-    static translateQuenes: Array<{
-        code: string,
-        path: string,
-        childrenDenpenciesMap: any
-    }> = [];
     constructor(options) {
-        super(options);
-    }
-    static onWorkerMessage(callback) {
-        BabelLoader.translateWorkers.forEach(({ worker }, name) => {
-            worker.addEventListener('message', callback)
+        super({
+            ...options,
+            worker: Worker
         })
-    }
-    static setWorkerBusy(workerName: string) {
-        const workerValue = BabelLoader.translateWorkers.get(workerName);
-        workerValue.isBusy = true;
-    }
-    static setWorkerFree(workerName: string) {
-        const workerValue = BabelLoader.translateWorkers.get(workerName);
-        workerValue.isBusy = false;
-    }
-    static getFreeWorker() {
-        let freeWorker = null, freeWorkerName = ''
-        BabelLoader.translateWorkers.forEach((workerValue, name) => {
-            if (!workerValue.isBusy) {
-                freeWorker = workerValue.worker;
-                freeWorkerName = name;
-            }
-        })
-        return {
-            worker: freeWorker,
-            name: freeWorkerName
-        }
-    }
-
-    static postDataToWoker(workerName: string) {
-        const { worker, isBusy } = BabelLoader.translateWorkers.get(workerName);
-        if(!isBusy) {
-            const popData = BabelLoader.translateQuenes.pop();
-            popData && worker.postMessage({
-                type: 'babel-translate',
-                payload: popData
-            })
-            BabelLoader.setWorkerBusy(workerName);
-        }
     }
     async translateByWorker(code: string, childrenDenpenciesMap: Map<string, string> = new Map()): Promise<{
         result: string,
         isError: boolean
     }> {
-
-        BabelLoader.translateQuenes.push({
-            code,
-            path: this.path,
-            childrenDenpenciesMap
-        });
-        const { worker, name } = BabelLoader.getFreeWorker();
-        if (!!worker) {
-            BabelLoader.postDataToWoker(name);
-        }
+        translateWorker.postMessage({
+            type: 'babel-translate',
+            payload: {
+                code,
+                path: this.path,
+                childrenDenpenciesMap
+            }
+        })
         return new Promise((resolve, reject) => {
-            BabelLoader.onWorkerMessage((ev: MessageEvent) => {
+            translateWorker.onmessage = (ev: MessageEvent) => {
                 const { data } = ev;
                 if (data && data.type === `translate-${this.path}-result`) {
                     const { result, isError} = data.payload;
@@ -79,7 +36,7 @@ export default class BabelLoader extends BaseLoader {
                         isError
                     });
                 }
-            });
+            };
         });
     }
     async translate(code: string, childrenDenpenciesMap: Map<string, string> = new Map()): Promise<{
@@ -152,18 +109,3 @@ export default class BabelLoader extends BaseLoader {
         return Array.from(packages);
     }
 }
-BabelLoader.translateWorkers.set('babel-worker-1', {
-    worker: new Worker(),
-    isBusy: false
-});
-BabelLoader.translateWorkers.set('babel-worker-2', {
-    worker: new Worker2(),
-    isBusy: false
-});
-BabelLoader.onWorkerMessage((ev: MessageEvent) => {
-    const { data } = ev;
-    if (data && data.type === 'IAMFREE') {
-        BabelLoader.setWorkerFree(data.name);
-        BabelLoader.postDataToWoker(data.name);
-    }
-});
