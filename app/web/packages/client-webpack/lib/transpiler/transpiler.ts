@@ -59,6 +59,7 @@ export default class Transpiler {
       //   await Transpiler.traverseChildren(transpiler, transpiler.allPackages[i]);
       // }
     }
+    // transpiler.translate();
     return transpiler;
   }
   public static async traverseChildren(parentTranspiler: TranspilerModule, moduleName: string) {
@@ -137,6 +138,8 @@ export default class Transpiler {
   }
   public static traverseExecute(entryTanspilerModule: TranspilerModule) {
     __edith_require__(entryTanspilerModule.path, true);
+    const denpencies = entryTanspilerModule.getDenpencies();
+    console.log(denpencies);
   }
   /**
    * 遍历翻译所有的模块
@@ -144,6 +147,28 @@ export default class Transpiler {
    * @memberof Transpiler
    */
   public static async traverseTranslate(modulePath: string, includes: RegExp = null) {
+    const targetTranspilerModule = Transpiler.getTranspilerModuleByPath(modulePath);
+    if (!targetTranspilerModule) {
+      return;
+    }
+    
+    let allPromisesMap = new Map();
+    function getTranslatePromise(modulePath: string) {
+      const transpilerModule = Transpiler.getTranspilerModuleByPath(modulePath);
+      if (!includes || includes.exec(modulePath)) {
+        const denpencies = transpilerModule.getDenpencies();
+        if(transpilerModule.type !== FileType.LESS) {
+          denpencies.forEach((denpency) => {
+            getTranslatePromise(denpency);
+          })
+        }
+        if(!allPromisesMap.get(modulePath)) {
+          allPromisesMap.set(modulePath, transpilerModule.translate());
+        }
+      }
+    }
+    getTranslatePromise(modulePath);
+    await Promise.all(Array.from(allPromisesMap.values()));
     // const targetTranspilerModule = Transpiler.getTranspilerModuleByPath(modulePath);
     // if (!targetTranspilerModule) {
     //   return;
@@ -161,21 +186,21 @@ export default class Transpiler {
     // }
 
 
-    const targetTranspilerModule = Transpiler.getTranspilerModuleByPath(modulePath);
-    if (!targetTranspilerModule) {
-      return;
-    }
-    const denpencies = targetTranspilerModule.getDenpencies();
-    if (denpencies.length > 0) {
-      if (targetTranspilerModule.type !== FileType.LESS) {
-        for(let i = 0; i < denpencies.length; i++) {
-          await Transpiler.traverseTranslate(denpencies[i], includes)
-        }
-      }
-    }
-    if (!includes || includes.exec(modulePath)) {
-      await targetTranspilerModule.translate();
-    }
+    // const targetTranspilerModule = Transpiler.getTranspilerModuleByPath(modulePath);
+    // if (!targetTranspilerModule) {
+    //   return;
+    // }
+    // const denpencies = targetTranspilerModule.getDenpencies();
+    // if (denpencies.length > 0) {
+    //   if (targetTranspilerModule.type !== FileType.LESS) {
+    //     for(let i = 0; i < denpencies.length; i++) {
+    //       await Transpiler.traverseTranslate(denpencies[i], includes)
+    //     }
+    //   }
+    // }
+    // if (!includes || includes.exec(modulePath)) {
+    //   await targetTranspilerModule.translate();
+    // }
   }
 }
 function __edith_require__(modulePath, isForce: boolean = false) {

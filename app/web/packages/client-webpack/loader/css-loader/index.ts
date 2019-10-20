@@ -9,7 +9,7 @@ export default class CssLoader extends BaseLoader {
     constructor(options) {
         super(options)
     }
-    async translate(code: string): Promise<{
+    async translate({ code }): Promise<{
         result: string,
         isError: boolean
     }> {
@@ -33,11 +33,10 @@ export default class CssLoader extends BaseLoader {
         }
        
     }
-    execute(code: string): Function {
-        const _this = this;
+    execute({ code, path }): Function {
         return function(module, exports, __edith_require__) {
             try{
-               setStylesheet(code, _this.path);
+               setStylesheet(code, path);
                 exports.default = {
                 }
             } catch(error){

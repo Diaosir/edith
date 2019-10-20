@@ -7,67 +7,41 @@ import path from 'path'
 import Worker from 'worker-loader!./translate.worker.js';
 import ReplaceRequire from './plugins/replace-require'
 const translateWorker = new Worker();
-export default class BabelLoader extends BaseLoader {
+export class BabelLoader extends BaseLoader {
     constructor(options) {
         super({
             ...options,
             worker: Worker
         })
     }
-    async translateByWorker(code: string, childrenDenpenciesMap: Map<string, string> = new Map()): Promise<{
+    async translate({code, path, context }): Promise<{
         result: string,
         isError: boolean
     }> {
-        translateWorker.postMessage({
-            type: 'babel-translate',
-            payload: {
-                code,
-                path: this.path,
-                childrenDenpenciesMap
-            }
-        })
         return new Promise((resolve, reject) => {
-            translateWorker.onmessage = (ev: MessageEvent) => {
-                const { data } = ev;
-                if (data && data.type === `translate-${this.path}-result`) {
-                    const { result, isError} = data.payload;
+            this.pushTaskToQueue(path, {
+                code: code,
+                path: path,
+                chilrenMaps: context.getChildrenDenpenciesIdMapValue(path)
+            },  (error, result) => {
+                if (error) {
+                    reject({
+                        isError: true,
+                        result: error
+                    })
+                } else {
                     resolve({
-                        result,
-                        isError
-                    });
+                        isError: false,
+                        result: result.code
+                    })
                 }
-            };
+            });
         });
     }
-    async translate(code: string, childrenDenpenciesMap: Map<string, string> = new Map()): Promise<{
-        result: string,
-        isError: boolean
-    }> {
-        // try{
-        //     const transformResult = babel.transform(code, {
-        //         presets: [["typescript", { allExtensions: true , isTSX: true}], 'es2015', 'react'],
-        //         plugins: [[ReplaceRequire, {path: this.path}]]
-        //     });
-        //     return {
-        //         result: transformResult.code,
-        //         isError: false
-        //     }
-            
-        // } catch(error) {
-        //     //Todo log
-        //     console.log(error)
-        //     return {
-        //         result: error,
-        //         isError: true
-        //     }
-        // }
-        return this.translateByWorker(code, childrenDenpenciesMap);
-    }
-    execute(code: string): Function {
-        const _this = this;
+    execute({ code, path, context }): Function {
         return function(module, exports, __edith_require__) {
             try{
-                eval(`${code}\n//# sourceURL=edith:${_this.path}?`)
+                eval(`${code}\n//# sourceURL=edith:${path}?`)
             } catch(error){
                 // Todo log execute error
                 console.log(error)
@@ -109,3 +83,4 @@ export default class BabelLoader extends BaseLoader {
         return Array.from(packages);
     }
 }
+export default new BabelLoader({});

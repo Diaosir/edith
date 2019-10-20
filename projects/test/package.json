@@ -5,6 +5,10 @@
   "keywords": [],
   "main": "src/index.jsx",
   "dependencies": {
+    "is": "",
+    "antd-mobile": "",
+    "react": "",
+    "react-dom": ""
   },
   "devDependencies": {
     "typescript": "3.3.3",

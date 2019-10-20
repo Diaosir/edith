@@ -6,10 +6,9 @@ const ctx = self
 ctx.addEventListener("message", (event ) => {
   const { data } = event;
   if (data && data.type === 'babel-translate') {
-    translate(data.payload.code, data.payload.path, data.payload.childrenDenpenciesMap);
+    translate(data.payload.code, data.payload.path, data.payload.chilrenMaps);
   }
 });
-self.name = 'babel-worker-1';
 // Post data to parent thread
 
 // Respond to message from parent thread
@@ -25,40 +24,34 @@ function replaceRequire({types: BabelTypes}, options) {
                 path.node.callee = BabelTypes.identifier("__edith_require__");
                 if (args.length === 1) {
                     const arg = args[0];
-                    path.node.arguments = [BabelTypes.stringLiteral(options.childrenDenpenciesMap.get(`${options.path}/${arg.value}`))]
+                    path.node.arguments = [BabelTypes.stringLiteral(options.chilrenMaps.get(`${options.path}/${arg.value}`))]
                 }
             }
         }
     }
   };
 }
-function translate(code, filepath, childrenDenpenciesMap) {
+function translate(code, filepath, chilrenMaps = new Map()) {
   try{
     const transformResult = ctx.Babel.transform(code || '', {
         presets: [["typescript", { allExtensions: true , isTSX: true}], 'es2015', 'react'],
-        plugins: [[replaceRequire, {path: filepath, childrenDenpenciesMap: childrenDenpenciesMap}]]
+        plugins: [[replaceRequire, { path: filepath, chilrenMaps}]]
     });
     ctx.postMessage({
-      type: `translate-${filepath}-result`,
+      type: `success`,
       payload: {
-        filepath,
-        result: transformResult.code,
+        path: filepath,
+        code: transformResult.code,
         isError: false
       }
     })
-    ctx.postMessage({
-      type: 'IAMFREE',
-      name: self.name
-    })
   } catch(error) {
-    console.log(error, filepath)
     ctx.postMessage({
-      type: `translate-${filepath}-result`,
-      payload: {
-        path: filepath,
-        result: error,
-        isError: true
-      }
+      type: `error`,
+      error: error.toString()
     })
   }
 }
+ctx.postMessage({
+  type: 'ready'
+})

@@ -9,7 +9,7 @@ export default class LessLoader extends BaseLoader {
     constructor(options) {
         super(options);
     }
-   async translate(code: string): Promise<{
+   async translate({ code, path }): Promise<{
         result: string,
         isError: boolean
     }> {
@@ -17,7 +17,7 @@ export default class LessLoader extends BaseLoader {
             // const result = postcss().process(code, { syntax, parser }).then((res) => {
             //     console.log(res)
             // });
-            const less = lessBrowser(window, {filename: this.path, javascriptEnabled: true });
+            const less = lessBrowser(window, {filename: path, javascriptEnabled: true });
             const { css, imports } = await less.render(code || '');
             return {
                 result: css,
@@ -32,11 +32,10 @@ export default class LessLoader extends BaseLoader {
         }
         
     }
-    execute(code: string): Function {
-        const _this = this;
+    execute({ code, path }): Function {
         return function(module, exports, __edith_require__) {
             try{
-                setStylesheet(code, _this.path);
+                setStylesheet(code, path);
             } catch(error){
                 // Todo log execute error
                 console.log(error)

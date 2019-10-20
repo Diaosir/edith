@@ -27,7 +27,7 @@ export default class TranspilerModule {
         this.path = path;
         this.type = File.filenameToFileType(path);
         this.id = TranspilerModule.getIdByPath(path);
-        this.loader = Loader(this.type, {path: this.path})
+        this.loader = Loader(this.type)
         this.setAllPackages(code);
         this._denpencies = new Set();
     }
@@ -36,7 +36,11 @@ export default class TranspilerModule {
         if (this._isTranslate){
             return;
         }
-        const { result, isError } = await this.loader.translate(this.code, Transpiler.getChildrenDenpenciesIdMapValue(this.path));
+        const { result, isError } = await this.loader.translate({
+            code: this.code,
+            path: this.path,
+            context: Transpiler
+        });
         if (!isError) {
             this.transpiledCode = result;
             //重新编译完成设置待执行
@@ -45,7 +49,10 @@ export default class TranspilerModule {
         }
     }
     public getModuleFunction() {
-        return this.loader.execute(this.transpiledCode);
+        return this.loader.execute({
+            code: this.transpiledCode,
+            path: this.path
+        });
     }
     public static getIdByPath(path: string) {
         return md5(path);
