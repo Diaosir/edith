@@ -18,7 +18,7 @@ export default function Loader(type: FileType, options?: any) {
         return cacheLoader[type] = new CssLoader(options)
     }
     if(type === FileType.LESS) {
-        return cacheLoader[type] = new LessLoader(options)
+        return LessLoader;
     }
     return BabelLoader;
 }

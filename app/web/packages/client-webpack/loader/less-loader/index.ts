@@ -1,36 +1,65 @@
 import BaseLoader from '../base-loader'
-import postcss from 'postcss';
-import syntax, { parser }  from 'postcss-less'
 import { setStylesheet } from '../../utils'
-import lessBrowser from '@/packages/less-browser'
+import Transpiler from '@/packages/client-webpack/lib/transpiler/transpiler'
 import getLessDependencies  from "./get-less-dependencies";
-
-export default class LessLoader extends BaseLoader {
-    constructor(options) {
-        super(options);
-    }
-   async translate({ code, path }): Promise<{
+import Worker from 'worker-loader!./translate.worker.js';
+import { FileType } from '@/datahub/project/entities/file'
+export class LessLoader extends BaseLoader {
+    constructor(options?) {
+        super({
+            ...options,
+            worker: Worker
+        })
+   }
+   async beforeTranslate({ code, path, context}) {
+       const denpencies = this.getDependencies(code);
+       await Promise.all(denpencies.map( async(denpency) => {
+           return context.traverseChildren(path, denpency);
+       }));
+   }
+   async afterTranslate() {
+    return ''
+   }
+   async translate({ code, path, context, isEntry }): Promise<{
         result: string,
-        isError: boolean
+        isError: boolean,
+        denpencies?: any
     }> {
-        try{
-            // const result = postcss().process(code, { syntax, parser }).then((res) => {
-            //     console.log(res)
-            // });
-            const less = lessBrowser(window, {filename: path, javascriptEnabled: true });
-            const { css, imports } = await less.render(code || '');
+        await this.beforeTranslate({code, path, context});
+        //如果为less，仅编译入口文件
+        if (isEntry) {
+            return new Promise((resolve, reject) => {
+                let modules = {};
+                Transpiler.transpilerModules.forEach((transpilerModule) => {
+                    if ([FileType.LESS, FileType.CSS].includes(transpilerModule.type)) {
+                        modules[transpilerModule.path] = transpilerModule.code;
+                    }
+                })
+                this.pushTaskToQueue(path, {
+                    code: code,
+                    path: path,
+                    files: modules
+                },  (error, result) => {
+                    if (error) {
+                        resolve({
+                            isError: true,
+                            result: error
+                        })
+                    } else {
+                        resolve({
+                            isError: false,
+                            result: result.code,
+                            denpencies: result.denpencies
+                        })
+                    }
+                });
+            });
+        } else {
             return {
-                result: css,
-                isError: false
-            }
-        } catch(error) {
-            console.log(error)
-            return {
-                result: '',
-                isError: true
+                isError: true,
+                result: `this module is not entry`
             }
         }
-        
     }
     execute({ code, path }): Function {
         return function(module, exports, __edith_require__) {
@@ -46,3 +75,5 @@ export default class LessLoader extends BaseLoader {
         return getLessDependencies(code);
     }
 }
+
+export default new LessLoader();

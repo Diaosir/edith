@@ -1,12 +1,7 @@
 import BaseLoader from '../base-loader'
-import * as babel from '@babel/standalone';
-import * as BabelTypes from '@babel/types';
 import { parse } from '@babel/parser';
 import traverse from '@babel/traverse';
-import path from 'path'
 import Worker from 'worker-loader!./translate.worker.js';
-import ReplaceRequire from './plugins/replace-require'
-const translateWorker = new Worker();
 export class BabelLoader extends BaseLoader {
     constructor(options) {
         super({
@@ -14,11 +9,20 @@ export class BabelLoader extends BaseLoader {
             worker: Worker
         })
     }
+    async beforeTranslate() {
+        return ''
+    }
+    async afterTranslate({path, denpencies, context }) {
+        await Promise.all(denpencies.map( async(denpency) => {
+            return context.traverseChildren(path, denpency);
+        }));
+    }
     async translate({code, path, context }): Promise<{
         result: string,
-        isError: boolean
+        isError: boolean,
+        denpencies: any
     }> {
-        return new Promise((resolve, reject) => {
+        const data:any = await new Promise((resolve, reject) => {
             this.pushTaskToQueue(path, {
                 code: code,
                 path: path,
@@ -32,11 +36,17 @@ export class BabelLoader extends BaseLoader {
                 } else {
                     resolve({
                         isError: false,
-                        result: result.code
-                    })
+                        result: result.code,
+                        denpencies: result.denpencies
+                    });
+                    
                 }
             });
         });
+        if (data.denpencies) {
+            await this.afterTranslate({path, denpencies: data.denpencies, context});
+        }
+        return data;
     }
     execute({ code, path, context }): Function {
         return function(module, exports, __edith_require__) {

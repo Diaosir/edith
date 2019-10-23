@@ -27,9 +27,10 @@ class App extends React.Component {
 }
 
 ReactDOM.render(<App></App>, document.getElementById('root'))
-// import * as is from 'is';
-// console.log(is)
-// import hello from './test1.js'
-// hello('1')
-//测试类似dom-helpers@5.1.0/addClass获取不到的情况
-// require('dom-helpers@5.1.0/addClass');
+// // import * as is from 'is';
+// // console.log(is)
+// // import hello from './test1.js'
+// // hello('1')
+// //测试类似dom-helpers@5.1.0/addClass获取不到的情况
+// // require('dom-helpers@5.1.0/addClass');
+import './less/index.less'

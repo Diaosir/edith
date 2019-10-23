@@ -21,7 +21,7 @@ export default class MButton extends React.Component {
             extra={<span>this is extra</span>}
           />
           <Card.Body>
-            <div>This is content of `Card`</div>
+            <div className="button">This is content of `Card`</div>
           </Card.Body>
           <Card.Footer content="footer content" extra={<div>extra footer content</div>} />
         </Card>

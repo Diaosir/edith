@@ -43,3 +43,6 @@ export function resolve(base: string, filename: string) {
   }
   return result;
 }
+export function originalResolve(base: string, filename: string) {
+  return path.resolve(base, filename);
+}

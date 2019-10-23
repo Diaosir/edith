@@ -26,6 +26,8 @@ export default abstract  class BaseLoader {
             this.initWorker();
         }
     }
+    abstract async beforeTranslate(data: any): Promise<any>;
+    abstract async afterTranslate(data: any): Promise<any>;
     /**
      *
      * 将代码转译
@@ -40,6 +42,7 @@ export default abstract  class BaseLoader {
     abstract async translate(data: { [key: string]: any}): Promise<{
         result: string;
         isError: boolean;
+        denpencies?: Array<string>
     }>;
     /**
     *
@@ -84,6 +87,12 @@ export default abstract  class BaseLoader {
             if (data.type === 'success') {
                 callbacks.forEach(callback => callback(data.error, data.payload));
                 this.taskQueue.push
+            }
+            if(data.type === 'error') {
+                callbacks.forEach(callback => callback(data.error));
+            }
+            if (data.type === 'add-transpilation-dependency') {
+                console.log(data)
             }
             if (data.type === 'error' || data.type === 'success') {
                 this.freeWorkers.unshift(worker);
