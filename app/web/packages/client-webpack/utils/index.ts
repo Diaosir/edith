@@ -8,3 +8,9 @@ export function setStylesheet(code, id) {
     }
     targertStyle.innerHTML = code;
 }
+export function deleteStylesheet(id) {
+    let targertStyle = <HTMLStyleElement>document.getElementById(id);
+    if (targertStyle) {
+        targertStyle.parentElement.removeChild(targertStyle)
+    }
+}

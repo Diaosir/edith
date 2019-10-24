@@ -9,6 +9,14 @@ export class BabelLoader extends BaseLoader {
             worker: Worker
         })
     }
+    /**
+     * nothing
+     *
+     * @memberof BabelLoader
+     */
+    quit(modulePath) {
+
+    }
     async beforeTranslate() {
         return ''
     }

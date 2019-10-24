@@ -50,6 +50,7 @@ function translate(code, filepath, chilrenMaps = new Map()) {
       }
     })
   } catch(error) {
+    console.log(code)
     ctx.postMessage({
       type: `error`,
       error: error.toString()

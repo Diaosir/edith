@@ -9,10 +9,9 @@ export default class TranspilerModule {
     public code: string;
     protected transpiledCode: string;
     public id: string;
-    private _denpencies: Set<string>; //TODO 去重
-    public allPackages:  Array<string> = [];
+    private _denpencies: Map<string, string> = new Map(); //TODO 去重
     public evalResult: any;
-    public parents: Array<string> = [];
+    private _parents: Array<string> = [];
     public isTraverse: boolean = false;
     private _isTranslate: boolean = false;
     public isEntry: boolean = false;
@@ -30,26 +29,31 @@ export default class TranspilerModule {
         this.type = File.filenameToFileType(path);
         this.id = TranspilerModule.getIdByPath(path);
         this.loader = Loader(this.type)
-        // this.setAllPackages(code);
-        this._denpencies = new Set();
     }
-    public async translate() {
+    public async translate(isForce: boolean = false) {
         //TODO 处理less类型
-        if (this._isTranslate){
+        if (!isForce && this._isTranslate){
             return;
         }
-        const { result, isError, denpencies } = await this.loader.translate({
+        const { result, isError, denpencies = [] } = await this.loader.translate({
             code: this.code,
             path: this.path,
             context: Transpiler,
-            isEntry: this.isEntry
+            isEntry: this.isEntry,
+            isTraverseChildren: !isForce
         });
         if (!isError) {
             this.transpiledCode = result;
-            this.allPackages = denpencies || [];
             //重新编译完成设置待执行
             this._isTranslate = true;
             this.module.isLoad = false;
+            if (is.array(denpencies)) {
+                this._denpencies.forEach((value, key) => {
+                    if (!denpencies.includes(key)) {
+                        this.removeDenpency(key);
+                    }
+                })
+            }
         }
     }
     public getModuleFunction() {
@@ -65,22 +69,48 @@ export default class TranspilerModule {
         this.code = newCode;
         this._isTranslate = false;
         this.isTraverse = false;
+        this.module.isLoad = false;
     }
-    public setAllPackages(code: string) {
-        this.allPackages = this.loader.getDependencies(code);
-    }
-    public async getNewPackages(newCode: string): Promise<any> {
-        const newAllPackages =  this.loader.getDependencies(newCode);
-        const diffPackages = newAllPackages.filter((packageName => {
-            return !this.allPackages.includes(packageName);
-        }))
-        this.allPackages = newAllPackages;
-        return diffPackages;
-    }
-    public addDenpency(denpency: string) {
-        this._denpencies.add(denpency);
+    public addDenpency(key: string, value: string) {
+        this._denpencies.set(key, value);
     }
     public getDenpencies(): Array<string> {
-        return Array.from(this._denpencies);
+        return Array.from(this._denpencies.values());
+    }
+    public isIncludeChildren(childrenPath: string): boolean {
+        let result = false;
+        Transpiler.walk(this.path, (transpilerModule: TranspilerModule) => {
+            if (transpilerModule.path === childrenPath) {
+                result = true;
+                return true;
+            }
+            return false;
+        })
+        return result;
+    }
+    public removeDenpency(moduleKey: string) {
+        const childrenModule = Transpiler.getTranspilerModuleByPath(this._denpencies.get(moduleKey));
+        if (childrenModule) {
+            childrenModule.removeParent(this.path);
+        }
+        this._denpencies.delete(moduleKey);
+    }
+    public removeParent(removeParents: any) {
+        if(is.string(removeParents)) {
+            removeParents = [removeParents];
+        }
+        this._parents = this._parents.filter(parent => !removeParents.includes(parent));
+        //如果不存在引用，则退出此模块
+        if (this._parents.length === 0) {
+            is.function(this.loader.quit) && this.loader.quit(this.path);
+        }
+    }
+    public addParent(parentPath: string) {
+        if(!this._parents.includes(parentPath)) {
+            this._parents.push(parentPath)
+        }
+    }
+    public getParents() {
+        return this._parents;
     }
 }

@@ -8,7 +8,8 @@
     "is": "",
     "antd-mobile": "",
     "react": "",
-    "react-dom": ""
+    "react-dom": "",
+    "react-helmet": ""
   },
   "devDependencies": {
     "typescript": "3.3.3",

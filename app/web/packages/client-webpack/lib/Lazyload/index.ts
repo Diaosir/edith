@@ -76,6 +76,7 @@ export default class Lazyload {
                     isError: status == 404
                 }
             });
+            
             if (result.isError && result.code.indexOf('Cannot find an index') > -1) { //处理获取不到的情况
                 const packageJsonConent = await fetch(`${url}/package.json`).then((response) => response.json()).catch((error) => { return {}});
                 if (packageJsonConent.main) {

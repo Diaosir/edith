@@ -1,5 +1,5 @@
 import BaseLoader from '../base-loader'
-import { setStylesheet } from '../../utils'
+import { setStylesheet, deleteStylesheet} from '../../utils'
 import Transpiler from '@/packages/client-webpack/lib/transpiler/transpiler'
 import getLessDependencies  from "./get-less-dependencies";
 import Worker from 'worker-loader!./translate.worker.js';
@@ -11,21 +11,26 @@ export class LessLoader extends BaseLoader {
             worker: Worker
         })
    }
+   quit(modulePath) {
+       //保留dom
+       deleteStylesheet(modulePath)
+   }
    async beforeTranslate({ code, path, context}) {
        const denpencies = this.getDependencies(code);
-       await Promise.all(denpencies.map( async(denpency) => {
+       await Promise.all(denpencies.map(async(denpency) => {
            return context.traverseChildren(path, denpency);
        }));
+       return denpencies;
    }
    async afterTranslate() {
     return ''
    }
-   async translate({ code, path, context, isEntry }): Promise<{
+   async translate({ code, path, context, isEntry, isTraverseChildren }): Promise<{
         result: string,
         isError: boolean,
         denpencies?: any
     }> {
-        await this.beforeTranslate({code, path, context});
+        let denpencies = await this.beforeTranslate({code, path, context});
         //如果为less，仅编译入口文件
         if (isEntry) {
             return new Promise((resolve, reject) => {
@@ -49,7 +54,7 @@ export class LessLoader extends BaseLoader {
                         resolve({
                             isError: false,
                             result: result.code,
-                            denpencies: result.denpencies
+                            denpencies: denpencies
                         })
                     }
                 });
@@ -57,7 +62,8 @@ export class LessLoader extends BaseLoader {
         } else {
             return {
                 isError: true,
-                result: `this module is not entry`
+                result: `this module is not entry`,
+                denpencies
             }
         }
     }

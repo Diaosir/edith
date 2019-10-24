@@ -1,5 +1,13 @@
 import LazyLoad from '../Lazyload';
 import path from 'path'
+interface Idependency {
+    semver: string,
+    resolved: string,
+    parents: Set<String>,
+    children: Set<String>,
+    entry: string,
+    name: string
+}
 export default class Packager {
     public contents: {
         [key: string]: {
@@ -12,14 +20,7 @@ export default class Packager {
         name: string,
         version: string
     }>;
-    public dependencyDependencies: Map<string, {
-        semver: string,
-        resolved: string,
-        parents: Set<String>,
-        children: Set<String>,
-        entry: string,
-        name: string
-    }> = new Map()
+    public dependencyDependencies: Map<string, Idependency> = new Map()
     constructor(){
         
     }
@@ -79,6 +80,9 @@ export default class Packager {
             const { name, resolved, entry} = dependency;
             let [projectName, realPath] = filepath.split(`node_modules/${name}`);
             const result = await LazyLoad.getPackageFileContent(name, resolved, realPath || entry, projectName);
+            if (result.isError) {
+                console.log(filepath)
+            }
             return result;
         }
         return {}
@@ -93,16 +97,20 @@ export default class Packager {
      * @memberof Packager
      */
     public getDependencyByFilePath(filepath: string) {
-        // const matchRegResult = /node_modules\/([\w@_.-]+)/.exec(filepath);
-        // let packageName = matchRegResult[1];
-        // let dependency = this.dependencyDependencies.get(packageName);
         //如果找不到所依赖的包名，匹配开头为{packageName}的包名
-        let dependency = null;
+        let matchDependency = []
         this.dependencyDependencies.forEach((value, key) => {
             if (new RegExp(`node_modules\\/${key}`).exec(filepath)) {
-                dependency = value;
+                matchDependency.push(value);
             }
         })
-        return dependency;
+        if(matchDependency.length === 0) {  
+            throw new Error(`can not find this package ${filepath}`)
+        }
+        //获取最符合的依赖包
+        matchDependency = matchDependency.sort(function(a: Idependency, b: Idependency) {
+            return b.name.length - a.name.length;
+        })
+        return matchDependency[0];
     }
 }

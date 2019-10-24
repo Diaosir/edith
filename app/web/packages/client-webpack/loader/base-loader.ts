@@ -26,6 +26,13 @@ export default abstract  class BaseLoader {
             this.initWorker();
         }
     }
+    /**
+     * 将依赖移除时调用
+     * @abstract
+     * @param {string} modulePath
+     * @memberof BaseLoader
+     */
+    abstract quit(modulePath: string): void;
     abstract async beforeTranslate(data: any): Promise<any>;
     abstract async afterTranslate(data: any): Promise<any>;
     /**

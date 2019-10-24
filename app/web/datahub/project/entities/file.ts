@@ -207,4 +207,7 @@ export default class File {
       })
     }
   }
+  static isStyle(type: FileType) {
+    return [FileType.CSS, FileType.SCSS, FileType.LESS].includes(type)
+  }
 }
