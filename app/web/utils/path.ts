@@ -46,3 +46,20 @@ export function resolve(base: string, filename: string) {
 export function originalResolve(base: string, filename: string) {
   return path.resolve(base, filename);
 }
+export function isDir(path: string): boolean {
+  const { ext } = parse(path);
+  console.log(ext)
+  return false;
+}
+export function getAllEnablePaths(moduleSuffix: Array<string> = ['js', 'jsx', 'ts', 'tsx'], filename: string) {
+  let result = [filename];
+  const { ext } = parse(filename);
+  if (!ext) {
+    moduleSuffix.forEach(suffix => {
+      result.push(`${filename}.${suffix}`)
+      result.push(`${filename}/index.${suffix}`)
+    })
+  }
+  console.log(result)
+  return result;
+}

@@ -3,14 +3,14 @@ import {
 } from './type/index';
 import File, { FileType } from '@/datahub/project/entities/file';
 import PackageFile from './type/packageFile'
-import is from 'is';
+import * as is from 'is';
 import BrowserFs from '../browserfs'
 import LazyLoad from './lib/lazyload'
 import Ast from './lib/ast'
 import Packager from './lib/packager';
 import Transpiler from './lib/transpiler/transpiler'
 import * as path from 'path'
-
+import { parse, getAllEnablePaths } from '@/utils/path';
 const packaker = new Packager();
 const transpiler = new Transpiler(packaker);
 
@@ -22,13 +22,19 @@ export default class ClientWebpack{
   protected packages: Array<string>;
   public name: string = 'test'
   public static fileMap: Map<string, string> = new Map();
+  public static options: IClientWebpackOption = {
+    moduleSuffix: ['js', 'jsx', 'ts', 'tsx']
+  };
   constructor(options: IClientWebpackOption = {}){
   }
   async init(options: IClientWebpackOption = {}) {
+    ClientWebpack.options = {
+      ...ClientWebpack.options,
+      ...options
+    };
     this.template = options.template;
     this.document = options.document;
     this.buildFileMap(options.fileList);
-    console.log(ClientWebpack.fileMap)
     await this.build();
   }
   public async build() {
@@ -87,7 +93,16 @@ export default class ClientWebpack{
     Transpiler.rebuildTranspilerModule(fullPath, changeFile.getValue());
   }
   public static getFileContentByFilePath(filePath) {
-    let code = ClientWebpack.fileMap.get(filePath) || null;
+    let allList = getAllEnablePaths(ClientWebpack.options.moduleSuffix, filePath);
+    let code = ClientWebpack.fileMap.get(filePath);
+    if (!code) {
+      for(let i = 0; i < allList.length; i++) {
+        filePath = allList[i];
+        if (code = ClientWebpack.fileMap.get(filePath)) {
+          break;
+        }
+      }
+    }
     return {
       code,
       fullPath: filePath
