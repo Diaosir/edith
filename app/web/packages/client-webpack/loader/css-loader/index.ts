@@ -17,7 +17,7 @@ export default class CssLoader extends BaseLoader {
             const root = postcss.parse(code);
             root.walk(function(node) {
                 if (node.type === 'decl') {
-                    // node.value = `url('https://cnt.ppmoney.com/static/v4.01/img/logos_97589d4.png')`
+
                 }
             })
             return {
@@ -47,17 +47,6 @@ export default class CssLoader extends BaseLoader {
     }
     getDependencies(code: string): Array<string> {
         let dependencies = [];
-        // try{
-        //     const root = postcss.parse(code);
-        //     root.walk(function(node) {
-        //         if (node.type === 'decl') {
-        //             node.value = `url('https://cnt.ppmoney.com/static/v4.01/img/logos_97589d4.png')`
-        //         }
-        //     })
-        //     console.log(root.toString())
-        // } catch(error) {
-
-        // }
         return [];
     }
 }
