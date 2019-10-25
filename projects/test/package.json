@@ -6,10 +6,13 @@
   "main": "src/index.jsx",
   "dependencies": {
     "is": "",
-    "antd-mobile": "",
     "react": "",
     "react-dom": "",
-    "react-helmet": ""
+    "react-helmet": "",
+    "@material-ui/core": "",
+    "@material-ui/icons": "",
+    "@material-ui/lab": "",
+    "prop-types": ""
   },
   "devDependencies": {
     "typescript": "3.3.3",

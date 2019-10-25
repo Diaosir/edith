@@ -60,6 +60,5 @@ export function getAllEnablePaths(moduleSuffix: Array<string> = ['js', 'jsx', 't
       result.push(`${filename}/index.${suffix}`)
     })
   }
-  console.log(result)
   return result;
 }

@@ -74,11 +74,10 @@ export default class Packager {
     }
     public async getPackageFileOnlyPath(filepath: string) {
         // const { ext, dir, name } = path.parse(filepath);
-        filepath = filepath.replace(/@\d+.\d+.\d+/, '');
         const dependency = this.getDependencyByFilePath(filepath);
         if (dependency) {
             const { name, resolved, entry} = dependency;
-            let [projectName, realPath] = filepath.split(`node_modules/${name}`);
+            let [projectName, realPath] = filepath.replace(`@${resolved}`, '').split(`node_modules/${name}`);
             const result = await LazyLoad.getPackageFileContent(name, resolved, realPath || entry, projectName);
             if (result.isError) {
                 console.log(filepath)
@@ -100,7 +99,7 @@ export default class Packager {
         //如果找不到所依赖的包名，匹配开头为{packageName}的包名
         let matchDependency = []
         this.dependencyDependencies.forEach((value, key) => {
-            if (new RegExp(`node_modules\\/${key}`).exec(filepath)) {
+            if (new RegExp(`node_modules\\/${key}(@${value.resolved})?`).exec(filepath)) {
                 matchDependency.push(value);
             }
         })
