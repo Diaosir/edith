@@ -15,6 +15,7 @@ export enum FileType {
   FOLDER = 'folder',
   HTML = 'html',
   MD = 'md',
+  VUE = 'vue',
   DEFAULT = 'default'
 }
 const FILE_COLOR = {
@@ -139,6 +140,8 @@ export default class File {
         return 'css';
       case FileType.SCSS:
         return 'sass'
+      case FileType.VUE:
+        return 'vue';
       case FileType.LESS:
         return 'less'
       case FileType.HTML: 

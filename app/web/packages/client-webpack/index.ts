@@ -23,7 +23,7 @@ export default class ClientWebpack{
   public name: string = 'test'
   public static fileMap: Map<string, string> = new Map();
   public static options: IClientWebpackOption = {
-    moduleSuffix: ['js', 'jsx', 'ts', 'tsx']
+    moduleSuffix: ['js', 'jsx', 'ts', 'tsx', 'vue']
   };
   constructor(options: IClientWebpackOption = {}){
   }

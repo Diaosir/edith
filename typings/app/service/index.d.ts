@@ -4,12 +4,14 @@
 import 'egg';
 import ExportFilesystem from '../../../app/service/filesystem';
 import ExportGitlab from '../../../app/service/gitlab';
+import ExportNpm from '../../../app/service/npm';
 import ExportUser from '../../../app/service/user';
 
 declare module 'egg' {
   interface IService {
     filesystem: ExportFilesystem;
     gitlab: ExportGitlab;
+    npm: ExportNpm;
     user: ExportUser;
   }
 }

@@ -56,7 +56,8 @@
     "prop-types": "^15.6.2",
     "react": "^16.6.0",
     "react-sticky": "^6.0.3",
-    "umi": "^2.2.2"
+    "umi": "^2.2.2",
+    "vue-template-compiler": "^2.6.10"
   },
   "devDependencies": {
     "@babel/types": "^7.6.3",

@@ -3,6 +3,7 @@ import BabelLoader from './babel-loader';
 import { FileType } from '@/datahub/project/entities/file'
 import CssLoader from './css-loader';
 import LessLoader from './less-loader';
+import VueLoader from './vue-loader'
 const cacheLoader: any = {}
 export interface ILoader {
     translate: () => string;
@@ -20,5 +21,11 @@ export default function Loader(type: FileType, options?: any) {
     if(type === FileType.LESS) {
         return LessLoader;
     }
-    return BabelLoader;
+    if ([FileType.JS,FileType.JSX, FileType.TS, FileType.TSX].includes(type)) {
+        return BabelLoader;
+    }
+    if (type === FileType.VUE) {
+        return VueLoader;
+    }
+    throw new Error(`not loader to handle ${type}`)
 }
