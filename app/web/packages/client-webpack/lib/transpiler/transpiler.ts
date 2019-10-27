@@ -98,7 +98,6 @@ export default class Transpiler {
         const now = Date.now();
         await targetTranspilerModule.reset(newCode);
         if(File.isStyle(targetTranspilerModule.type) && !targetTranspilerModule.isEntry) {
-          console.log(111)
           await Transpiler.translateAllStyleEntry(targetTranspilerModule.path);
         } else {
           await targetTranspilerModule.translate();

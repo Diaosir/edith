@@ -1,5 +1,6 @@
 import BaseLoader from '../base-loader'
-import * as Compiler from 'vue-template-compiler';
+import parser from './parse'
+import loader from './loader'
 export class VueLoader extends BaseLoader {
     constructor(options) {
         super(options)
@@ -13,16 +14,15 @@ export class VueLoader extends BaseLoader {
     async beforeTranslate() {
 
     }
-    async translate({ code }): Promise<{
+    async translate({ code, path }): Promise<{
         result: string,
         isError: boolean
     }> {
-      const res = Compiler.parseComponent(code);
-      console.log(res)
-      return {
-        result: '',
-        isError: false
-      }
+        console.log(loader(code, path, {context: 'test'}))
+        return {
+            result: '',
+            isError: false
+        }
     }
     execute({ code, path }): Function {
         return function(module, exports, __edith_require__) {
