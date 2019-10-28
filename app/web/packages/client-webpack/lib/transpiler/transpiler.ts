@@ -19,6 +19,7 @@ export const isDir = (filepath) => {
  * 编译阶段
  */
 export default class Transpiler {
+  public static clientWebpack: any = ClientWebpack;
   public static transpilerModules: Map<string, TranspilerModule> = new Map();
   public static denpenciesIdMap: Map<string, string> = new Map();
   public static packager: Packager;
@@ -34,6 +35,7 @@ export default class Transpiler {
     console.log('查找依赖花了: ' + (Date.now() - now) / 1000 + 's')
     now = Date.now()
     console.log(Transpiler.transpilerModules)
+    console.log(Transpiler.denpenciesIdMap)
     now = Date.now()
     Transpiler.traverseExecute(Transpiler.entryTanspilerModule);
     console.log('执行代码花了: ' + (Date.now() - now) / 1000 + 's');
@@ -97,6 +99,7 @@ export default class Transpiler {
       try {
         const now = Date.now();
         await targetTranspilerModule.reset(newCode);
+        
         if(File.isStyle(targetTranspilerModule.type) && !targetTranspilerModule.isEntry) {
           await Transpiler.translateAllStyleEntry(targetTranspilerModule.path);
         } else {
@@ -189,6 +192,9 @@ export default class Transpiler {
     }
     getTranslatePromise(modulePath);
     await Promise.all(Array.from(allPromisesMap.values()));
+  }
+  public static async setFileMap(filename, code) {
+    ClientWebpack.fileMap.set(filename, code);
   }
 }
 function __edith_require__(modulePath, isForce: boolean = false) {

@@ -45,15 +45,15 @@ export default class TranspilerModule {
         if (!isError) {
             this.transpiledCode = result;
             //重新编译完成设置待执行
-            this._isTranslate = true;
-            this.module.isLoad = false;
-            if (is.array(denpencies)) {
+            if (this._isTranslate && is.array(denpencies)) {
                 this._denpencies.forEach((value, key) => {
                     if (!denpencies.includes(key)) {
                         this.removeDenpency(key);
                     }
                 })
             }
+            this._isTranslate = true;
+            this.module.isLoad = false;
         }
     }
     public getModuleFunction() {

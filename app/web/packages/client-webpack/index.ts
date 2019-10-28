@@ -69,6 +69,7 @@ export default class ClientWebpack{
       }
     })
   }
+
   // private buildUsedPackages(): Array<string> {
   //   // console.log(this.packageFile)
   //   let packages: any = {};
