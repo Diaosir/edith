@@ -65,11 +65,20 @@ export default class TranspilerModule {
     public static getIdByPath(path: string) {
         return md5(path);
     }
-    public async reset(newCode: string) {
-        this.code = newCode;
+    public async reset(newCode?: string) {
+        if(!!newCode) {
+            this.code = newCode;
+        }
         this._isTranslate = false;
         this.isTraverse = false;
         this.module.isLoad = false;
+
+        if (this.type === FileType.VUE) {
+            const depNames = this.getDenpencies();
+            depNames.forEach((depName) => {
+                Transpiler.transpilerModules.delete(depName)
+            })
+        }
     }
     public addDenpency(key: string, value: string) {
         this._denpencies.set(key, value);

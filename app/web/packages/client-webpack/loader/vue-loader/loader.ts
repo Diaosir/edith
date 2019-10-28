@@ -77,7 +77,7 @@ export default async function (code: string, path: string, options: any): Promis
     const { transpiledCode } = await templateCompiler.translate(parts.template.content, templateCompilerOptions);
     templateImport = transpiledCode;
   }
-
+  console.log(parts)
   let scriptImport = `var script = {}`;
   if (parts.script) {
     const lang = parts.script.attrs['lang'] || 'js';
@@ -111,7 +111,6 @@ export default async function (code: string, path: string, options: any): Promis
     //   false
     // )
   }
-  console.log(stylesCode)
   let result = `
 ${templateImport}
 ${scriptImport}
