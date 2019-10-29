@@ -1,9 +1,9 @@
 export  class TemplateCompiler {
-  translate(code: string, context?: any) {
+  translate(code: string, context?: any, transpilerContext?: any) {
     return import(
       './loader'
     ).then(loader => {
-      const transpiledCode = loader.default(code, context);
+      const transpiledCode = loader.default(code, context, transpilerContext);
       return Promise.resolve({ transpiledCode })
     })
   }

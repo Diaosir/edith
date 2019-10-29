@@ -3,6 +3,14 @@ import md5 from '@/utils/md5'
 import Loader, { BaseLoader } from '../../loader'
 import Transpiler from './transpiler';
 import * as is from 'is';
+function hotReLoad(data?) {
+    return {
+        accept: function() {
+
+        },
+        data
+    }
+}
 export default class TranspilerModule {
     public path: string;
     public type: FileType;
@@ -18,9 +26,11 @@ export default class TranspilerModule {
     public module: {
         exports: any;
         isLoad: Boolean;
+        hot?: any;
     } = {
         exports: {},
-        isLoad: false
+        isLoad: false,
+        hot: hotReLoad()
     };
     public loader: BaseLoader;
     constructor({code, path}){
@@ -45,13 +55,15 @@ export default class TranspilerModule {
         if (!isError) {
             this.transpiledCode = result;
             //重新编译完成设置待执行
-            if (this._isTranslate && is.array(denpencies)) {
+            if (is.array(denpencies)) {
                 this._denpencies.forEach((value, key) => {
                     if (!denpencies.includes(key)) {
                         this.removeDenpency(key);
                     }
                 })
             }
+            //是否为重新编译
+     
             this._isTranslate = true;
             this.module.isLoad = false;
         }
@@ -72,11 +84,18 @@ export default class TranspilerModule {
         this._isTranslate = false;
         this.isTraverse = false;
         this.module.isLoad = false;
-
+        this.module.exports = null;
         if (this.type === FileType.VUE) {
-            const depNames = this.getDenpencies();
+            let depNames = this.getDenpencies();
+            //过滤掉node_modules
+            depNames = depNames.filter(depName => !depName.match(/node_modules/))
             depNames.forEach((depName) => {
-                Transpiler.transpilerModules.delete(depName)
+                const transpiler = Transpiler.getTranspilerModuleByPath(depName)
+                if (transpiler) {
+                    transpiler.reset();
+                    transpiler.module.hot = hotReLoad({});
+                }
+                // Transpiler.transpilerModules.delete(depName)
             })
         }
     }

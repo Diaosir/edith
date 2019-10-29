@@ -3,11 +3,11 @@ import { stringify } from 'qs';
 import File, { FileType } from './entities/file'
 const prefix = '/api'
 export default class ProjectServie{
-  static getProjectFileList(projectId: number, path: string) {
+  static getProjectFileList(projectId: number, name: string) {
     return request(`${prefix}/project/${projectId}/tree`, {
       method: 'POST',
       body: JSON.stringify({
-        path
+        name
       })
     }).then(({ data }) => {
       let fileList = File.generateFileList(data.payload)

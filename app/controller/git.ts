@@ -5,9 +5,9 @@ export default class HomeController extends Controller {
   }
   async getProject() {
     const ctx = this.ctx;
-    const { path } = this.ctx.request.body;
+    const { name } = this.ctx.request.body;
     const { id } = this.ctx.params;
-    const data = await ctx.service.filesystem.getFileList('vue');
+    const data = await ctx.service.filesystem.getFileList(name || 'test');
     ctx.body = {
       code: 200,
       payload: data,

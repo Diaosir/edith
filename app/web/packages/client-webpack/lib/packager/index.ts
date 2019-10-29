@@ -16,16 +16,11 @@ export default class Packager {
         }
     };
     public dependencyTree: any;
-    protected dependencies: Array<{
-        name: string,
-        version: string
-    }>;
     public dependencyDependencies: Map<string, Idependency> = new Map()
     constructor(){
         
     }
     public async init(dependencies) {
-        this.dependencies = this.formatDependencies(dependencies);
         await this.generateDependencies(dependencies);
     }
     public formatDependencies(dependencies) {
@@ -37,7 +32,7 @@ export default class Packager {
             }
         })
     }
-    protected async generateDependencies(dependencies) {
+    protected async generateDependencies(dependencies: any, isTraverseChildren: Boolean = true) {
         const _super = this;
         // const deps = this.formatDependencies(dependencies)
         await travsedDendencyDependencies(dependencies);
@@ -50,12 +45,13 @@ export default class Packager {
             }
             const deps = _super.formatDependencies(dependencies)
             for( let i = 0; i < deps.length; i++) {
-                const { dependencies, name, version, main } = await LazyLoad.loadPackageJson(deps[i].name, deps[i].semver);
-                _super.setDependencyDependencies({ name, version, semver: deps[i].semver, entry: main}, parent, dependencies);
-                await travsedDendencyDependencies(dependencies, deps[i].name);
+                if (!_super.dependencyDependencies.get(deps[i].name)) {
+                    const { dependencies, name, version, main } = await LazyLoad.loadPackageJson(deps[i].name, deps[i].semver);
+                    _super.setDependencyDependencies({ name, version, semver: deps[i].semver, entry: main}, parent, dependencies);
+                    isTraverseChildren && await travsedDendencyDependencies(dependencies, deps[i].name);
+                }
             }
         }
-        console.log(this.dependencyDependencies)
     }
     protected setDependencyDependencies(dependency, parent: string, children: Set<String>) {
         const dep = this.dependencyDependencies.get(dependency.name);
@@ -78,13 +74,26 @@ export default class Packager {
         if (dependency) {
             const { name, resolved, entry} = dependency;
             let [projectName, realPath] = filepath.replace(`@${resolved}`, '').split(`node_modules/${name}`);
-            const result = await LazyLoad.getPackageFileContent(name, resolved, realPath || entry, projectName);
+            const result = await this.loadFile({
+                name, 
+                version: resolved, 
+                filePath: realPath || entry, 
+                projectName
+            });
             if (result.isError) {
                 console.log(filepath)
             }
             return result;
         }
         return {}
+    }
+    public async loadFile(data: {
+        name: string,
+        version: string,
+        filePath: string,
+        projectName?: string
+    }) {
+        return await LazyLoad.getPackageFileContent(data.name, data.version, data.filePath, data.projectName);
     }
     /**
      *
@@ -111,5 +120,8 @@ export default class Packager {
             return b.name.length - a.name.length;
         })
         return matchDependency[0];
+    }
+    public async addRootDependency(dependencies: any, isTraverseChildren: Boolean = false) {
+        await this.generateDependencies(dependencies, isTraverseChildren );
     }
 }

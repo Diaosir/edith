@@ -35,7 +35,6 @@ export default class Transpiler {
     console.log('查找依赖花了: ' + (Date.now() - now) / 1000 + 's')
     now = Date.now()
     console.log(Transpiler.transpilerModules)
-    console.log(Transpiler.denpenciesIdMap)
     now = Date.now()
     Transpiler.traverseExecute(Transpiler.entryTanspilerModule);
     console.log('执行代码花了: ' + (Date.now() - now) / 1000 + 's');
@@ -47,6 +46,8 @@ export default class Transpiler {
    */
   public static async traverse(code: string, filePath: string, parentTranspilerPath?: string) {
     const transpiler = Transpiler.transpilerModules.get(normalize(filePath)) || new TranspilerModule({code, path: normalize(filePath)});
+    transpiler.code = code;
+
     const parentTranspilerTpye = File.filenameToFileType(parentTranspilerPath);
 
     if (transpiler.path) {
@@ -70,7 +71,6 @@ export default class Transpiler {
     const basePath = parentTranspiler.path;
     let filename = resolve(basePath, moduleName);
     const localFileInfo = await ClientWebpack.getFileContentByFilePath(filename);
-    console.log(localFileInfo)
     let childrenTranspiler= null, code = '';
     // TODO 判断获取node_modules还是本地文件
     if(!!localFileInfo.code) {
@@ -197,6 +197,34 @@ export default class Transpiler {
   public static async setFileMap(filename, code) {
     ClientWebpack.fileMap.set(filename, code);
   }
+  /**
+   *
+   * 添加一个node_module包
+   * @static
+   * @param {{
+   *     packageName: string, 
+   *     version?: string,
+   *     filename: string
+   *   }} data
+   * @memberof Transpiler
+   */
+  public static async loadNodeModuleFile(data: {
+    name: string, 
+    version?: string,
+    filePath: string
+  }) {
+    return await Transpiler.packager.loadFile({
+      name: data.name,
+      version: data.version,
+      filePath: data.filePath,
+      projectName: Transpiler.projectName
+    })
+  }
+  public static async addNodeModuleDependenies(denpencies: {
+    [depName: string]: string
+  }){
+    await Transpiler.packager.addRootDependency(denpencies);
+  }
 }
 function __edith_require__(modulePath, isForce: boolean = false) {
   if(Transpiler.denpenciesIdMap.get(modulePath)) {
@@ -208,6 +236,7 @@ function __edith_require__(modulePath, isForce: boolean = false) {
     return transpilter.module.exports;
   }
   let module = {
+      ...transpilter.module,
       isLoad: false,
       exports: {}
   }

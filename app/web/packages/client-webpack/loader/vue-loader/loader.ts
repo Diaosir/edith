@@ -9,7 +9,6 @@ import genStyleInjectionCode from './utils/styleInjection'
 import templateCompiler from './template-compiler';
 import styleCompiler from './style-compiler';
 import Transpiler from '@/packages/client-webpack/lib/transpiler/transpiler'
-import componentNormalizer from 'raw-loader!./runtime/componentNormalizer';
 // When extracting parts from the source vue file, we want to apply the
 // loaders chained before vue-loader, but exclude some loaders that simply
 // produces side effects such as linting.
@@ -17,20 +16,12 @@ import componentNormalizer from 'raw-loader!./runtime/componentNormalizer';
 //   return loaderUtils.getRemainingRequest(loaderContext);
 // }
 
-const hotReloadAPIPath = '!noop-loader!/node_modules/vue-hot-reload-api.js';
-const styleLoaderPath = 'vue-style-loader';
-const templateCompilerPath = 'vue-template-compiler';
-const styleCompilerPath = 'vue-style-compiler';
-const selectorPath = 'vue-selector';
-
-const defaultLang = {
-  template: 'html',
-  styles: 'css',
-  script: 'js',
-};
-
 export default async function (code: string, path: string, options: any): Promise<any> {
   let query: any = {}
+  Transpiler.addNodeModuleDependenies({
+    'vue-hot-reload-api': '',
+    'vue-loader': ''
+  });
   options = {
         ...options,
         esModule: false
@@ -74,17 +65,20 @@ export default async function (code: string, path: string, options: any): Promis
 
   let templateImport: any = `var render, staticRenderFns`
   if (parts.template) {
-    const { transpiledCode } = await templateCompiler.translate(parts.template.content, templateCompilerOptions);
+    const { lang } = parts.template;
+    const { transpiledCode } = await templateCompiler.translate(parts.template.content, templateCompilerOptions, Transpiler);
     templateImport = transpiledCode;
+    const templateSrc = `${filePath}.${lang || 'template.js'}`
+    const depName = `./${fileName}.${lang || 'template.js'}`;
+    await Transpiler.setFileMap(templateSrc, transpiledCode);
+    templateImport = `import { render, staticRenderFns } from '${depName}'`;
   }
-  console.log(parts)
   let scriptImport = `var script = {}`;
   if (parts.script) {
     const lang = parts.script.attrs['lang'] || 'js';
     const scriptSrc = `${filePath}.${lang}`
     const depName = `./${fileName}.${lang}`;
     await Transpiler.setFileMap(scriptSrc, parts.script.content);
-    await Transpiler.setFileMap(`${dirname(filePath)}/componentNormalizer.js`, componentNormalizer)
     denpencies.push(depName);
     // await Transpiler.traverse(parts.script.content, scriptSrc, filePath);
     scriptImport = (
@@ -96,7 +90,6 @@ export default async function (code: string, path: string, options: any): Promis
   // styles
   let stylesCode = ``
   if (parts.styles.length) {
-    // const a = await styleCompiler.translate(parent)
     const { style, content , lang, scoped } = parts.styles[0];
     const { transpiledCode } = await styleCompiler.translate(content, filePath, moduleId, scoped);
     const styleHref = `${filePath}.${lang || 'css'}`
@@ -116,7 +109,7 @@ ${templateImport}
 ${scriptImport}
 ${stylesCode}
 /* normalize component */
-import normalizer from "./componentNormalizer.js"
+import normalizer from "vue-loader/lib/runtime/componentNormalizer.js"
 var component = normalizer(
   script,
   render,

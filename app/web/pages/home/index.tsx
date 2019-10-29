@@ -28,7 +28,7 @@ export default class extends React.Component<HomeProps> {
     // console.log(fs)
     this.props.dispatch({
       type: 'home/getProjectFileList',
-      payload: { projectId: 4260, path: ''}
+      payload: { projectId: 4260, name: 'vue'}
     })
   }
   dispatch = ({type, payload}) => {
