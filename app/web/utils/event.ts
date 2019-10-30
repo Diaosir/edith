@@ -12,11 +12,13 @@ class MyEventEmitter {
             callback.apply(null, this.emitCaches[eventName]);
             this.emitCaches[eventName] = undefined;
         }
-        if (this.eventNames[eventName] === undefined) {
-            this.eventNames[eventName] = [callback];
-        } else if(is.array(this.eventNames[eventName])){
-            this.eventNames[eventName].push(callback);
-        }
+        //只支持监听一个回调函数
+        this.eventNames[eventName] = [callback];
+        // if (this.eventNames[eventName] === undefined) {
+        //     this.eventNames[eventName] = [callback];
+        // } else if(is.array(this.eventNames[eventName])){
+        //     this.eventNames[eventName].push(callback);
+        // }
     }
     public emit(eventName: string, ...args) {
         if(is.array(this.eventNames[eventName]) && this.eventNames[eventName].length > 0) {

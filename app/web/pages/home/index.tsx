@@ -5,6 +5,7 @@ import Vscode from '../../components/Vscode'
 // import MonacoEditor from '@monaco-editor/react';
 import  './index.scss';
 import { connect } from 'dva';
+import eventBus from '@/utils/event'
 interface HomeProps {
   dispatch: Function;
   location: any;
@@ -27,10 +28,16 @@ export default class extends React.Component<HomeProps> {
   }
   componentDidMount() {
     // console.log(fs)
-    const { location: { query } } = this.props;
+    const { location: { query }} = this.props;
     this.props.dispatch({
       type: 'home/getProjectFileList',
       payload: { projectId: 4260, name: query.name || 'test'}
+    })
+    eventBus.on('browser-reload', () => {
+      const { home: {vscode: { fileList }}} = this.props;
+      if (fileList.length > 0) {
+        eventBus.emit('saveFileList', fileList);
+      }
     })
   }
   dispatch = ({type, payload}) => {

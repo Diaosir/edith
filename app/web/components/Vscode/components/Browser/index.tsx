@@ -11,7 +11,6 @@ export default class Browser extends Component<any, any> {
     }
   }
   componentDidMount() {
-    
     this.browserRef.current.onload = function() {
       eventBus.on('saveFileList', (fileList) => {
         this.contentWindow.postMessage({
@@ -28,7 +27,11 @@ export default class Browser extends Component<any, any> {
           }
         }, '*');
       })
+      eventBus.emit('browser-reload');
     }
+  }
+  reload = () => {
+    this.browserRef.current.contentWindow.location.reload()
   }
   render() {
     return (
@@ -36,7 +39,7 @@ export default class Browser extends Component<any, any> {
         <div className="browser-top-bar">
           <Icon type="left" className="browser-action"></Icon>
           <Icon type="right" className="browser-action"></Icon>
-          <Icon type="undo" className="browser-action"></Icon>
+          <Icon type="undo" onClick={this.reload} className="browser-action"></Icon>
           <div className="browser-url-container">
             <input aria-label="Address Bar Input" defaultValue={this.state.url}/>
           </div>

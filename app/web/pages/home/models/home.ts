@@ -129,7 +129,7 @@ export default {
     *getProjectFileList( { payload }, { call, put, select }) {
       const { projectId } = yield select(({home}) => home);
       const fileList = yield call(() => ProjectService.getProjectFileList(projectId, payload.name));
-      eventBus.emit('saveFileList', fileList);
+      // eventBus.emit('saveFileList', fileList);
       yield put({
         type: 'saveFileList',
         payload: fileList
