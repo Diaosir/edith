@@ -5,9 +5,17 @@ import autoprefixer from 'autoprefixer'
 import { setStylesheet } from '../../utils'
 var prefixer = postcssJs.sync([ require('autoprefixer') ])
 export default class CssLoader extends BaseLoader {
-    private _
     constructor(options) {
         super(options)
+    }
+    async afterTranslate() {
+
+    }
+    async beforeTranslate() {
+
+    }
+    async quit() {
+        
     }
     async translate({ code }): Promise<{
         result: string,

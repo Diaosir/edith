@@ -33,3 +33,7 @@ export default function Loader(type: FileType, options?: any) {
     }
     throw new Error(`not loader to handle ${type}`)
 }
+
+export const defaultLoaderRules = {
+    [FileType.SCSS]: ['css', 'scss']
+}

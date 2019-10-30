@@ -18,7 +18,7 @@ import Transpiler from '@/packages/client-webpack/lib/transpiler/transpiler'
 
 export default async function (code: string, path: string, options: any): Promise<any> {
   let query: any = {}
-  Transpiler.addNodeModuleDependenies({
+  await Transpiler.addNodeModuleDependenies({
     'vue-hot-reload-api': '',
     'vue-loader': ''
   });

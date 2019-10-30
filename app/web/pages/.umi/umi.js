@@ -5,7 +5,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import findRoute, {
   getUrlQuery,
-} from '/Users/fengzhihao/Projects/github/edith/node_modules/_umi-build-dev@1.13.13@umi-build-dev/lib/findRoute.js';
+} from 'E:/github/edith/node_modules/_umi-build-dev@1.13.12@umi-build-dev/lib/findRoute.js';
 import FastClick from '../../../../node_modules/_fastclick@1.0.6@fastclick/lib/fastclick.js';
 
 // runtime plugins
@@ -24,7 +24,7 @@ plugins.init({
   ],
 });
 plugins.use(
-  require('../../../../node_modules/_umi-plugin-dva@1.9.2@umi-plugin-dva/lib/runtime'),
+  require('../../../../node_modules/_umi-plugin-dva@1.9.1@umi-plugin-dva/lib/runtime'),
 );
 
 // Initialize fastclick

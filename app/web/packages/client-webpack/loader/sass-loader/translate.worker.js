@@ -1,7 +1,7 @@
 import { parse, normalize, originalResolve} from '@/utils/path'
-
+// import Sass from './sass.sync.js'
 self.importScripts([
-  'https://cdnjs.cloudflare.com/ajax/libs/sass.js/0.11.0/sass.sync.js',
+  'https://unpkg.com/sass.js@0.11.1/dist/sass.sync.js',
 ]);
 
 self.postMessage('ready');

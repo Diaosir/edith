@@ -2,6 +2,7 @@
   <div id="app">
   huangzhen
   <Hello></Hello>
+  <div class="App">111</div>
   </div>
 </template>
 
@@ -15,8 +16,8 @@ export default {
   }
 }
 </script>
-<style lang='less'>
-    @import './less/index.less';
+<style lang='scss'>
+    @import './scss/index.scss';
     #app{
         margin: 10px;
     }
