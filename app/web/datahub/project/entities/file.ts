@@ -139,7 +139,7 @@ export default class File {
       case FileType.CSS:
         return 'css';
       case FileType.SCSS:
-        return 'sass'
+        return 'scss'
       case FileType.VUE:
         return 'vue';
       case FileType.LESS:
