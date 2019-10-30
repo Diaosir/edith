@@ -35,6 +35,7 @@ export default class extends React.Component<HomeProps> {
     })
     eventBus.on('browser-reload', () => {
       const { home: {vscode: { fileList }}} = this.props;
+      console.log(fileList)
       if (fileList.length > 0) {
         eventBus.emit('saveFileList', fileList);
       }

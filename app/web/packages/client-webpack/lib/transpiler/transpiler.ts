@@ -58,7 +58,7 @@ export default class Transpiler {
       if (parentTranspilerPath) {
         transpiler.addParent(parentTranspilerPath);
       }
-      if (![FileType.LESS].includes(parentTranspilerTpye) && [FileType.CSS, FileType.LESS].includes(transpiler.type)) {
+      if (![FileType.LESS, FileType.SCSS].includes(parentTranspilerTpye) && [FileType.CSS, FileType.LESS, FileType.SCSS].includes(transpiler.type)) {
         transpiler.isEntry = true;
       }
     }
@@ -168,35 +168,6 @@ export default class Transpiler {
   }
   public static traverseExecute(entryTanspilerModule: TranspilerModule) {
     __edith_require__(entryTanspilerModule.path, true);
-  }
-  /**
-   * 遍历翻译所有的模块
-   * @static
-   * @memberof Transpiler
-   */
-  public static async traverseTranslate(modulePath: string, includes: RegExp = null) {
-    const targetTranspilerModule = Transpiler.getTranspilerModuleByPath(modulePath);
-    if (!targetTranspilerModule) {
-      return;
-    }
-    
-    let allPromisesMap = new Map();
-    function getTranslatePromise(modulePath: string) {
-      const transpilerModule = Transpiler.getTranspilerModuleByPath(modulePath);
-      if (!includes || includes.exec(modulePath)) {
-        const denpencies = transpilerModule.getDenpencies();  
-        if(transpilerModule.type !== FileType.LESS) {
-          denpencies.forEach((denpency) => {
-            getTranslatePromise(denpency);
-          })
-        }
-        if(!allPromisesMap.get(modulePath)) {
-          allPromisesMap.set(modulePath, transpilerModule.translate(true));
-        }
-      }
-    }
-    getTranslatePromise(modulePath);
-    await Promise.all(Array.from(allPromisesMap.values()));
   }
   public static async setFileMap(filename, code) {
     ClientWebpack.fileMap.set(filename, code);
