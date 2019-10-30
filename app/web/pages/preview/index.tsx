@@ -20,12 +20,10 @@ export default class PreviewPage extends Component<Props, any> {
                 payload: data
             })
         }, false)
-        console.log(window)
     }
     render() {
         return (
             <div className="preview-page">
-                11
             </div>
         )
     }

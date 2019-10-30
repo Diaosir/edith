@@ -7,6 +7,7 @@ import  './index.scss';
 import { connect } from 'dva';
 interface HomeProps {
   dispatch: Function;
+  location: any;
   home: {
     vscode: {
       fileList: Array<any>,
@@ -26,9 +27,10 @@ export default class extends React.Component<HomeProps> {
   }
   componentDidMount() {
     // console.log(fs)
+    const { location: { query } } = this.props;
     this.props.dispatch({
       type: 'home/getProjectFileList',
-      payload: { projectId: 4260, name: 'vue'}
+      payload: { projectId: 4260, name: query.name || 'test'}
     })
   }
   dispatch = ({type, payload}) => {

@@ -2,13 +2,12 @@ import { Component, createRef } from 'react'
 import './index.scss'
 import { Icon } from 'antd';
 import eventBus from '@/utils/event'
-
 export default class Browser extends Component<any, any> {
   public browserRef: any = createRef();
   constructor(props) {
     super(props);
     this.state = {
-      url: 'http://localhost:8000/#/preview'
+      url: 'http://192.168.13.130:8000/#/preview'
     }
   }
   componentDidMount() {

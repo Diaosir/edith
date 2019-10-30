@@ -11,6 +11,7 @@ import Packager from './lib/packager';
 import Transpiler from './lib/transpiler/transpiler'
 import * as path from 'path'
 import { parse, getAllEnablePaths } from '@/utils/path';
+import * as Loading from '@/components/Loading'
 const packaker = new Packager();
 const transpiler = new Transpiler(packaker);
 
@@ -22,6 +23,7 @@ export default class ClientWebpack{
   protected packages: Array<string>;
   public name: string = 'test'
   public static fileMap: Map<string, string> = new Map();
+  public static loadingComponent: any = Loading;
   public static options: IClientWebpackOption = {
     moduleSuffix: ['js', 'jsx', 'ts', 'tsx', 'vue']
   };
@@ -46,8 +48,10 @@ export default class ClientWebpack{
       });
       const { entryFilePath, entryFileCode } = this.getEntryFile();
       // this.packages = this.buildUsedPackages();
+      ClientWebpack.loadingComponent.show();
       await packaker.init(this.packageFile.getDependencies());
       await transpiler.init(this.name, entryFileCode, entryFilePath);
+      ClientWebpack.loadingComponent.close();
     }
   }
   private getEntryFile() {

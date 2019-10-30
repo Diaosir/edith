@@ -5,6 +5,7 @@ import BrowserFs from '@/packages/browserfs';
 import * as path from 'path';
 import ClientWebpack from '@/packages/client-webpack';
 import { normalize, isNodeModules } from '@/utils/path';
+import * as Loading from '@/components/Loading'
 const global = window as { [key:string]: any};
 function resolve(from: string, to: string) {
   //Todo 判断是否为文件或者文件夹
@@ -25,6 +26,7 @@ export default class Transpiler {
   public static packager: Packager;
   public static entryTanspilerModule: TranspilerModule;
   public static projectName: string;
+  public static loadingComponent: any = Loading;
   constructor(packaker: Packager) {
     Transpiler.packager = packaker;
   }
@@ -97,6 +99,7 @@ export default class Transpiler {
   public static async rebuildTranspilerModule(path: string, newCode: string) {
     const targetTranspilerModule = Transpiler.getTranspilerModuleByPath(path);
     if (!!targetTranspilerModule && targetTranspilerModule.code !== newCode) {
+      Transpiler.loadingComponent.show()
       try {
         const now = Date.now();
         await targetTranspilerModule.reset(newCode);
@@ -114,6 +117,7 @@ export default class Transpiler {
       } catch(error) {
         console.log(error)
       }
+      Transpiler.loadingComponent.close()
     }
   }
   /**
