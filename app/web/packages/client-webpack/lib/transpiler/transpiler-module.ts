@@ -1,7 +1,8 @@
 import File, { FileType } from '@/datahub/project/entities/file';
 import md5 from '@/utils/md5'
-import Loader, { BaseLoader } from '../../loader'
+import Loader, { BaseLoader, defaultLoaderRules } from '../../loader'
 import Transpiler from './transpiler';
+import Context from '../../utils/context'
 import * as is from 'is';
 function hotReLoad(data?) {
     return {
@@ -23,6 +24,7 @@ export default class TranspilerModule {
     public isTraverse: boolean = false;
     private _isTranslate: boolean = false;
     public isEntry: boolean = false;
+    public ctx: Context;
     public module: {
         exports: any;
         isLoad: Boolean;
@@ -33,12 +35,13 @@ export default class TranspilerModule {
         hot: hotReLoad()
     };
     public loader: BaseLoader;
-    constructor({code, path}){
+    constructor({code, path }, ctx){
         this.code = code;
         this.path = path;
         this.type = File.filenameToFileType(path);
         this.id = TranspilerModule.getIdByPath(path);
         this.loader = Loader(this.type)
+        this.ctx = ctx;
     }
     public async translate(isForce: boolean = false) {
         //TODO 处理less类型
@@ -67,6 +70,9 @@ export default class TranspilerModule {
             this._isTranslate = true;
             this.module.isLoad = false;
         }
+    }
+    public async translateMiddlewares() {
+        
     }
     public getModuleFunction() {
         return this.loader.execute({
