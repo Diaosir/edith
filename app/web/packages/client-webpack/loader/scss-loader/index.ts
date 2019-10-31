@@ -65,9 +65,6 @@ export  class SassLoader extends BaseLoader {
   getDependencies(code: string): Array<string> {
     return getSassDependencies(code);
   }
-  quit() {
-
-  }
 }
 
 export default new SassLoader();

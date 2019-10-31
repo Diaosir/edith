@@ -34,8 +34,10 @@ export class BabelLoader extends BaseLoader {
                 path: path
             },  (error, result) => {
                 ctx.error = error;
-                ctx.transpilingCode = !error ? result.code : '';
-                ctx.denpencies = result.denpencies;
+                if (result) {
+                    ctx.transpilingCode = !error ? result.code : '';
+                    ctx.denpencies = result.denpencies;
+                }
                 resolve(ctx);
             });
         });

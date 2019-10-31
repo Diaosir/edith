@@ -1,6 +1,6 @@
-import { ControlledEditor } from '@monaco-editor/react';
+import { ControlledEditor } from '@/components/MonacoEditor';
 import { Component } from 'react';
-
+import { Debounce } from 'lodash-decorators';
 export default class MControlledEditor extends Component<any, any> {
   constructor(props) {
     super(props);
@@ -17,7 +17,11 @@ export default class MControlledEditor extends Component<any, any> {
     }
     return null;
   }
+  @Debounce(500)
   handleEditorChange(ev, value: any) {
+    this.setState({
+      value
+    })
     if (this.state.value !== value) {
       typeof this.props.onChange === 'function' && this.props.onChange(ev,value);
     }

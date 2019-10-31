@@ -20,7 +20,10 @@ export default class PackageJsonFile extends File {
         return this.json.main || null;
     }
     public getDependencies() {
-        const dependencies = this.json.dependencies || {};
+        const dependencies = {
+            ...this.json.dependencies,
+            ...this.json.peerDependencies
+        };
         return dependencies;
     }
 }

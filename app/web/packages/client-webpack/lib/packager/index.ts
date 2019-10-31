@@ -22,6 +22,7 @@ export default class Packager {
     }
     public async init(dependencies) {
         await this.generateDependencies(dependencies);
+        console.log(this.dependencyDependencies)
     }
     public formatDependencies(dependencies) {
         return Object.keys(dependencies).map(name => {

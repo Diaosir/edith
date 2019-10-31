@@ -6,8 +6,7 @@
   "main": "index.jsx",
   "dependencies": {
     "react": "",
-    "react-dom": "",
-    "react-component-console": ""
+    "react-dom": ""
   },
   "devDependencies": {
     "typescript": "3.3.3",

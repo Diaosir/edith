@@ -52,7 +52,7 @@ function translate(code, filepath) {
       }
     })
   } catch(error) {
-    console.log(code)
+    console.log(error)
     ctx.postMessage({
       type: `error`,
       error: error.toString()
