@@ -3,9 +3,12 @@ import postcss from 'postcss';
 import postcssJs from 'postcss-js'
 import autoprefixer from 'autoprefixer'
 import { setStylesheet } from '../../utils'
+import Context from '../../utils/context';
 var prefixer = postcssJs.sync([ require('autoprefixer') ])
-export default class CssLoader extends BaseLoader {
-    constructor(options) {
+import { boundClass } from 'autobind-decorator'
+@boundClass
+export class CssLoader extends BaseLoader {
+    constructor(options?) {
         super(options)
     }
     async afterTranslate() {
@@ -14,47 +17,20 @@ export default class CssLoader extends BaseLoader {
     async beforeTranslate() {
 
     }
-    async quit() {
-        
-    }
-    async translate({ code }): Promise<{
-        result: string,
-        isError: boolean
-    }> {
+    async translate(ctx: Context, next?: any) {
         try{
-            const root = postcss.parse(code);
-            root.walk(function(node) {
-                if (node.type === 'decl') {
-
-                }
+            const { transpilingCode } = ctx;
+            const result = await postcss([ autoprefixer ]).process(transpilingCode);
+            result.warnings().forEach(warn => {
+                console.warn(warn.toString())
             })
-            return {
-                result: root.toString(),
-                isError: false
-            }
+            ctx.transpilingCode = result.css;
         } catch(error) {
             // TODO log
-            return {
-                result: error,
-                isError: true
-            }
+            ctx.error = error;
         }
        
     }
-    execute({ code, path }): Function {
-        return function(module, exports, __edith_require__) {
-            try{
-               setStylesheet(code, path);
-                exports.default = {
-                }
-            } catch(error){
-                // Todo log execute error
-                console.log(error)
-            }
-        }
-    }
-    getDependencies(code: string): Array<string> {
-        let dependencies = [];
-        return [];
-    }
 }
+
+export default new CssLoader();

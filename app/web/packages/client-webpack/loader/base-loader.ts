@@ -26,13 +26,6 @@ export default abstract  class BaseLoader {
             this.initWorker();
         }
     }
-    /**
-     * 将依赖移除时调用
-     * @abstract
-     * @param {string} modulePath
-     * @memberof BaseLoader
-     */
-    abstract quit(modulePath: string): void;
     abstract async beforeTranslate(data: any): Promise<any>;
     abstract async afterTranslate(data: any): Promise<any>;
     /**
@@ -46,23 +39,7 @@ export default abstract  class BaseLoader {
     *     }>}
     * @memberof BaseLoader
     */
-    abstract async translate(data: { [key: string]: any}): Promise<{
-        result: string;
-        isError: boolean;
-        denpencies?: Array<string>
-    }>;
-    /**
-    *
-    * 执行转译后的代码
-    * @abstract
-    * @param {string} code
-    * @returns {Function}
-    * @memberof BaseLoader
-    */
-    abstract execute(data: {
-        [key: string] : any
-    }): Function;
-    abstract getDependencies(code: string): Array<string>;
+    abstract async translate(data: { [key: string]: any}): Promise<any>;
     getWorker(): Promise<Worker> {
         // @ts-ignore
         return Promise.resolve(new this.Worker());

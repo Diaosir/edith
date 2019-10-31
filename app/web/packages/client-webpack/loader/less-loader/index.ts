@@ -1,9 +1,11 @@
 import BaseLoader from '../base-loader'
-import { setStylesheet, deleteStylesheet} from '../../utils'
-import Transpiler from '@/packages/client-webpack/lib/transpiler/transpiler'
 import getLessDependencies  from "./get-less-dependencies";
 import Worker from 'worker-loader!./translate.worker.js';
 import { FileType } from '@/datahub/project/entities/file'
+import Context from '../../utils/context'
+import { boundClass } from 'autobind-decorator'
+
+@boundClass
 export class LessLoader extends BaseLoader {
     constructor(options?) {
         super({
@@ -11,71 +13,49 @@ export class LessLoader extends BaseLoader {
             worker: Worker
         })
    }
-   quit(modulePath) {
-       //保留dom
-       deleteStylesheet(modulePath)
-   }
-   async beforeTranslate({ code, path, context}) {
-       const denpencies = this.getDependencies(code);
+//    quit(modulePath) {
+//        //保留dom
+//        deleteStylesheet(modulePath)
+//    }
+   async beforeTranslate({ transpilingCode, path, manager}) {
+       const denpencies = this.getDependencies(transpilingCode);
        await Promise.all(denpencies.map(async(denpency) => {
-           return context.traverseChildren(path, denpency);
+           return manager.traverseChildren(path, denpency);
        }));
        return denpencies;
    }
    async afterTranslate() {
     return ''
    }
-   async translate({ code, path, context, isEntry, isTraverseChildren }): Promise<{
-        result: string,
-        isError: boolean,
-        denpencies?: any
-    }> {
-        let denpencies = await this.beforeTranslate({code, path, context});
+   async translate(ctx: Context, next?: any) {
+        const { transpilingCode, path, manager, isEntry } = ctx;
+        let denpencies = await this.beforeTranslate({transpilingCode, path, manager});
         //如果为less，仅编译入口文件
         if (isEntry) {
-            return new Promise((resolve, reject) => {
+            await new Promise((resolve, reject) => {
                 let modules = {};
-                Transpiler.transpilerModules.forEach((transpilerModule) => {
+                manager.transpilerModules.forEach((transpilerModule) => {
                     if ([FileType.LESS, FileType.CSS].includes(transpilerModule.type)) {
                         modules[transpilerModule.path] = transpilerModule.code;
                     }
                 })
                 this.pushTaskToQueue(path, {
-                    code: code,
+                    code: transpilingCode,
                     path: path,
                     files: modules
                 },  (error, result) => {
-                    if (error) {
-                        resolve({
-                            isError: true,
-                            result: error
-                        })
-                    } else {
-                        resolve({
-                            isError: false,
-                            result: result.code,
-                            denpencies: denpencies
-                        })
-                    }
+                    ctx.error = error;
+                    ctx.transpilingCode = !error ? result.code : '';
+                    ctx.denpencies = denpencies;
+                    resolve(ctx);
                 });
             });
         } else {
-            return {
-                isError: true,
-                result: `this module is not entry`,
-                denpencies
-            }
+            ctx.error = new Error(`this module is not entry`);
+            ctx.denpencies = denpencies;   
+            ctx.transpilingCode = ''
         }
-    }
-    execute({ code, path }): Function {
-        return function(module, exports, __edith_require__) {
-            try{
-                setStylesheet(code, path);
-            } catch(error){
-                // Todo log execute error
-                console.log(error)
-            }
-        }
+        await next();
     }
     getDependencies(code: string): Array<string> {
         return getLessDependencies(code);

@@ -6,7 +6,6 @@ import * as path from 'path';
 import ClientWebpack from '@/packages/client-webpack';
 import { normalize, isNodeModules } from '@/utils/path';
 import * as Loading from '@/components/Loading';
-import Context from '../../utils/context'
 const global = window as { [key:string]: any};
 function resolve(from: string, to: string) {
   //Todo 判断是否为文件或者文件夹
@@ -28,7 +27,6 @@ export default class Transpiler {
   public static entryTanspilerModule: TranspilerModule;
   public static projectName: string;
   public static loadingComponent: any = Loading;
-  public static ctx: Context = new Context();
   constructor(packaker: Packager) {
     Transpiler.packager = packaker;
   }
@@ -49,8 +47,8 @@ export default class Transpiler {
    * @param entryFile
    */
   public static async traverse(code: string, filePath: string, parentTranspilerPath?: string) {
-    const transpiler = Transpiler.transpilerModules.get(normalize(filePath)) || new TranspilerModule({code, path: normalize(filePath)}, Transpiler.ctx);
-    transpiler.code = code;
+    const transpiler = Transpiler.transpilerModules.get(normalize(filePath)) || new TranspilerModule({code, path: normalize(filePath)});
+    // transpiler.code = code;
 
     const parentTranspilerTpye = File.filenameToFileType(parentTranspilerPath);
 

@@ -35,12 +35,12 @@ function replaceRequire(denpencies) {
     };
   }
 }
-function translate(code, filepath, chilrenMaps = new Map()) {
+function translate(code, filepath) {
   let denpencies = []
   try{
     const transformResult = ctx.Babel.transform(code || '', {
         presets: [["typescript", { allExtensions: true , isTSX: true}], 'es2015', 'react'],
-        plugins: [[replaceRequire(denpencies), { path: filepath, chilrenMaps}]]
+        plugins: [[replaceRequire(denpencies), { path: filepath}]]
     });
     ctx.postMessage({
       type: `success`,

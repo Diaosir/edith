@@ -1,9 +1,10 @@
 import File, { FileType } from '@/datahub/project/entities/file';
 import md5 from '@/utils/md5'
-import Loader, { BaseLoader, defaultLoaderRules } from '../../loader'
+import { defaultLoaderRules } from '../../loader'
 import Transpiler from './transpiler';
 import Context from '../../utils/context'
 import * as is from 'is';
+import getExecuteFunction from './eval'
 function hotReLoad(data?) {
     return {
         accept: function() {
@@ -12,19 +13,58 @@ function hotReLoad(data?) {
         data
     }
 }
+function compose(middlewares: Array<Function>): Function {
+    if (!Array.isArray(middlewares)) throw new TypeError('Middleware stack must be an array!')
+    for(const fn of middlewares) {
+        if (typeof fn !== 'function') throw new TypeError('Middleware must be composed of functions!')
+    }
+    return function(ctx) {
+        function dispatch(index: number) {
+        const fn = middlewares[index];
+        if (!fn) {
+            return Promise.resolve()
+        }
+        try {
+            return Promise.resolve(fn(ctx, dispatch.bind(null, index + 1)))
+        } catch(error) {
+            return Promise.reject(error);
+        }
+        }
+        return dispatch(0);
+    }
+}
 export default class TranspilerModule {
-    public path: string;
     public type: FileType;
-    public code: string;
-    protected transpiledCode: string;
     public id: string;
     private _denpencies: Map<string, string> = new Map(); //TODO 去重
-    public evalResult: any;
     private _parents: Array<string> = [];
     public isTraverse: boolean = false;
     private _isTranslate: boolean = false;
-    public isEntry: boolean = false;
-    public ctx: Context;
+    public ctx: Context = new Context();
+    set code(newCode){
+        this.ctx.code = newCode;
+    }
+    get code() {
+        return this.ctx.code;
+    }
+    set path(pathName) {
+        this.ctx.path = pathName;
+    }
+    get path() {
+        return this.ctx.path;
+    }
+    set isEntry(isEntry: boolean) {
+        this.ctx.isEntry = isEntry
+    }
+    get isEntry() {
+        return this.ctx.isEntry || false;
+    }
+    protected set transpilingCode(transpilingCode: string) {
+        this.ctx.transpilingCode = transpilingCode;
+    }
+    protected get transpilingCode() {
+        return this.ctx.transpilingCode;
+    }
     public module: {
         exports: any;
         isLoad: Boolean;
@@ -34,49 +74,54 @@ export default class TranspilerModule {
         isLoad: false,
         hot: hotReLoad()
     };
-    public loader: BaseLoader;
-    constructor({code, path }, ctx){
+    constructor({code, path }){
         this.code = code;
         this.path = path;
         this.type = File.filenameToFileType(path);
         this.id = TranspilerModule.getIdByPath(path);
-        this.loader = Loader(this.type)
-        this.ctx = ctx;
+        this.ctx.manager = Transpiler;
     }
     public async translate(isForce: boolean = false) {
         //TODO 处理less类型
         if (!isForce && this._isTranslate){
             return;
         }
-        const { result, isError, denpencies = [] } = await this.loader.translate({
-            code: this.code,
-            path: this.path,
-            context: Transpiler,
-            isEntry: this.isEntry,
-            isTraverseChildren: !isForce
-        });
-        if (!isError) {
-            this.transpiledCode = result;
-            //重新编译完成设置待执行
-            if (is.array(denpencies)) {
+        const fn = await this.composeTranslateMiddlewares();
+        //编译前重新赋值
+        this.transpilingCode = this.code;
+        await fn(this.ctx);
+        if (!this.ctx.error) {
+            if (is.array(this.ctx.denpencies)) {
                 this._denpencies.forEach((value, key) => {
-                    if (!denpencies.includes(key)) {
+                    if (!this.ctx.denpencies.includes(key)) {
                         this.removeDenpency(key);
                     }
                 })
             }
-            //是否为重新编译
-     
             this._isTranslate = true;
             this.module.isLoad = false;
         }
     }
-    public async translateMiddlewares() {
+    public async composeTranslateMiddlewares() {
+        const loaderList = defaultLoaderRules[this.type];
+        const middlewares = new Array(loaderList.length);
         
+        //必须确保loader的顺序
+        if (Array.isArray(loaderList) && loaderList.length > 0) {
+            await Promise.all(loaderList.map( async (loaderName, index) => {
+                const loader = await this.ctx.getLoader(loaderName);
+                if (loader) {
+                    middlewares[index] = (loader.translate);
+                } else {
+                    throw new Error(`can not load this loader: ${loaderName}`);
+                }
+            }))
+        }
+        return compose(middlewares);
     }
     public getModuleFunction() {
-        return this.loader.execute({
-            code: this.transpiledCode,
+        return getExecuteFunction({
+            code: this.transpilingCode,
             path: this.path
         });
     }
@@ -136,7 +181,7 @@ export default class TranspilerModule {
         this._parents = this._parents.filter(parent => !removeParents.includes(parent));
         //如果不存在引用，则退出此模块
         if (this._parents.length === 0) {
-            is.function(this.loader.quit) && this.loader.quit(this.path);
+            // is.function(this.loader.quit) && this.loader.quit(this.path);
         }
     }
     public addParent(parentPath: string) {

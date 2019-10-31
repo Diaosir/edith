@@ -1,28 +1,40 @@
 import BaseLoader from '../loader/babel-loader'
+interface ILoader {
+  translate: Function;
+
+}
 export default class Context {
-  public loader: {
+  public code: string;
+  public isEntry: boolean;
+  public manager: any;
+  public config: any;
+  public path: string;
+  public files: Array<any>;
+  public transpilingCode: string;
+  public denpencies: Array<string>;
+  public error: any = null; //是否存在错误
+  private static _loaders: {
     [propName: string]: any;
-  };
+  } = {};
   /**
    *Creates an instance of Context.
    * @param {*} app 
    * @memberof Context
    */
-  constructor() {
+  constructor(app?: any) {
     // this.app = app;
     // this.config = app.config;
-    this.loader = new Proxy({}, {
-        get: async function(target: {[key: string]: any}, name: string) {
-            if (target[name]) {
-                return target[name]
-            }
-            const loader = await import(
-                `../loader/${name}-loader`
-            ).then(_ => {
-                return _.default
-            })
-            return target[name] = loader;
-        }
+    this.manager = app
+  }
+  async getLoader(loaderName: string): Promise<ILoader> {
+    if (Context._loaders[loaderName]) {
+        return Context._loaders[loaderName]
+    }
+    const loader = await import(
+        `../loader/${loaderName}-loader`
+    ).then(_ => {
+        return _.default
     })
+    return Context._loaders[loaderName] = loader;
   }
 }
