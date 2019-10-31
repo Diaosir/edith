@@ -104,6 +104,9 @@ export default class TranspilerModule {
     }
     public async composeTranslateMiddlewares() {
         const loaderList = defaultLoaderRules[this.type];
+        if (!Array.isArray(loaderList) || loaderList.length === 0) {
+            throw new Error(`not loader to handle this file: ${this.path}`);
+        }
         const middlewares = new Array(loaderList.length);
         
         //必须确保loader的顺序
