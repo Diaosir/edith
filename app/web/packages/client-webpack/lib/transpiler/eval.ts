@@ -24,8 +24,6 @@ export default function execute({ code, path }): Function {
       }
     }
   }
-
   return function() {
-
   }
 }

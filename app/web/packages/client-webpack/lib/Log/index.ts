@@ -5,12 +5,12 @@ enum LogType {
     SUCCESS
 }
 export default class Log {
-    static logList: Array<{
+    public logList: Array<{
         type: LogType,
         message: any
     }> = [];
-    public static error(message: any) {
-        Log.logList.push({
+    public error(message: any) {
+        this.logList.push({
             type: LogType.ERROR,
             message: message
         })

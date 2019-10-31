@@ -6,6 +6,7 @@ import * as path from 'path';
 import ClientWebpack from '@/packages/client-webpack';
 import { normalize, isNodeModules } from '@/utils/path';
 import * as Loading from '@/components/Loading';
+import Log from '../Log'
 const global = window as { [key:string]: any};
 function resolve(from: string, to: string) {
   //Todo 判断是否为文件或者文件夹
@@ -27,6 +28,7 @@ export default class Transpiler {
   public static entryTanspilerModule: TranspilerModule;
   public static projectName: string;
   public static loadingComponent: any = Loading;
+  public static log: Log = new Log();
   constructor(packaker: Packager) {
     Transpiler.packager = packaker;
   }
