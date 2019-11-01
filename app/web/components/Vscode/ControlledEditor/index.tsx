@@ -1,7 +1,8 @@
 import { ControlledEditor } from '@/components/MonacoEditor';
-import { Component } from 'react';
+import { Component, createRef } from 'react';
 import { Debounce } from 'lodash-decorators';
 export default class MControlledEditor extends Component<any, any> {
+  public editorRef: any = createRef();
   constructor(props) {
     super(props);
     this.state = {
@@ -16,6 +17,10 @@ export default class MControlledEditor extends Component<any, any> {
       }
     }
     return null;
+  }
+  componentDidMount(){
+    const global = window as {[key: string]: any};
+    console.log(global.monaco);
   }
   @Debounce(500)
   handleEditorChange(ev, value: any) {

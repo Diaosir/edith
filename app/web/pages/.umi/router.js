@@ -74,6 +74,19 @@ const routes = [
         _title_default: '333',
       },
       {
+        path: '/test',
+        exact: true,
+        component: __IS_BROWSER
+          ? _dvaDynamic({
+              component: () => import('../test/index.tsx'),
+              LoadingComponent: require('/Users/fengzhihao/Projects/github/edith/app/web/components/Loading')
+                .default,
+            })
+          : require('../test/index.tsx').default,
+        _title: '333',
+        _title_default: '333',
+      },
+      {
         component: () =>
           React.createElement(
             require('/Users/fengzhihao/Projects/github/edith/node_modules/_umi-build-dev@1.13.13@umi-build-dev/lib/plugins/404/NotFound.js')

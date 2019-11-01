@@ -22,9 +22,9 @@ export default abstract  class BaseLoader {
     constructor(options: any = {}) {
         this.path = options.path;
         this.Worker = options.worker;
-        if (this.Worker) {
-            this.initWorker();
-        }
+        // if (this.Worker) {
+        //     this.initWorker();
+        // }
     }
     abstract async beforeTranslate(data: any): Promise<any>;
     abstract async afterTranslate(data: any): Promise<any>;
@@ -70,13 +70,9 @@ export default abstract  class BaseLoader {
             }
             if (data.type === 'success') {
                 callbacks.forEach(callback => callback(data.error, data.payload));
-                this.taskQueue.push
             }
             if(data.type === 'error') {
                 callbacks.forEach(callback => callback(data.error));
-            }
-            if (data.type === 'add-transpilation-dependency') {
-                console.log(data)
             }
             if (data.type === 'error' || data.type === 'success') {
                 this.freeWorkers.unshift(worker);
