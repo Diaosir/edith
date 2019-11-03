@@ -22,9 +22,9 @@ export default abstract  class BaseLoader {
     constructor(options: any = {}) {
         this.path = options.path;
         this.Worker = options.worker;
-        // if (this.Worker) {
-        //     this.initWorker();
-        // }
+        if (this.Worker) {
+            this.initWorker();
+        }
     }
     abstract async beforeTranslate(data: any): Promise<any>;
     abstract async afterTranslate(data: any): Promise<any>;
