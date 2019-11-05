@@ -1,4 +1,5 @@
 import BaseLoader from '../loader/babel-loader'
+import { FileType } from '@/datahub/project/entities/file'
 interface ILoader {
   translate: Function;
 
@@ -9,6 +10,7 @@ export default class Context {
   public manager: any;
   public config: any;
   public path: string;
+  public type: FileType;
   public files: Array<any>;
   public transpilingCode: string;
   public denpencies: Array<string>;

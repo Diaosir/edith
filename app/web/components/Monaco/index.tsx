@@ -3,7 +3,7 @@ import monaco from './monaco';
 import themes from './themes'
 import './index.scss'
 import TypingsFetcherWorker from 'worker-loader?publicPath=/&name=monaco-typings-ata.[hash:8].worker.js!./workers/fetch-dependency-typings';
-
+import { connect } from 'dva';
 interface MonacoEditorProps {
   value: string;
   filename: string;
@@ -18,11 +18,14 @@ interface MonacoEditorProps {
   },
   dependencies?: {
     [key: string]: string
-  }
+  };
+  fileList: Array<any>
 }
 //https://blog.csdn.net/weixin_30376453/article/details/94965152
 //this.monaco.languages.registerCompletionItemProvider('typescript' //自定义
-
+@connect(({ home, loading}) => ({
+  fileList: home.vscode.fileList
+}))
 export default class MonacoEditor extends Component<MonacoEditorProps, any> {
   public editorRef: any = createRef();
   public monacoRef: any = createRef();
@@ -115,6 +118,7 @@ export default class MonacoEditor extends Component<MonacoEditorProps, any> {
     monaco.languages.registerCompletionItemProvider('typescript', {
       triggerCharacters: ['"', "'", '.'],
       provideCompletionItems: (model, position) => {
+        console.log(this.props.fileList)
         const textUntilPosition = model.getValueInRange(
           {
             startLineNumber: 1,
@@ -159,11 +163,11 @@ export default class MonacoEditor extends Component<MonacoEditorProps, any> {
     });
     this.monacoRef.current.editor.defineTheme('dark', themes['night-dark']);
     this.monacoRef.current.editor.setTheme(theme);
-    this.setCompilerOptions();
-    this.registerAutoCompletions();
-
-    this.setupTypeWorker();
-    
+    if (language === 'typescript') {
+      this.setCompilerOptions();
+      this.registerAutoCompletions();
+      this.setupTypeWorker();
+    } 
   }
   componentDidMount() {
     monaco.init().then(monaco => {
@@ -215,10 +219,9 @@ export default class MonacoEditor extends Component<MonacoEditorProps, any> {
     this.fetchDependencyTypings(this.props.dependencies)
   }
   render() {
+    const { width, height } = this.props;
     return (
-      <div className="MonacoEditor-container">
-        <div className="MonacoEditor" ref={this.containerRef}></div>
-      </div>
+      <div className="MonacoEditor" ref={this.containerRef} style={{width: width, height: height}}></div>
     )
   }
 }

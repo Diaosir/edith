@@ -1,4 +1,4 @@
-import  {ControlledEditor} from '@/components/MonacoEditor';
+import ControlledEditor from '@/components/Monaco';
 import { Component, createRef } from 'react';
 import { Debounce } from 'lodash-decorators';
 export default class MControlledEditor extends Component<any, any> {

@@ -108,17 +108,15 @@ export default class EditorGroup extends Component<any, State> {
             >
               {this.state.panes.map(file => (
                 <TabPane tab={file.name} key={`${file.fid}`} className="tab-pane">
-                  <div className="monaco-editor">
-                    <ControlledEditor 
-                      height="100%" 
-                      width="100%"
-                      value={file.getValue()}
-                      language={file.getIconName()}
-                      filename={`/${file.path}`}
-                      onChange={this.handleEditorChange.bind(this, file)}
-                      theme='dark' 
-                      />
-                  </div>
+                  <ControlledEditor 
+                    height="100%" 
+                    width="100%"
+                    value={file.getValue()}
+                    language={file.getIconName()}
+                    filename={`/${file.path}`}
+                    onChange={this.handleEditorChange.bind(this, file)}
+                    theme='dark' 
+                    />
                 </TabPane>
               ))}
             </Tabs>

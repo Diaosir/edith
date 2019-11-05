@@ -1,4 +1,5 @@
 import path from 'path'
+import BrowserFs from '@/packages/browserfs';
 export enum FileStatus {
   ERROR,
   HAS_CHANGE_NO_SAVE,
@@ -123,7 +124,7 @@ export default class File {
     this.isEdit = options.isEdit;
     this.isDelete = options.isDelete;
     this.path = options.path;
-    console.log(options)
+    this.writeToCache();
   }
   public getIconName(): string {
     switch(this.type) {
@@ -213,5 +214,8 @@ export default class File {
   }
   static isStyle(type: FileType) {
     return [FileType.CSS, FileType.SCSS, FileType.LESS].includes(type)
+  }
+  public writeToCache() {
+    
   }
 }

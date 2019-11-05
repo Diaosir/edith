@@ -34,13 +34,18 @@ function compose(middlewares: Array<Function>): Function {
     }
 }
 export default class TranspilerModule {
-    public type: FileType;
     public id: string;
     private _denpencies: Map<string, string> = new Map(); //TODO 去重
     private _parents: Array<string> = [];
     public isTraverse: boolean = false;
     private _isTranslate: boolean = false;
     public ctx: Context = new Context();
+    set type(fileType) {
+        this.ctx.type = fileType;
+    }
+    get type() {
+        return this.ctx.type;
+    }
     set code(newCode){
         this.ctx.code = newCode;
     }
