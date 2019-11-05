@@ -40,10 +40,10 @@ export default class Vscode extends Component<VscodeProps, any>{
                     <div className="project-title-control"></div>
                   </div>
                   <div className="files">
-                    {/* <Menu
+                    <Menu
                       activeFileId={activeFileId}
                       dispatch={this.props.dispatch}
-                      fileList={fileList} /> */}
+                      fileList={fileList} />
                       <TreeView 
                         fileList={fileList}
                       />

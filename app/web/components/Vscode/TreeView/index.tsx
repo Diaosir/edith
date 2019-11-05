@@ -14,7 +14,7 @@ import FolderOpen from '@material-ui/icons/FolderOpen';
 import StyledTreeItem from './TreeItem'
 import File from '@/datahub/project/entities/file'
 import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
-
+import * as polished from 'polished';
 const useStyles = makeStyles(
   createStyles({
     root: {
@@ -27,14 +27,27 @@ const useStyles = makeStyles(
 interface TreeViewProps {
   fileList: Array<File>;
 }
+function getFileIcon(name) {
+  return function(props) {
+    return (
+      <span className={props.className} style={{background: `url(https://cdn.jsdelivr.net/gh/PKief/vscode-material-icon-theme@master/icons/${name}.svg)`, ...props.styles}}></span>
+    );
+  }
+}
 function TreeViewChildren(fileList: Array<File>) {
   return (
     <>
       {
         fileList.length > 0 && fileList.map((file) => {
+          const { background } = file.getColorObject();
           if (file.children.length > 0) {
             return (
-              <StyledTreeItem key={file.fid} nodeId={`${file.fid}`} labelText={`${file.name}`} labelIcon={Folder}>
+              <StyledTreeItem
+                 key={file.fid} 
+                 nodeId={`${file.fid}`} 
+                 labelText={`${file.name}`} 
+                 bgColor={`${polished.rgbToColorString(background)}`}
+                 labelIcon={Folder}>
                 {
                   TreeViewChildren(file.children)
                 }
@@ -42,7 +55,13 @@ function TreeViewChildren(fileList: Array<File>) {
             )
           }
           return (
-            <StyledTreeItem key={file.fid} nodeId={`${file.fid}`} labelText={`${file.name}`} labelIcon={ArrowRightIcon} />
+            <StyledTreeItem 
+              key={file.fid} 
+              nodeId={`${file.fid}`} 
+              labelText={`${file.name}`} 
+              labelIcon={getFileIcon(file.getIconName())} 
+              bgColor={`${polished.rgbToColorString(background)}`}
+              />
           )
         })
       }
@@ -52,12 +71,16 @@ function TreeViewChildren(fileList: Array<File>) {
 export default function MTreeView(props: TreeViewProps) {
   const classes = useStyles({});
   const { fileList } = props;
+  function onNodeToggle(nodeId, expanded) {
+    console.log(nodeId, expanded)
+  }
   return (
     <TreeView
       className={classes.root}
       defaultExpanded={['3']}
       defaultCollapseIcon={<ArrowDropDownIcon />}
       defaultExpandIcon={<ArrowRightIcon />}
+      onNodeToggle={onNodeToggle}
       defaultEndIcon={<div style={{ width: 15 }} />}
     >
       {
