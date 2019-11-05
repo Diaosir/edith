@@ -5,7 +5,9 @@ export default class App extends Component {
     return (
       <div>
         <MonacoEditor 
-          
+          value='var a = 1'
+          filename='/test/index.ts'
+          language='typescript'
         />
       </div>
     )

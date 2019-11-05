@@ -114,6 +114,7 @@ export default class EditorGroup extends Component<any, State> {
                       width="100%"
                       value={file.getValue()}
                       language={file.getIconName()}
+                      filename={`/${file.path}`}
                       onChange={this.handleEditorChange.bind(this, file)}
                       theme='dark' 
                       />

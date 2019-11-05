@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import './scss/index.scss';
 import './less/index.less';
+import ReactScratch from 'react-scratch-perfect/src/index.jsx';
 class App extends React.Component {
     constructor(props) {
         super(props);
@@ -11,7 +12,9 @@ class App extends React.Component {
     render() {
         return (
             <div className="App">
-              11
+              <ReactScratch>
+                <div>一等奖</div>
+              </ReactScratch>
             </div>
           );
     }

@@ -1,4 +1,4 @@
-import { ControlledEditor } from '@/components/MonacoEditor';
+import  {ControlledEditor} from '@/components/MonacoEditor';
 import { Component, createRef } from 'react';
 import { Debounce } from 'lodash-decorators';
 export default class MControlledEditor extends Component<any, any> {
@@ -32,8 +32,12 @@ export default class MControlledEditor extends Component<any, any> {
     }
   }
   render() {
+    console.log(this.props.filename)
     return (
-      <ControlledEditor {...this.props} value={this.state.value} onChange={this.handleEditorChange.bind(this)}/>
+      <ControlledEditor 
+        language={this.props.language}
+        {...this.props}
+        value={this.state.value}/>
     )
   }
 }

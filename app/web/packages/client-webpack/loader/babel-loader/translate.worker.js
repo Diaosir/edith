@@ -59,6 +59,8 @@ function translate(code, filepath) {
     })
   }
 }
+
+
 ctx.postMessage({
   type: 'ready'
 })

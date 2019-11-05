@@ -123,6 +123,7 @@ export default class File {
     this.isEdit = options.isEdit;
     this.isDelete = options.isDelete;
     this.path = options.path;
+    console.log(options)
   }
   public getIconName(): string {
     switch(this.type) {
