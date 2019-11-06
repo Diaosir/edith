@@ -6,6 +6,7 @@ import TypingsFetcherWorker from 'worker-loader?publicPath=/&name=monaco-typings
 import BrowserFs from '@/packages/browserfs'
 import * as path from 'path'
 import File, { FileType } from '@/datahub/project/entities/file'
+import importAutoCompletions from './plugins/importAutoCompletions'
 interface MonacoEditorProps {
   value: string;
   filename: string;
@@ -31,7 +32,10 @@ export default class MonacoEditor extends Component<MonacoEditorProps, any> {
   public editorRef: any = createRef();
   public monacoRef: any = createRef();
   public containerRef: any = createRef();
+  public currentModel: any = null;
   public typingsFetcherWorker: any = null;
+  public static models: Map<string, any> = new Map();
+  public static hasReg
   tsConfig?: {
     [key: string]: any
   };
@@ -44,7 +48,7 @@ export default class MonacoEditor extends Component<MonacoEditorProps, any> {
     theme: 'dark',
     dependencies: {
       'react': '16.11.0',
-      'antd-mobile': '2.3.1'
+      'react-dom': '16.11.0'
     }
   };
   constructor(props) {
@@ -84,107 +88,12 @@ export default class MonacoEditor extends Component<MonacoEditorProps, any> {
     monaco.languages.typescript.javascriptDefaults.setCompilerOptions(
       compilerDefaults
     );
-    // monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    //   `
-    //   export { default as Button } from './button/index';
-    //   export declare function next() : string`,
-    //   'file:///node_modules/@types/external/index.d.ts');
-
-    //   monaco.languages.typescript.typescriptDefaults.addExtraLib(
-    //     `
-    //       declare class Button {
-    //         static defaultProps: {
-    //             prefixCls: string;
-    //             size: string;
-    //             inline: boolean;
-    //             disabled: boolean;
-    //             loading: boolean;
-    //             activeStyle: {};
-    //         };
-    //         name: string;
-    //         render(): string;
-
-    //     }
-    //     export default Button;
-    //     `,
-    //     'file:///node_modules/@types/external/button/index.d.ts');
 
     monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
       noSemanticValidation: true,
       noSyntaxValidation: true,
     });
 
-  }
-  registerAutoCompletions = () => {
-    const monaco = this.monacoRef.current;
-    const { filename, modules } = this.props;
-    monaco.languages.registerCompletionItemProvider('typescript', {
-      triggerCharacters: ['"', "'", '/'],
-      provideCompletionItems: (model, position) => {
-        const textUntilPosition = model.getValueInRange(
-          {
-            startLineNumber: 1,
-            startColumn: 1,
-            endLineNumber: position.lineNumber,
-            endColumn: position.column,
-          },
-          1
-        );
-        var suggestions = [];
-        if (
-          /(([\s|\n]from\s)|(\brequire\b\())["|']\S*$/.test(textUntilPosition)
-        ) {
-          if (textUntilPosition.endsWith('/')) {
-            const prefix = textUntilPosition.match(/["|'](\S*)$/)[1];
-            const relativePath = path.join(path.dirname(filename), prefix);
-            let chilrenFiles: Array<File> = []
-            if(relativePath === '/') {
-              chilrenFiles = modules;
-            } else {
-              File.recursion(modules, function(file) {
-                if (`/${file.path}/` === relativePath) {
-                  console.log(file)
-                  chilrenFiles = file.children;
-                }
-              })
-            }
-            return {
-              suggestions: chilrenFiles.map(file => {
-                let filePath = file.path.replace(new RegExp(`^${relativePath.slice(1)}`), '');
-                let insertText = filePath
-                if(filePath.endsWith('.js')) {
-                  insertText = filePath.replace(/\.js$/, '')
-                }
-                if (filePath.endsWith('.ts')) {
-                  insertText = filePath.replace(/\.ts$/, '');
-                }
-                return {
-                  label: filePath,
-                  insertText: insertText,
-                  detail: filePath,
-                  kind: file.type === FileType.FOLDER ? monaco.languages.CompletionItemKind.Folder : monaco.languages.CompletionItemKind.File
-                }
-              })
-            }
-          }
-          const dependencies = this.props.dependencies;
-          if (dependencies) {
-            return {
-              suggestions: Object.keys(dependencies).map(name => ({
-                label: name,
-                detail: dependencies[name],
-                insertText: name,
-                kind: monaco.languages.CompletionItemKind.Module
-              }))
-            }
-          }
-        }
-        return {
-          suggestions
-        }
-      }
-    });
-    console.log(monaco.languages)
   }
   registerPlugins(plugins) {
 
@@ -193,19 +102,32 @@ export default class MonacoEditor extends Component<MonacoEditorProps, any> {
    
   }
   createEditor() {
-    const {value, language, theme, filename } = this.props;
+    const { language, theme, dependencies, modules } = this.props;
     const monaco = this.monacoRef.current;
     this.editorRef.current = monaco.editor.create(this.containerRef.current, {
-      model: monaco.editor.createModel(value, language , new monaco.Uri({ path: filename, scheme: 'file' }))
+      model: this.getModel()
     });
     this.editorDidMount()
     this.monacoRef.current.editor.defineTheme('dark', themes['night-dark']);
     this.monacoRef.current.editor.setTheme(theme);
     if (language === 'typescript') {
       this.setCompilerOptions();
-      this.registerAutoCompletions();
       this.setupTypeWorker();
+      importAutoCompletions(monaco, {
+        dependencies: dependencies,
+        modules: modules
+      })
     } 
+  }
+  getModel() {
+    const {value, language, filename } = this.props;
+    const monaco = this.monacoRef.current;
+    if( MonacoEditor.models.get(filename)) {
+      return this.currentModel = MonacoEditor.models.get(filename);
+    }
+    this.currentModel = monaco.editor.createModel(value, language , new monaco.Uri({ path: filename, scheme: 'file' }));
+    MonacoEditor.models.set(filename, this.currentModel);
+    return this.currentModel;
   }
   editorDidMount() {
     const { value, onChange } = this.props; 

@@ -20,7 +20,7 @@ export default class MControlledEditor extends Component<any, any> {
   }
   componentDidMount(){
   }
-  @Debounce(1000)
+  @Debounce(300)
   handleEditorChange(value: any) {
     this.setState({
       value
