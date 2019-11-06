@@ -60,6 +60,7 @@ export default class Vscode extends Component<VscodeProps, any>{
                     fileList={editFileList}
                     activeFileId={activeFileId}
                     dispatch={this.props.dispatch}
+                    modules={fileList}
                   />
                 }
                 RightComponent={

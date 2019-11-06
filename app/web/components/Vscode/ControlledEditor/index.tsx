@@ -19,8 +19,6 @@ export default class MControlledEditor extends Component<any, any> {
     return null;
   }
   componentDidMount(){
-    const global = window as {[key: string]: any};
-    console.log(global.monaco);
   }
   @Debounce(1000)
   handleEditorChange(value: any) {

@@ -3,7 +3,9 @@ import monaco from './monaco';
 import themes from './themes'
 import './index.scss'
 import TypingsFetcherWorker from 'worker-loader?publicPath=/&name=monaco-typings-ata.[hash:8].worker.js!./workers/fetch-dependency-typings';
-import { connect } from 'dva';
+import BrowserFs from '@/packages/browserfs'
+import * as path from 'path'
+import File, { FileType } from '@/datahub/project/entities/file'
 interface MonacoEditorProps {
   value: string;
   filename: string;
@@ -20,7 +22,8 @@ interface MonacoEditorProps {
     [key: string]: string
   };
   fileList?: Array<any>;
-  onChange?: Function 
+  onChange?: Function;
+  modules?: Array<File>
 }
 //https://blog.csdn.net/weixin_30376453/article/details/94965152
 //this.monaco.languages.registerCompletionItemProvider('typescript' //自定义
@@ -49,6 +52,7 @@ export default class MonacoEditor extends Component<MonacoEditorProps, any> {
     this.tsConfig = props.tsConfig || {};
   }
   monacoReady() {
+    window.addEventListener('resize', this.resizeEditor);
     this.createEditor();
   }
   resetTsConfig = (config: any) => {
@@ -113,8 +117,9 @@ export default class MonacoEditor extends Component<MonacoEditorProps, any> {
   }
   registerAutoCompletions = () => {
     const monaco = this.monacoRef.current;
+    const { filename, modules } = this.props;
     monaco.languages.registerCompletionItemProvider('typescript', {
-      triggerCharacters: ['"', "'", '.'],
+      triggerCharacters: ['"', "'", '/'],
       provideCompletionItems: (model, position) => {
         const textUntilPosition = model.getValueInRange(
           {
@@ -127,17 +132,51 @@ export default class MonacoEditor extends Component<MonacoEditorProps, any> {
         );
         var suggestions = [];
         if (
-          /(([\s|\n]from\s)|(\brequire\b\())["|']\.*$/.test(textUntilPosition)
+          /(([\s|\n]from\s)|(\brequire\b\())["|']\S*$/.test(textUntilPosition)
         ) {
-          console.log(textUntilPosition)
-          suggestions.push({
-            label: 'aa.js',
-            insertText: 'aaaa',
-            kind: monaco.languages.CompletionItemKind.File
-          })
-          if (textUntilPosition.endsWith('.')) {
-            const prefix = textUntilPosition.match(/[./]+$/)[0];
-            console.log(prefix)
+          if (textUntilPosition.endsWith('/')) {
+            const prefix = textUntilPosition.match(/["|'](\S*)$/)[1];
+            const relativePath = path.join(path.dirname(filename), prefix);
+            let chilrenFiles: Array<File> = []
+            if(relativePath === '/') {
+              chilrenFiles = modules;
+            } else {
+              File.recursion(modules, function(file) {
+                if (`/${file.path}/` === relativePath) {
+                  console.log(file)
+                  chilrenFiles = file.children;
+                }
+              })
+            }
+            return {
+              suggestions: chilrenFiles.map(file => {
+                let filePath = file.path.replace(new RegExp(`^${relativePath.slice(1)}`), '');
+                let insertText = filePath
+                if(filePath.endsWith('.js')) {
+                  insertText = filePath.replace(/\.js$/, '')
+                }
+                if (filePath.endsWith('.ts')) {
+                  insertText = filePath.replace(/\.ts$/, '');
+                }
+                return {
+                  label: filePath,
+                  insertText: insertText,
+                  detail: filePath,
+                  kind: file.type === FileType.FOLDER ? monaco.languages.CompletionItemKind.Folder : monaco.languages.CompletionItemKind.File
+                }
+              })
+            }
+          }
+          const dependencies = this.props.dependencies;
+          if (dependencies) {
+            return {
+              suggestions: Object.keys(dependencies).map(name => ({
+                label: name,
+                detail: dependencies[name],
+                insertText: name,
+                kind: monaco.languages.CompletionItemKind.Module
+              }))
+            }
           }
         }
         return {
@@ -145,6 +184,7 @@ export default class MonacoEditor extends Component<MonacoEditorProps, any> {
         }
       }
     });
+    console.log(monaco.languages)
   }
   registerPlugins(plugins) {
 
@@ -195,6 +235,19 @@ export default class MonacoEditor extends Component<MonacoEditorProps, any> {
       );
       this.typingsFetcherWorker.postMessage({ dependencies });
     }
+  };
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.resizeEditor);
+    if (this.typingsFetcherWorker) {
+      this.typingsFetcherWorker.terminate();
+    }
+  }
+  resizeEditor = () => {
+    this.forceUpdate(() => {
+      if (this.editorRef.current) {
+        this.editorRef.current.layout();
+      }
+    });
   };
   addLib = (code: string, path: string) => {
     const monaco = this.monacoRef.current;

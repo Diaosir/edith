@@ -105,6 +105,8 @@ export default class TranspilerModule {
             }
             this._isTranslate = true;
             this.module.isLoad = false;
+        } else {
+            console.error(this.ctx.error)
         }
     }
     public async composeTranslateMiddlewares() {

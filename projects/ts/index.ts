@@ -1,2 +1,3 @@
 import Test from './test'
-console.log("hello world")
+import Config from './config/index'
+console.log(Config)

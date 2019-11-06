@@ -1,20 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import TreeView from '@material-ui/lab/TreeView';
-import DeleteIcon from '@material-ui/icons/Delete';
-import Label from '@material-ui/icons/Label';
-import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
-import InfoIcon from '@material-ui/icons/Info';
-import ForumIcon from '@material-ui/icons/Forum';
-import DescriptionIcon from '@material-ui/icons/Description';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 import Folder from '@material-ui/icons/Folder';
 import FolderOpen from '@material-ui/icons/FolderOpen';
 import StyledTreeItem from './TreeItem'
-import File from '@/datahub/project/entities/file'
+import File, { FileType } from '@/datahub/project/entities/file'
 import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
 import * as polished from 'polished';
+const typeToNumber = (fileType: FileType): number => {
+  if(fileType === FileType.FOLDER) {
+    return Number.NEGATIVE_INFINITY;
+  } else {
+    return 1;
+  }
+}
 const useStyles = makeStyles(
   createStyles({
     root: {
@@ -39,6 +40,7 @@ function getFileIcon(name) {
 
 export default function MTreeView(props: TreeViewProps) {
   const classes = useStyles({});
+  const [expandedNodeList, setExpandedNodeList] = useState([]);
   const { fileList, dispatch, activeFileId } = props;
   function handleFileClick(file: File) {
     dispatch({
@@ -46,14 +48,24 @@ export default function MTreeView(props: TreeViewProps) {
       payload: file
     })
   }
-  // function onNodeToggle(nodeId, expanded) {
-  //   console.log(nodeId, expanded)
-  // }
+  function onNodeToggle(nodeId, expanded) {
+    let newList = expandedNodeList;
+    if(expandedNodeList.includes(nodeId) && !expanded) {
+      newList = expandedNodeList.filter( id => id !== nodeId)
+    }
+    if(!expandedNodeList.includes(nodeId) && expanded) {
+      newList = [].concat(expandedNodeList, [nodeId]);
+    }
+    setExpandedNodeList(newList);
+  }
   function TreeViewChildren(fileList: Array<File>) {
+    const list = fileList.sort(function(a, b) {
+      return typeToNumber(a.type) - typeToNumber(b.type)
+    })
     return (
       <>
         {
-          fileList.length > 0 && fileList.map((file) => {
+          list.length > 0 && list.map((file) => {
             const { background } = file.getColorObject();
             if (file.children.length > 0) {
               return (
@@ -62,7 +74,7 @@ export default function MTreeView(props: TreeViewProps) {
                    nodeId={`${file.fid}`} 
                    labelText={`${file.name}`} 
                    bgColor={`${polished.rgbToColorString(background)}`}
-                   labelIcon={Folder}>
+                   labelIcon={expandedNodeList.includes(`${file.fid}`) ? FolderOpen : Folder}>
                   {
                     TreeViewChildren(file.children)
                   }
@@ -91,7 +103,7 @@ export default function MTreeView(props: TreeViewProps) {
       defaultExpanded={['3']}
       defaultCollapseIcon={<ArrowDropDownIcon />}
       defaultExpandIcon={<ArrowRightIcon />}
-      // onNodeToggle={onNodeToggle}
+      onNodeToggle={onNodeToggle}
       defaultEndIcon={<div style={{ width: 15 }} />}
     >
       {

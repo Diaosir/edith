@@ -69,7 +69,9 @@ export default class ClientWebpack{
     }
     File.recursion(fileList, (file: File) => {
       if(file.type !== FileType.FOLDER) {
-        ClientWebpack.fileMap.set(this.formatFilePath(file.path), file.getValue())
+        const filePath = this.formatFilePath(file.path)
+        ClientWebpack.fileMap.set(filePath, file.getValue());
+        BrowserFs.setFileContent(filePath,  file.getValue());
       }
     })
   }
@@ -97,13 +99,18 @@ export default class ClientWebpack{
     ClientWebpack.fileMap.set(fullPath, changeFile.getValue());
     Transpiler.rebuildTranspilerModule(fullPath, changeFile.getValue());
   }
+  /**
+   * TODO 判断文件为空或者undefined
+   * @param filePath 
+   */
   public static getFileContentByFilePath(filePath) {
     let allList = getAllEnablePaths(ClientWebpack.options.moduleSuffix, filePath);
     let code = ClientWebpack.fileMap.get(filePath);
-    if (!code) {
+   
+    if (code === undefined) {
       for(let i = 0; i < allList.length; i++) {
         filePath = allList[i];
-        if (code = ClientWebpack.fileMap.get(filePath)) {
+        if ((code = ClientWebpack.fileMap.get(filePath)) !== undefined) {
           break;
         }
       }

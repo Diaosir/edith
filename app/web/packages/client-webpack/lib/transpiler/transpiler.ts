@@ -77,7 +77,7 @@ export default class Transpiler {
     const localFileInfo = await ClientWebpack.getFileContentByFilePath(filename);
     let childrenTranspiler= null, code = '';
     // TODO 判断获取node_modules还是本地文件
-    if(!!localFileInfo.code) {
+    if(localFileInfo.code !== undefined) {
       code = localFileInfo.code;
       filename = localFileInfo.fullPath
     } else {

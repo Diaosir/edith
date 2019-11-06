@@ -97,6 +97,7 @@ export default class EditorGroup extends Component<any, State> {
     )
   }
   render() {
+    const { modules } = this.props;
     return (
       <div className="editor-group-container">
         <div className="vscode-editor-container">
@@ -116,6 +117,7 @@ export default class EditorGroup extends Component<any, State> {
                     filename={`/${file.path}`}
                     onChange={this.handleEditorChange.bind(this, file)}
                     theme='dark' 
+                    modules={modules}
                     />
                 </TabPane>
               ))}

@@ -51,7 +51,7 @@ export function isDir(path: string): boolean {
   console.log(ext)
   return false;
 }
-export function getAllEnablePaths(moduleSuffix: Array<string> = ['js', 'jsx', 'ts', 'tsx'], filename: string) {
+export function getAllEnablePaths(moduleSuffix: Array<string> = ['js', 'jsx', 'ts', 'tsx', 'vue'], filename: string) {
   let result = [filename];
   const { ext } = parse(filename);
   if (!ext) {

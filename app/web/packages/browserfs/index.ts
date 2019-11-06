@@ -1,6 +1,6 @@
 import * as browserfs from 'browserfs';
 import { parse } from '@/utils/path'
-const fs = require('fs');
+import * as fs from 'fs'
 import path from 'path'
 
 let isConfigure = false;
@@ -90,5 +90,11 @@ export default class BrowserFs {
         resolve(error)
       }
     })
+  }
+  static async readdir(filePath: string) {
+    if (!isConfigure) {
+      await BrowserFs.configure()
+    }
+    return fs.readdirSync(filePath);
   }
 }
