@@ -1,13 +1,14 @@
 import { Component } from 'react';
-import MonacoEditor from '@/components/Monaco'
+import Terminal from '@/components/Terminal'
+
 export default class App extends Component {
+  constructor(props) {
+    super(props)
+  }
   render(){
     return (
       <div>
-        <MonacoEditor 
-          value='var a = 1'
-          filename='/test/index.ts'
-          language='typescript'
+        <Terminal 
         />
       </div>
     )

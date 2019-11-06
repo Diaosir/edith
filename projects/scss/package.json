@@ -7,7 +7,7 @@
   "dependencies": {
     "react": "",
     "react-dom": "",
-    "react-scratch-perfect": ""
+    "react-json-view": ""
   },
   "devDependencies": {
     "typescript": "3.3.3",

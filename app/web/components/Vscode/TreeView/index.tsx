@@ -25,54 +25,65 @@ const useStyles = makeStyles(
   }),
 );
 interface TreeViewProps {
-  fileList: Array<File>;
+  fileList?: Array<File>;
+  dispatch: Function;
+  activeFileId: number;
 }
 function getFileIcon(name) {
   return function(props) {
     return (
-      <span className={props.className} style={{background: `url(https://cdn.jsdelivr.net/gh/PKief/vscode-material-icon-theme@master/icons/${name}.svg)`, ...props.styles}}></span>
+      <span className={props.className} style={{background: `url(https://cdn.jsdelivr.net/gh/PKief/vscode-material-icon-theme@master/icons/${name == 'scss' ? 'sass' : name}.svg)`, ...props.styles}}></span>
     );
   }
 }
-function TreeViewChildren(fileList: Array<File>) {
-  return (
-    <>
-      {
-        fileList.length > 0 && fileList.map((file) => {
-          const { background } = file.getColorObject();
-          if (file.children.length > 0) {
-            return (
-              <StyledTreeItem
-                 key={file.fid} 
-                 nodeId={`${file.fid}`} 
-                 labelText={`${file.name}`} 
-                 bgColor={`${polished.rgbToColorString(background)}`}
-                 labelIcon={Folder}>
-                {
-                  TreeViewChildren(file.children)
-                }
-              </StyledTreeItem>
-            )
-          }
-          return (
-            <StyledTreeItem 
-              key={file.fid} 
-              nodeId={`${file.fid}`} 
-              labelText={`${file.name}`} 
-              labelIcon={getFileIcon(file.getIconName())} 
-              bgColor={`${polished.rgbToColorString(background)}`}
-              />
-          )
-        })
-      }
-    </>
-  )
-}
+
 export default function MTreeView(props: TreeViewProps) {
   const classes = useStyles({});
-  const { fileList } = props;
-  function onNodeToggle(nodeId, expanded) {
-    console.log(nodeId, expanded)
+  const { fileList, dispatch, activeFileId } = props;
+  function handleFileClick(file: File) {
+    dispatch({
+      type: 'menuFileClickEvent',
+      payload: file
+    })
+  }
+  // function onNodeToggle(nodeId, expanded) {
+  //   console.log(nodeId, expanded)
+  // }
+  function TreeViewChildren(fileList: Array<File>) {
+    return (
+      <>
+        {
+          fileList.length > 0 && fileList.map((file) => {
+            const { background } = file.getColorObject();
+            if (file.children.length > 0) {
+              return (
+                <StyledTreeItem
+                   key={file.fid} 
+                   nodeId={`${file.fid}`} 
+                   labelText={`${file.name}`} 
+                   bgColor={`${polished.rgbToColorString(background)}`}
+                   labelIcon={Folder}>
+                  {
+                    TreeViewChildren(file.children)
+                  }
+                </StyledTreeItem>
+              )
+            }
+            return (
+              <StyledTreeItem 
+                key={file.fid} 
+                nodeId={`${file.fid}`} 
+                labelText={`${file.name}`} 
+                labelIcon={getFileIcon(file.getIconName())} 
+                bgColor={`${polished.rgbToColorString(background)}`}
+                onClick={() => { handleFileClick(file) }}
+                isActive={ file.fid === activeFileId }
+                />
+            )
+          })
+        }
+      </>
+    )
   }
   return (
     <TreeView
@@ -80,7 +91,7 @@ export default function MTreeView(props: TreeViewProps) {
       defaultExpanded={['3']}
       defaultCollapseIcon={<ArrowDropDownIcon />}
       defaultExpandIcon={<ArrowRightIcon />}
-      onNodeToggle={onNodeToggle}
+      // onNodeToggle={onNodeToggle}
       defaultEndIcon={<div style={{ width: 15 }} />}
     >
       {

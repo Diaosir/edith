@@ -8,24 +8,22 @@ interface MonacoEditorProps {
   value: string;
   filename: string;
   language: string;
-  editorDidMount: Function;
+  editorDidMount?: Function;
   theme: string;
-  line: number;
-  width: number | string;
-  height: number | string;
-  options: {
+  line?: number;
+  width?: number | string;
+  height?: number | string;
+  options?: {
     [key: string]: any
   },
   dependencies?: {
     [key: string]: string
   };
-  fileList: Array<any>
+  fileList?: Array<any>;
+  onChange?: Function 
 }
 //https://blog.csdn.net/weixin_30376453/article/details/94965152
 //this.monaco.languages.registerCompletionItemProvider('typescript' //自定义
-@connect(({ home, loading}) => ({
-  fileList: home.vscode.fileList
-}))
 export default class MonacoEditor extends Component<MonacoEditorProps, any> {
   public editorRef: any = createRef();
   public monacoRef: any = createRef();
@@ -118,7 +116,6 @@ export default class MonacoEditor extends Component<MonacoEditorProps, any> {
     monaco.languages.registerCompletionItemProvider('typescript', {
       triggerCharacters: ['"', "'", '.'],
       provideCompletionItems: (model, position) => {
-        console.log(this.props.fileList)
         const textUntilPosition = model.getValueInRange(
           {
             startLineNumber: 1,
@@ -161,6 +158,7 @@ export default class MonacoEditor extends Component<MonacoEditorProps, any> {
     this.editorRef.current = monaco.editor.create(this.containerRef.current, {
       model: monaco.editor.createModel(value, language , new monaco.Uri({ path: filename, scheme: 'file' }))
     });
+    this.editorDidMount()
     this.monacoRef.current.editor.defineTheme('dark', themes['night-dark']);
     this.monacoRef.current.editor.setTheme(theme);
     if (language === 'typescript') {
@@ -168,6 +166,16 @@ export default class MonacoEditor extends Component<MonacoEditorProps, any> {
       this.registerAutoCompletions();
       this.setupTypeWorker();
     } 
+  }
+  editorDidMount() {
+    const { value, onChange } = this.props; 
+    const editor = this.editorRef.current
+    editor.onDidChangeModelContent(ev => {
+      const newValue = editor.getValue();
+      if (value !== newValue && typeof onChange === 'function') {
+        onChange(newValue);
+      }
+    })
   }
   componentDidMount() {
     monaco.init().then(monaco => {

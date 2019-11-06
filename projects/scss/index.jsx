@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import './scss/index.scss';
 // import './less/index.less';
-import ReactScratch from 'react-scratch-perfect/src/index.jsx';
+import ReactJson from 'react-json-view';
 class App extends React.Component {
     constructor(props) {
         super(props);
@@ -12,12 +12,13 @@ class App extends React.Component {
     render() {
         return (
             <div className="App">
-              <ReactScratch>
-                <div>一等奖</div>
-              </ReactScratch>
+              <ReactJson src={{
+                a: 'a',
+                nb: ['1']
+              }} />
             </div>
           );
     }
 }
 
-ReactDOM.render(<App></App>, document.getElementById('root'))
+ReactDOM.render(<App></App>, document.getElementById('app'))

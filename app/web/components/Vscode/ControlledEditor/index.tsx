@@ -22,21 +22,21 @@ export default class MControlledEditor extends Component<any, any> {
     const global = window as {[key: string]: any};
     console.log(global.monaco);
   }
-  @Debounce(500)
-  handleEditorChange(ev, value: any) {
+  @Debounce(1000)
+  handleEditorChange(value: any) {
     this.setState({
       value
     })
     if (this.state.value !== value) {
-      typeof this.props.onChange === 'function' && this.props.onChange(ev,value);
+      typeof this.props.onChange === 'function' && this.props.onChange(value);
     }
   }
   render() {
-    console.log(this.props.filename)
     return (
       <ControlledEditor 
         language={this.props.language}
         {...this.props}
+        onChange={this.handleEditorChange.bind(this)}
         value={this.state.value}/>
     )
   }

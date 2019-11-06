@@ -42,7 +42,7 @@ export default class EditorGroup extends Component<any, State> {
       payload: file
     })
   }
-  handleEditorChange (file: File, ev, value) {
+  handleEditorChange (file: File, value) {
     this.props.dispatch({
       type: 'handleMonacoEditorChange',
       payload: {
@@ -61,7 +61,7 @@ export default class EditorGroup extends Component<any, State> {
                   key={pane.fid} 
                   onClick={() => this.handleTabClick(pane)}
                   >
-                    <div className={`edith-icon-label file-icon index.js-name-file-icon js-ext-file-icon ext-file-icon ${pane.getIconName()}-lang-file-icon tab-label`}>
+                    <div className={`edith-icon-label file-icon index.js-name-file-icon js-ext-file-icon ${pane.getIconName()}-lang-file-icon tab-label`}>
                       <Tooltip 
                         placement="topLeft" 
                         title={pane.path}

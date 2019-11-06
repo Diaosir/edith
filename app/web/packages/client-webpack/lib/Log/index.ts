@@ -7,13 +7,12 @@ enum LogType {
 export default class Log {
     public logList: Array<{
         type: LogType,
-        message: any
+        data: any
     }> = [];
-    public error(message: any) {
+    public error(data: any) {
         this.logList.push({
             type: LogType.ERROR,
-            message: message
+            data: data
         })
-        console.log(message)
     }
 }

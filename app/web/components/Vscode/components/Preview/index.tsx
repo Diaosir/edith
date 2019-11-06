@@ -3,7 +3,7 @@ import './index.scss'
 import { Tabs } from 'antd';
 import Browser from '../Browser'
 import DevTools from '../../../../packages/devtools'
-import Terminal from '../Terminal';
+import Terminal from '@/components/Terminal';
 const { TabPane } = Tabs;
 export default class Preview extends Component<any, any> {
   constructor(props) {
@@ -17,7 +17,7 @@ export default class Preview extends Component<any, any> {
           content: <Browser />
         },
         {
-          title: 'Test',
+          title: 'Console',
           id: 'test',
           content: <Terminal />
         }

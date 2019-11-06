@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
-import Hooks from './hooks/index.jsx'
+import Hooks from './hooks'
 import './styles.css';
 class App extends React.Component {
     constructor(props) {
