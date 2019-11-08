@@ -33,6 +33,15 @@ function compose(middlewares: Array<Function>): Function {
         return dispatch(0);
     }
 }
+export enum ModuleStatus {
+    LOADING,
+    LOADFAIL,
+    TANSLATING,
+    TANSLATEFAIL,
+    EXECUTING,
+    EXECUTEFAIL,
+    COMPLETED,
+}
 export default class TranspilerModule {
     public id: string;
     private _denpencies: Map<string, string> = new Map(); //TODO 去重
@@ -40,6 +49,7 @@ export default class TranspilerModule {
     public isTraverse: boolean = false;
     private _isTranslate: boolean = false;
     public ctx: Context = new Context();
+    public status: ModuleStatus;
     set type(fileType) {
         this.ctx.type = fileType;
     }

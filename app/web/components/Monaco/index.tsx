@@ -48,7 +48,8 @@ export default class MonacoEditor extends Component<MonacoEditorProps, any> {
     theme: 'dark',
     dependencies: {
       'react': '16.11.0',
-      'react-dom': '16.11.0'
+      'react-dom': '16.11.0',
+      'antd-mobile': '2.3.1'
     }
   };
   constructor(props) {

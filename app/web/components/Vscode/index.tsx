@@ -7,6 +7,7 @@ import './index.scss'
 import MonacoEditor from './MonacoEditor'
 import Preview from './components/Preview'
 import Resizer from '@/components/Resizer'
+import LeftBar from './LeftBar'
 interface VscodeProps {
   data: {
     fileList: Array<File>;
@@ -25,7 +26,7 @@ export default class Vscode extends Component<VscodeProps, any>{
       <div className="vscode">
         <TopBar></TopBar>
         <div className="vscode-project-container">
-          <div className="vscode-left-bar"></div>
+          <LeftBar />
           <div className="vscode-split-pane">
             <div style={{
               width: 249,

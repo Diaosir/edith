@@ -144,17 +144,23 @@ export default {
       }
     },
     addFolder(state, { payload }) {
-      const file: File = payload;
-      recursion(file.fid, state.vscode.fileList, function(matchFile: File) {
+      const { vscode: { fileList }} = state
+      const fid = payload.fid;
+      let file = null;
+      recursion(fid, state.vscode.fileList, function(matchFile: File) {
+        file = matchFile;
         matchFile.isOpenChildren = true;
       })
-      file.children.push(
-        new File({
-          name: '',
-          type: FileType.FOLDER,
-          isEdit: true
-        })
-      )
+      const newFile = new File({
+        name: '',
+        type: FileType.FOLDER,
+        isEdit: true
+      })
+      if (!!file) {
+        file.children.push(newFile)
+      } else {
+        fileList.push(newFile)
+      }
       return {
         ...state
       }

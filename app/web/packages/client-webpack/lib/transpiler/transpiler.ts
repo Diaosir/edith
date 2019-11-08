@@ -217,9 +217,16 @@ function __edith_require__(modulePath, isForce: boolean = false) {
       isLoad: false,
       exports: {}
   }
-  transpilter.getModuleFunction().call(module.exports, module, module.exports, __edith_require__);
+  //解决循环依赖问题;
   module.isLoad = true;
   transpilter.module = module;
+  
+  try{
+    transpilter.getModuleFunction().call(module.exports, module, module.exports, __edith_require__);
+  } catch (error) {
+    module.isLoad = false;
+    throw new Error(error)
+  }
   return module.exports
 }
 global.process = {

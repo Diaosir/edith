@@ -3,23 +3,6 @@
   width: 100%;
   height: 100%;
   flex: 1 1 auto;
-  .vscode-left-bar{
-    position: fixed;
-    top: 48px;
-    bottom: 22px;
-    left: 0px;
-    display: flex;
-    flex-direction: column;
-    width: 3.5rem;
-    height: 100%;
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 1.4rem;
-    -webkit-box-align: center;
-    align-items: center;
-    background-color: rgb(28, 32, 34);
-    flex: 0 0 3.5rem;
-    border-right: 1px solid #111518;
-  }
   .vscode-split-pane{
     position: fixed;
     left: calc(3.5rem);
@@ -46,6 +29,9 @@
       width: 100%;
       overflow-y: overlay;
       overflow-x: auto;
+      .menu-control{
+        height: 20px;
+      }
     }
     .project-title{
       font-size: 0.875rem;

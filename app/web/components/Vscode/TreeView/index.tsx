@@ -7,7 +7,8 @@ import Folder from '@material-ui/icons/Folder';
 import FolderOpen from '@material-ui/icons/FolderOpen';
 import StyledTreeItem from './TreeItem'
 import File, { FileType } from '@/datahub/project/entities/file'
-import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
+import './index.scss'
+import Controller from './controller'
 import * as polished from 'polished';
 const typeToNumber = (fileType: FileType): number => {
   if(fileType === FileType.FOLDER) {
@@ -21,7 +22,7 @@ const useStyles = makeStyles(
     root: {
       height: 264,
       flexGrow: 1,
-      maxWidth: 400,
+      maxWidth: 400
     },
   }),
 );
@@ -97,55 +98,40 @@ export default function MTreeView(props: TreeViewProps) {
       </>
     )
   }
-  return (
-    <TreeView
-      className={classes.root}
-      defaultExpanded={['3']}
-      defaultCollapseIcon={<ArrowDropDownIcon />}
-      defaultExpandIcon={<ArrowRightIcon />}
-      onNodeToggle={onNodeToggle}
-      defaultEndIcon={<div style={{ width: 15 }} />}
-    >
-      {
-        TreeViewChildren(fileList)
+  function handleAddFile() {
+    dispatch({
+      type: 'addFile',
+      payload: {
+        fid: activeFileId
       }
-      {/* <StyledTreeItem nodeId="1" labelText="All Mail" labelIcon={FolderOpen} />
-      <StyledTreeItem nodeId="2" labelText="Trash" labelIcon={DeleteIcon} />
-      <StyledTreeItem nodeId="3" labelText="Categories" labelIcon={Folder}>
-        <StyledTreeItem
-          nodeId="5"
-          labelText="Social"
-          labelIcon={SupervisorAccountIcon}
-          labelInfo="90"
-          color="#1a73e8"
-          bgColor="#e8f0fe"
-        />
-        <StyledTreeItem
-          nodeId="6"
-          labelText="Updates"
-          labelIcon={InfoIcon}
-          labelInfo="2,294"
-          color="#e3742f"
-          bgColor="#fcefe3"
-        />
-        <StyledTreeItem
-          nodeId="7"
-          labelText="Forums"
-          labelIcon={ForumIcon}
-          labelInfo="3,566"
-          color="#a250f5"
-          bgColor="#f3e8fd"
-        />
-        <StyledTreeItem
-          nodeId="8"
-          labelText="Promotions"
-          labelIcon={LocalOfferIcon}
-          labelInfo="733"
-          color="#3c8039"
-          bgColor="#e6f4ea"
-        />
-      </StyledTreeItem>
-      <StyledTreeItem nodeId="4" labelText="History" labelIcon={Label} /> */}
-    </TreeView>
+    })
+  }
+  function handleAddFolder() {
+    dispatch({
+      type: 'addFolder',
+      payload: {
+        fid: activeFileId
+      }
+    })
+  }
+  return (
+    <div className="menu-tree">
+      <Controller 
+        onAddFile={handleAddFile}
+        onAddFolder={handleAddFolder}
+      />
+      <TreeView
+        className={classes.root}
+        defaultExpanded={['3']}
+        defaultCollapseIcon={<ArrowDropDownIcon />}
+        defaultExpandIcon={<ArrowRightIcon />}
+        onNodeToggle={onNodeToggle}
+        defaultEndIcon={<div style={{ width: 15 }} />}
+      >
+        {
+          TreeViewChildren(fileList)
+        }
+      </TreeView>
+    </div>
   );
 }

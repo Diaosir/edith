@@ -9,9 +9,7 @@
     "react": "",
     "react-dom": "",
     "react-helmet": "",
-    "@material-ui/core": "",
-    "@material-ui/icons": "",
-    "@material-ui/lab": "",
+    "antd-mobile": "",
     "prop-types": ""
   },
   "devDependencies": {
