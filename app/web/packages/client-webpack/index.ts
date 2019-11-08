@@ -97,7 +97,20 @@ export default class ClientWebpack{
   public changeFile(changeFile: File) {
     const fullPath = this.formatFilePath(changeFile.path);
     ClientWebpack.fileMap.set(fullPath, changeFile.getValue());
-    Transpiler.rebuildTranspilerModule(fullPath, changeFile.getValue());
+    if (changeFile.name === 'package.json') {
+      try{
+        this.packageFile = new PackageFile({
+          value: changeFile.getValue(),
+          name: 'package.json'
+        });
+        packaker.init(this.packageFile.getDependencies());
+      } catch(error) {
+        console.log(error)
+      }
+    } else {
+      Transpiler.rebuildTranspilerModule(fullPath, changeFile.getValue());
+    }
+
   }
   /**
    * TODO 判断文件为空或者undefined

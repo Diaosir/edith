@@ -24,13 +24,16 @@
       -webkit-box-pack: justify;
       justify-content: space-between;
       background-color: rgb(25, 29, 31);
-      color: inherit;
+      color: rgba(255, 255, 255, 0.5);
       height: 100%;
       width: 100%;
       overflow-y: overlay;
       overflow-x: auto;
       .menu-control{
         height: 20px;
+      }
+      .files{
+        width: 100%;
       }
     }
     .project-title{

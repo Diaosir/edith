@@ -20,7 +20,6 @@ const typeToNumber = (fileType: FileType): number => {
 const useStyles = makeStyles(
   createStyles({
     root: {
-      height: 264,
       flexGrow: 1,
       maxWidth: 400
     },
@@ -116,10 +115,10 @@ export default function MTreeView(props: TreeViewProps) {
   }
   return (
     <div className="menu-tree">
-      <Controller 
+      {/* <Controller 
         onAddFile={handleAddFile}
         onAddFolder={handleAddFolder}
-      />
+      /> */}
       <TreeView
         className={classes.root}
         defaultExpanded={['3']}

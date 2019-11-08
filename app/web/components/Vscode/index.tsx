@@ -8,6 +8,9 @@ import MonacoEditor from './MonacoEditor'
 import Preview from './components/Preview'
 import Resizer from '@/components/Resizer'
 import LeftBar from './LeftBar'
+import ExpansionPanel from './components/ExpansionPanel'
+import Denpencies from './Dependencies'
+
 interface VscodeProps {
   data: {
     fileList: Array<File>;
@@ -19,6 +22,25 @@ interface VscodeProps {
 export default class Vscode extends Component<VscodeProps, any>{
   constructor(props) {
     super(props);
+  }
+  getDenpencies() {
+    const { fileList  } = this.props.data;
+    let packJsonFile: File = null, dependencies = {};
+    File.recursion(fileList, function(file: File) {
+      if (file.path === 'package.json') {
+        packJsonFile = file;
+        return true;
+      }
+      return false;
+    })
+    if(packJsonFile) {
+      try{
+        dependencies = JSON.parse(packJsonFile.getValue()).dependencies;
+      } catch(error) {
+
+      }
+    }
+    return dependencies;
   }
   render(){
     const { fileList, editFileList, activeFileId } = this.props.data;
@@ -32,25 +54,36 @@ export default class Vscode extends Component<VscodeProps, any>{
               width: 249,
               position: 'relative',
               flex: '0 0 auto',
-              height: '100vh'
+              height: 'cacl(100vh - 44px)'
             }}>
               <div className="project-file-pane">
-                <div className="">
+                <div className="pane-inner">
                   <div className="project-title">
                     <span style={{display: 'inline-block', width: '100%'}}>Explorer</span>
                     <div className="project-title-control"></div>
                   </div>
-                  <div className="files">
-                    {/* <Menu
-                      activeFileId={activeFileId}
-                      dispatch={this.props.dispatch}
-                      fileList={fileList} /> */}
-                      <TreeView
+                  <ExpansionPanel
+                    title={'files'}
+                  >
+                    <div className="files">
+                      {/* <Menu
                         activeFileId={activeFileId}
-                        dispatch={this.props.dispatch} 
-                        fileList={fileList}
-                      />
-                  </div>
+                        dispatch={this.props.dispatch}
+                        fileList={fileList} /> */}
+                        <TreeView
+                          activeFileId={activeFileId}
+                          dispatch={this.props.dispatch} 
+                          fileList={fileList}
+                        />
+                    </div>
+                  </ExpansionPanel>
+                  <ExpansionPanel
+                    title={'denpencies'}
+                  >
+                    <Denpencies
+                      data={this.getDenpencies()}
+                    />
+                  </ExpansionPanel>
                 </div>
               </div>
             </div>

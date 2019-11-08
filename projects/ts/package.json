@@ -6,9 +6,8 @@
   "main": "index.tsx",
   "dependencies": {
     "is": "",
-    "react": "",
-    "react-dom": "",
-    "react-helmet": "",
+    "react": "16.11.0",
+    "react-dom": "16.11.0",
     "antd-mobile": "",
     "prop-types": ""
   },

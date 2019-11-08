@@ -205,8 +205,7 @@ export default class File {
   static recursion(fileList: Array<File>, callback: Function){
     if(fileList.length > 0) {
       fileList.forEach(item => {
-        callback(item)
-        if (item.children.length > 0) {
+        if (!callback(item) && item.children.length > 0) {
           File.recursion(item.children, callback);
         }
       })
