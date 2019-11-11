@@ -17,7 +17,7 @@ export default class Preview extends Component<any, any> {
           content: <Browser />
         },
         {
-          title: 'Console',
+          title: 'test',
           id: 'test',
           content: <Terminal />
         }

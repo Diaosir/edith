@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default function Dependencies(props: any) {
   const classes = useStyles({});
-  const { data = {} } = props;
+  const { data = {}, dispatch } = props;
   const dependencies = Object.keys(data).map(depName => {
     return {
       name: depName,
@@ -41,7 +41,9 @@ export default function Dependencies(props: any) {
   const handleClick = () => {
     alert('You clicked the Chip.');
   };
-
+  function addDependency() {
+    alert(1)
+  }
   return (
     <div className={classes.root}>
       <div className={classes.container}>
@@ -63,6 +65,7 @@ export default function Dependencies(props: any) {
       <Button
         variant="contained"
         color="primary"
+        onClick={addDependency}
         startIcon={<AddIcon />}
       >
         add Dependencies
