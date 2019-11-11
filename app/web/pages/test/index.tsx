@@ -1,16 +1,12 @@
 import { Component } from 'react';
-import MonacoEditor from '@/components/Monaco'
+import Jest from '@/packages/jest/jest'
 export default class App extends Component {
+  componentDidMount() {
+  }
   render(){
     return (
-      <div>
-        <MonacoEditor 
-          height='400px'
-
-          value="import a from './'"
-          filename='/test/index.ts'
-          language='typescript'
-        />
+      <div className="jest">
+        
       </div>
     )
   }

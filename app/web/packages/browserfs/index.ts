@@ -16,6 +16,7 @@ export default class BrowserFs {
       browserfs.configure({
         fs: "LocalStorage"
       }, (e) => {
+        console.log(event)
         if (e) {
           reject(e)
           throw e;
@@ -72,6 +73,7 @@ export default class BrowserFs {
       }
       return previousValue + '/' + currentValue
     })
+    console.log(1111)
     // if(!fs.existsSync(dir)) {
     //   console.log(dir)
     // }

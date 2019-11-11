@@ -29,6 +29,7 @@ export default class Transpiler {
   public static projectName: string;
   public static loadingComponent: any = Loading;
   public static log: Log = new Log();
+  public static globalModules: Map<string, any> = new Map()
   constructor(packaker: Packager) {
     Transpiler.packager = packaker;
   }
@@ -48,8 +49,9 @@ export default class Transpiler {
    * 递归编译入口文件找到所有依赖文件
    * @param entryFile
    */
-  public static async traverse(code: string, filePath: string, parentTranspilerPath?: string) {
-    const transpiler = Transpiler.transpilerModules.get(normalize(filePath)) || new TranspilerModule({code, path: normalize(filePath)});
+  public static async traverse(code: string, filePath: string, parentTranspilerPath?: string, __module__export: any = null) {
+    
+    const transpiler = Transpiler.transpilerModules.get(normalize(filePath)) || new TranspilerModule({code, path: normalize(filePath), module: __module__export});
     // transpiler.code = code;
 
     const parentTranspilerTpye = File.filenameToFileType(parentTranspilerPath);
@@ -70,26 +72,35 @@ export default class Transpiler {
     }
     return transpiler;
   }
+  
   public static async traverseChildren(parentTranspilerPath: string, moduleName: string) {
     const parentTranspiler = Transpiler.getTranspilerModuleByPath(parentTranspilerPath);
     const basePath = parentTranspiler.path;
     let filename = resolve(basePath, moduleName);
-    const localFileInfo = await ClientWebpack.getFileContentByFilePath(filename);
-    let childrenTranspiler= null, code = '';
-    // TODO 判断获取node_modules还是本地文件
-    if(localFileInfo.code !== undefined) {
-      code = localFileInfo.code;
-      filename = localFileInfo.fullPath
+    let childrenTranspiler: TranspilerModule = null, code = '';
+
+    //如果有全局模块，则直接返回全局变量，新建transpilerModule；
+    if(Transpiler.globalModules.get(moduleName)) { 
+      filename = `/node_modules/${moduleName}`, code = '';
+      childrenTranspiler = await Transpiler.traverse(code, filename, parentTranspiler.path, Transpiler.globalModules.get(moduleName))
+
     } else {
-      //排除node_modules中样式文件的引用路径，例如：@import 'a.less';
-      if (isNodeModules(moduleName) && ![FileType.LESS, FileType.SCSS, FileType.CSS].includes(parentTranspiler.type)) {
-        filename = path.join('/', Transpiler.projectName, 'node_modules', moduleName);
+      const localFileInfo = await ClientWebpack.getFileContentByFilePath(filename);
+      // TODO 判断获取node_modules还是本地文件
+      if(localFileInfo.code !== undefined) {
+        code = localFileInfo.code;
+        filename = localFileInfo.fullPath
+      } else {
+        //排除node_modules中样式文件的引用路径，例如：@import 'a.less';
+        if (isNodeModules(moduleName) && ![FileType.LESS, FileType.SCSS, FileType.CSS].includes(parentTranspiler.type)) {
+          filename = path.join('/', Transpiler.projectName, 'node_modules', moduleName);
+        }
+        const packageFile = await Transpiler.packager.getPackageFileOnlyPath(filename);
+        code = packageFile.code;
+        filename = packageFile.fullPath;
       }
-      const packageFile = await Transpiler.packager.getPackageFileOnlyPath(filename);
-      code = packageFile.code;
-      filename = packageFile.fullPath;
+      childrenTranspiler = await Transpiler.traverse(code, filename, parentTranspiler.path);
     }
-    childrenTranspiler = await Transpiler.traverse(code, filename, parentTranspiler.path);
     if (childrenTranspiler && childrenTranspiler.path) {
       parentTranspiler.addDenpency(moduleName ,childrenTranspiler.path);
       Transpiler.setDenpenciesIdMap(basePath, moduleName, childrenTranspiler.path);
@@ -202,6 +213,7 @@ export default class Transpiler {
   }){
     await Transpiler.packager.addRootDependency(denpencies);
   }
+  public static __edith_require__ = __edith_require__;
 }
 function __edith_require__(modulePath, isForce: boolean = false) {
   if(Transpiler.denpenciesIdMap.get(modulePath)) {

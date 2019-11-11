@@ -6,6 +6,7 @@ import Vscode from '../../components/Vscode'
 import  './index.scss';
 import { connect } from 'dva';
 import eventBus from '@/utils/event'
+import * as is from 'is';
 interface HomeProps {
   dispatch: Function;
   location: any;
@@ -40,6 +41,12 @@ export default class extends React.Component<HomeProps> {
         eventBus.emit('saveFileList', fileList);
       }
     })
+    //监听来自子iframe的消息
+    window.addEventListener('message', (e: MessageEvent) => {
+      if (is.object(e.data)) {
+        eventBus.emit(e.data.type, e.data.payload);
+      }
+    }, false)
   }
   dispatch = ({type, payload}) => {
     const { dispatch } = this.props;

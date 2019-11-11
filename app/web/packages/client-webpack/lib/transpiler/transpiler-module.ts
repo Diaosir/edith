@@ -33,6 +33,11 @@ function compose(middlewares: Array<Function>): Function {
         return dispatch(0);
     }
 }
+export interface IModuleOption {
+    code: string,
+    path: string,
+    module?: any;
+}
 export enum ModuleStatus {
     LOADING,
     LOADFAIL,
@@ -89,12 +94,21 @@ export default class TranspilerModule {
         isLoad: false,
         hot: hotReLoad()
     };
-    constructor({code, path }){
+    constructor(options: IModuleOption){
+        const {code, path, module = null } = options;
         this.code = code;
         this.path = path;
         this.type = File.filenameToFileType(path);
         this.id = TranspilerModule.getIdByPath(path);
         this.ctx.manager = Transpiler;
+        //如果直接传入module，无需编译和执行;
+        if (module) { 
+            this._isTranslate = true;
+            this.module = {
+                exports: module,
+                isLoad: true
+            }
+        }
     }
     public async translate(isForce: boolean = false) {
         //TODO 处理less类型

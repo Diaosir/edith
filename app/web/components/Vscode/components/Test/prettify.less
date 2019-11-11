@@ -1,0 +1,61 @@
+
+@--color-fail: #f7362b;
+@--color-pass: #3dbc59;
+@--color-base: #222;
+@--color-base-lighter: #333;
+@--spacing: 2em;
+@--spacing-tight: 1em;
+.jest-result-container{
+  width: 100%;
+  height: calc(100vh - 83px);
+}
+.jest-lite-report {
+  width: 100%;
+  height: 100%;
+  font: 14px Consolas, Monaco, monospace;
+  padding: @--spacing;
+
+  background: @--color-base;
+  color: white;
+
+  box-sizing: border-box;
+  line-height: 1.5em;
+  overflow: scroll;
+}
+
+.jest-lite-report__result {
+  margin-bottom: @--spacing-tight;
+}
+
+.jest-lite-report__status {
+  display: inline-block;
+  padding: 0.2em 0.4em;
+}
+
+.jest-lite-report__status-icon {
+  display: inline-block;
+  width: 1em;
+}
+
+.jest-lite-report__status--pass {
+  background: @--color-base-lighter;
+}
+
+.jest-lite-report__status--fail {
+  background: @--color-fail;
+}
+
+.jest-lite-report__summary-status--fail {
+  color: @--color-fail;
+}
+
+.jest-lite-report__summary-status--pass {
+  color: @--color-pass;
+}
+
+.jest-lite-report__errors {
+  margin-top: @--spacing-tight;
+  padding-left: 1.5em;
+  white-space: pre;
+  color: @--color-fail;
+}

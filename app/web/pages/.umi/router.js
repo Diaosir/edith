@@ -78,6 +78,14 @@ const routes = [
         exact: true,
         component: __IS_BROWSER
           ? _dvaDynamic({
+              app: require('@tmp/dva').getApp(),
+              models: () => [
+                import('/Users/fengzhihao/Projects/github/edith/app/web/pages/test/models/jest.ts').then(
+                  m => {
+                    return { namespace: 'jest', ...m.default };
+                  },
+                ),
+              ],
               component: () => import('../test/index.tsx'),
               LoadingComponent: require('/Users/fengzhihao/Projects/github/edith/app/web/components/Loading')
                 .default,
