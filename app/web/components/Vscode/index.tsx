@@ -89,6 +89,7 @@ export default class Vscode extends Component<VscodeProps, any>{
                   >
                     <Denpencies
                       data={this.getDenpencies()}
+                      dispatch={this.props.dispatch}
                     />
                   </ExpansionPanel>
                 </div>

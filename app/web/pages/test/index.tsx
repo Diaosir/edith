@@ -1,12 +1,12 @@
 import { Component } from 'react';
-// import JestLite from '@/packages/jest-lite';
-
+import Jest from '@/packages/jest/jest'
 export default class App extends Component {
   componentDidMount() {
   }
   render(){
     return (
-      <div id="jest-lite">
+      <div className="jest">
+        
       </div>
     )
   }
