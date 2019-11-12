@@ -55,6 +55,9 @@ export default class TranspilerModule {
     private _isTranslate: boolean = false;
     public ctx: Context = new Context();
     public status: ModuleStatus;
+    protected globals: {
+        [key: string] : any;
+    } = {};
     set type(fileType) {
         this.ctx.type = fileType;
     }
@@ -156,7 +159,8 @@ export default class TranspilerModule {
     public getModuleFunction() {
         return getExecuteFunction({
             code: this.transpilingCode,
-            path: this.path
+            path: this.path,
+            globals: this.globals
         });
     }
     public static getIdByPath(path: string) {
@@ -225,5 +229,15 @@ export default class TranspilerModule {
     }
     public getParents() {
         return this._parents;
+    }
+    public setGlobals(globals) {
+        if(is.object(globals)) {
+            this.globals = {
+                ...this.globals,
+                ...globals
+            }
+        } else {
+            console.warn('globals must be a object')
+        }
     }
 }

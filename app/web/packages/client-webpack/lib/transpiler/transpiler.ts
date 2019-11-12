@@ -29,7 +29,7 @@ export default class Transpiler {
   public static projectName: string;
   public static loadingComponent: any = Loading;
   public static log: Log = new Log();
-  public static globalModules: Map<string, any> = new Map()
+  public static globalModules: Map<string, any> = new Map(); //全局模块一个变量
   constructor(packaker: Packager) {
     Transpiler.packager = packaker;
   }
