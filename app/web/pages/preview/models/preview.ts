@@ -15,10 +15,10 @@ export default {
                     document: ''
                 })
             }
-            if (payload.type === 'changeFileList') {
-                const { fileList, file } = payload.payload;
-                clientWebpack.changeFile(new File(file));
-            }
+            // if (payload.type === 'changeFileList') {
+            //     const { fileList, file } = payload.payload;
+            //     clientWebpack.changeFile(new File(file));
+            // }
         }
     },
     reducers: {

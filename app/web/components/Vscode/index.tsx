@@ -10,7 +10,7 @@ import Resizer from '@/components/Resizer'
 import LeftBar from './LeftBar'
 import ExpansionPanel from './components/ExpansionPanel'
 import Denpencies from './Dependencies'
-
+import FileControl from './components/FileControl'
 interface VscodeProps {
   data: {
     fileList: Array<File>;
@@ -42,6 +42,9 @@ export default class Vscode extends Component<VscodeProps, any>{
     }
     return dependencies;
   }
+  handleAddFile = () =>{
+    console.log(1)
+  }
   render(){
     const { fileList, editFileList, activeFileId } = this.props.data;
     return (
@@ -63,6 +66,10 @@ export default class Vscode extends Component<VscodeProps, any>{
                     <div className="project-title-control"></div>
                   </div>
                   <ExpansionPanel
+                    rigthElement={
+                    <FileControl 
+                      onAddFile={this.handleAddFile}
+                    />}
                     title={'files'}
                   >
                     <div className="files">

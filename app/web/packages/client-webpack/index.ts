@@ -30,6 +30,7 @@ export default class ClientWebpack{
   constructor(options: IClientWebpackOption = {}){
   }
   async init(options: IClientWebpackOption = {}) {
+    console.log(options)
     ClientWebpack.options = {
       ...ClientWebpack.options,
       ...options
@@ -37,7 +38,7 @@ export default class ClientWebpack{
     this.template = options.template;
     this.document = options.document;
     this.buildFileMap(options.fileList);
-    await this.build();
+    // await this.build();
   }
   public async build() {
     let { code: packageJSON } = ClientWebpack.getFileContentByFilePath(this.formatFilePath('package.json'));
