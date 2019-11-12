@@ -146,8 +146,6 @@ export default class File {
         return 'vue';
       case FileType.LESS:
         return 'less'
-      case FileType.HTML: 
-        return 'html';
       case FileType.FOLDER:
         return 'folder'
       case FileType.MD:

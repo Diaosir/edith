@@ -13,7 +13,7 @@ const routes = [
     component: __IS_BROWSER
       ? _dvaDynamic({
           component: () => import('../../layouts/index.jsx'),
-          LoadingComponent: require('/Users/fengzhihao/Projects/github/edith/app/web/components/Loading')
+          LoadingComponent: require('E:/edith/app/web/components/Loading')
             .default,
         })
       : require('../../layouts/index.jsx').default,
@@ -25,14 +25,12 @@ const routes = [
           ? _dvaDynamic({
               app: require('@tmp/dva').getApp(),
               models: () => [
-                import('/Users/fengzhihao/Projects/github/edith/app/web/pages/home/models/home.ts').then(
-                  m => {
-                    return { namespace: 'home', ...m.default };
-                  },
-                ),
+                import('E:/edith/app/web/pages/home/models/home.ts').then(m => {
+                  return { namespace: 'home', ...m.default };
+                }),
               ],
               component: () => import('../home/index.tsx'),
-              LoadingComponent: require('/Users/fengzhihao/Projects/github/edith/app/web/components/Loading')
+              LoadingComponent: require('E:/edith/app/web/components/Loading')
                 .default,
             })
           : require('../home/index.tsx').default,
@@ -45,7 +43,7 @@ const routes = [
         component: __IS_BROWSER
           ? _dvaDynamic({
               component: () => import('../index.js'),
-              LoadingComponent: require('/Users/fengzhihao/Projects/github/edith/app/web/components/Loading')
+              LoadingComponent: require('E:/edith/app/web/components/Loading')
                 .default,
             })
           : require('../index.js').default,
@@ -59,14 +57,14 @@ const routes = [
           ? _dvaDynamic({
               app: require('@tmp/dva').getApp(),
               models: () => [
-                import('/Users/fengzhihao/Projects/github/edith/app/web/pages/preview/models/preview.ts').then(
+                import('E:/edith/app/web/pages/preview/models/preview.ts').then(
                   m => {
                     return { namespace: 'preview', ...m.default };
                   },
                 ),
               ],
               component: () => import('../preview/index.tsx'),
-              LoadingComponent: require('/Users/fengzhihao/Projects/github/edith/app/web/components/Loading')
+              LoadingComponent: require('E:/edith/app/web/components/Loading')
                 .default,
             })
           : require('../preview/index.tsx').default,
@@ -79,7 +77,7 @@ const routes = [
         component: __IS_BROWSER
           ? _dvaDynamic({
               component: () => import('../test/index.tsx'),
-              LoadingComponent: require('/Users/fengzhihao/Projects/github/edith/app/web/components/Loading')
+              LoadingComponent: require('E:/edith/app/web/components/Loading')
                 .default,
             })
           : require('../test/index.tsx').default,
@@ -89,7 +87,7 @@ const routes = [
       {
         component: () =>
           React.createElement(
-            require('/Users/fengzhihao/Projects/github/edith/node_modules/_umi-build-dev@1.13.13@umi-build-dev/lib/plugins/404/NotFound.js')
+            require('E:/edith/node_modules/.npminstall/umi-build-dev/1.15.1/umi-build-dev/lib/plugins/404/NotFound.js')
               .default,
             { pagesPath: 'pages', hasRoutesInConfig: false },
           ),
@@ -103,7 +101,7 @@ const routes = [
   {
     component: () =>
       React.createElement(
-        require('/Users/fengzhihao/Projects/github/edith/node_modules/_umi-build-dev@1.13.13@umi-build-dev/lib/plugins/404/NotFound.js')
+        require('E:/edith/node_modules/.npminstall/umi-build-dev/1.15.1/umi-build-dev/lib/plugins/404/NotFound.js')
           .default,
         { pagesPath: 'pages', hasRoutesInConfig: false },
       ),
@@ -134,7 +132,15 @@ export default class RouterWrapper extends React.Component {
       });
     }
     this.unListen = history.listen(routeChangeHandler);
-    routeChangeHandler(history.location);
+    // dva 中 history.listen 会初始执行一次
+    // 这里排除掉 dva 的场景，可以避免 onRouteChange 在启用 dva 后的初始加载时被多执行一次
+    const isDva =
+      history.listen
+        .toString()
+        .indexOf('callback(history.location, history.action)') > -1;
+    if (!isDva) {
+      routeChangeHandler(history.location);
+    }
   }
 
   componentWillUnmount() {

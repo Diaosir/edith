@@ -42,5 +42,6 @@ export const defaultLoaderRules = {
     [FileType.TS]: ['babel'],
     [FileType.TSX]: ['babel'],
     [FileType.VUE]: ['vue', 'babel'],
-    [FileType.CSS]: ['css']
+    [FileType.CSS]: ['css'],
+    [FileType.JSON]: ['json']
 }
