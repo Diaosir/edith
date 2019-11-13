@@ -11,7 +11,8 @@ import Packager from './lib/packager';
 import Transpiler from './lib/transpiler/transpiler'
 import * as path from 'path'
 import { parse, getAllEnablePaths } from '@/utils/path';
-import * as Loading from '@/components/Loading'
+import * as Loading from '@/components/Loading';
+import Plugin from './plugin/plugin'
 const packaker = new Packager();
 const transpiler = new Transpiler(packaker);
 
@@ -24,6 +25,7 @@ export default class ClientWebpack{
   public name: string = 'test'
   public static fileMap: Map<string, string> = new Map();
   public static loadingComponent: any = Loading;
+  public static plugins: Array<Plugin> = [];
   public static options: IClientWebpackOption = {
     moduleSuffix: ['js', 'jsx', 'ts', 'tsx', 'vue']
   };
@@ -38,6 +40,14 @@ export default class ClientWebpack{
     this.document = options.document;
     this.buildFileMap(options.fileList);
     await this.build();
+    //执行插件的init
+    ClientWebpack.plugins.forEach((plugin) => {
+      typeof plugin.init === 'function' && plugin.init();
+    })
+  }
+  async registerPlugin(plugin: Plugin) {
+    console.log(plugin)
+    ClientWebpack.plugins.push(plugin);
   }
   public async build() {
     let { code: packageJSON } = ClientWebpack.getFileContentByFilePath(this.formatFilePath('package.json'));
@@ -71,30 +81,11 @@ export default class ClientWebpack{
       if(file.type !== FileType.FOLDER) {
         const filePath = this.formatFilePath(file.path)
         ClientWebpack.fileMap.set(filePath, file.getValue());
-        BrowserFs.setFileContent(filePath,  file.getValue());
+        // BrowserFs.setFileContent(filePath,  file.getValue());
       }
     })
   }
-
-  // private buildUsedPackages(): Array<string> {
-  //   // console.log(this.packageFile)
-  //   let packages: any = {};
-  //   let dependencies = this.packageFile.getDependencies();
-  //   File.recursion(ClientWebpack.fileList, function(file: File) {
-  //     // const value = file.getValue();
-  //     if ([FileType.JS, FileType.JSX, FileType.TS, FileType.TSX].includes(file.type)) {
-  //       const fileDependencies = new Ast(file.getValue()).getNpmPackages();
-  //       fileDependencies.forEach((dependencie: string)=> {
-  //         packages = {
-  //           ...packages,
-  //           [dependencie]: dependencies[dependencie]
-  //         }
-  //       })
-  //     }
-  //   });
-  //   return packages
-  // }
-  public changeFile(changeFile: File) {
+  public async changeFile(changeFile: File) {
     const fullPath = this.formatFilePath(changeFile.path);
     ClientWebpack.fileMap.set(fullPath, changeFile.getValue());
     if (changeFile.name === 'package.json') {
@@ -108,7 +99,10 @@ export default class ClientWebpack{
         console.log(error)
       }
     } else {
-      Transpiler.rebuildTranspilerModule(fullPath, changeFile.getValue());
+      await Transpiler.rebuildTranspilerModule(fullPath, changeFile.getValue());
+      ClientWebpack.plugins.forEach((plugin) => {
+        typeof plugin.reset === 'function' && plugin.reset();
+      })
     }
 
   }

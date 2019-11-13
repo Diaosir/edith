@@ -36,20 +36,23 @@ const useStyles = makeStyles((theme: Theme) =>
       // height: '30px',
       // minHeight: '30px !important',
       // margin: '0 !important'
+    },
+    rigthElement: {
+      position: 'absolute',
+      right: 0
     }
   }),
 );
-
 export default function SimpleExpansionPanel(props: any) {
   const classes = useStyles({});
-
+  const { rigthElement } = props;
   return (
     <div className={classes.root}>
       <ExpansionPanel 
         className={classes.panel}
         >
         <ExpansionPanelSummary
-          expandIcon={<ExpandMoreIcon className={classes.icon}/>}
+          expandIcon={!rigthElement ? <ExpandMoreIcon className={classes.icon}/> : null}
           aria-controls="panel1a-content"
           id="panel1a-header"
           className={classes.summary}
@@ -57,7 +60,12 @@ export default function SimpleExpansionPanel(props: any) {
             expanded: classes.expanded
           }}
         >
-          <Typography className={classes.heading}>{props.title} </Typography>
+          <Typography className={classes.heading}>        {props.title} 
+            </Typography>
+          <div className={classes.rigthElement}>
+            {rigthElement}
+          </div>
+
         </ExpansionPanelSummary>
         <ExpansionPanelDetails className={classes.details}>
           {props.children}

@@ -2,12 +2,22 @@
 import File, { FileType } from '@/datahub/project/entities/file'
 import { setStylesheet, deleteStylesheet} from '../../utils'
 
-export default function execute({ code, path }): Function {
+export default function execute({ code, path, globals = {}}): Function {
   const fileType = File.filenameToFileType(path);
-  if([FileType.JS, FileType.JSON, FileType.JSX,FileType.TS, FileType.TSX, FileType.VUE].includes(fileType)) {
+  if([FileType.JS, FileType.JSX, FileType.JSON, FileType.TS, FileType.TSX, FileType.VUE].includes(fileType)) {
     return function(module, exports, __edith_require__) {
+      const allGlobals = {
+        module,
+        __edith_require__,
+        exports,
+        ...globals
+      }
+      const allGlobalKeys = Object.keys(allGlobals);
+      const globalsCode = allGlobalKeys.length ? allGlobalKeys.join(', ') : '';
+      const globalsValues = allGlobalKeys.map(k => allGlobals[k]);
       try{
-        eval(`${code}\n//# sourceURL=edith:${path}?`)
+        const newCode = `(function evaluate(` + globalsCode + `) {` + code + `\n})`;
+        (0, eval)(`${newCode} \n //# sourceURL=edith:${path}?`).apply(this, globalsValues);
       } catch(error){
           // Todo log execute error
           throw error
