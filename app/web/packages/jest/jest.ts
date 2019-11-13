@@ -2,12 +2,11 @@
 import Plugin from '@/packages/client-webpack/plugin/plugin'
 import Config from './config';
 import Module from '@/packages/client-webpack/lib/transpiler/transpiler-module'
-import * as core from 'jest-lite'
+import * as core from './src/core'
 import * as Enzyme from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-import { toHTML } from './prettify';
-
-const { run, ...jestGlobals } = core;
+// import * as State  from 'jest-circus/build/state';
+const { run, resetState,  ...jestGlobals } = core;
 
 interface IOptions {
   onResult: Function;
@@ -22,15 +21,10 @@ export default class Jest extends Plugin {
     this.manager.globalModules.set('enzyme', Enzyme);
     this.manager.globalModules.set('enzyme-adapter-react-16', Adapter);
   }
-  public static toHTML(result) {
-    return toHTML(result)
-  }
   async addDependencies(){
   }
   async init() {
-    await this.traverseTestFile();
-    const result = await this.run();
-    typeof this.options.onResult === 'function' && this.options.onResult(result);
+    await this.reset();
   }
   async traverseTestFile() {
     const reg = /\.(spec|test)\.(ts|js)(x)?$/;
@@ -39,15 +33,9 @@ export default class Jest extends Plugin {
       testFileEntry.setGlobals(jestGlobals);
       this.entryModules.set(fileName, testFileEntry);
     }));
-    console.log(this.entryModules)
-    this.excute();
-    // this.clientWebpack.fileMap.forEach((fileCode, fileName) => {
-    //   if (reg.test(fileName)) {
-    //     this.manager.traverse(fileCode, fileName);
-    //   }
-    // })
+    this.execute();
   }
-  excute() {
+  execute() {
     this.entryModules.forEach((module, fileName) => {
       this.manager.__edith_require__(fileName);
     }) 
@@ -55,10 +43,16 @@ export default class Jest extends Plugin {
   fileChange() {
 
   }
+  //TODO 按需编译
   async reset(){
-    await this.traverseTestFile();
-    const result = await this.run();
-    typeof this.options.onResult === 'function' && this.options.onResult(result);
+    resetState();
+    try{
+      await this.traverseTestFile();
+      const result = await this.run();
+      typeof this.options.onResult === 'function' && this.options.onResult(null, result);
+    } catch(error) {
+      typeof this.options.onResult === 'function' && this.options.onResult(error, null);
+    }
   }
   async run() {
     return run();

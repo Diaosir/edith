@@ -49,8 +49,6 @@
     "gonzales-pe": "^4.2.4",
     "hash-sum": "^2.0.0",
     "is": "^3.3.0",
-    "jest-circus": "^24.9.0",
-    "jest-lite": "^1.0.0-alpha.4",
     "js-base64": "^2.5.1",
     "js-md5": "^0.7.3",
     "less": "^3.10.3",

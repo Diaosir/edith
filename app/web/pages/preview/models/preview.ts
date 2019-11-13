@@ -1,6 +1,6 @@
 import File from '@/datahub/project/entities/file'
 import ClientWebpack from '@/packages/client-webpack';
-import Jest from '@/packages/jest/jest'
+import Jest from '@/packages/jest'
 const clientWebpack = new ClientWebpack();
 export default {
     namespace: 'preview',
@@ -16,21 +16,23 @@ export default {
                     document: ''
                 })
                 clientWebpack.registerPlugin(new Jest({
-                    onResult: (result) => {
+                    onResult: (error, result) => {
+                        console.log(error)
                         window.parent.postMessage({
                             type: 'jest-result',
                             payload: {
-                                result: result
+                                result,
+                                error,
                             }
                         }, '*')
                     },
                     containerDom: document.getElementById('app')
                 }));
             }
-            // if (payload.type === 'changeFileList') {
-            //     const { fileList, file } = payload.payload;
-            //     clientWebpack.changeFile(new File(file));
-            // }
+            if (payload.type === 'changeFileList') {
+                const { fileList, file } = payload.payload;
+                clientWebpack.changeFile(new File(file));
+            }
         }
     },
     reducers: {

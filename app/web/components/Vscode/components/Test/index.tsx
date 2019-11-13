@@ -8,28 +8,42 @@ export default class Test extends Component<any, any>{
     super(props);
     this.state = {
       result: [],
+      error: null, 
       loading: true
     }
   }
   componentDidMount() {
     eventBus.on('jest-result', payload => {
+      console.log(payload)
       this.setState({
         loading: false
       })
-      if(payload.result) {
-        this.setState({
-          result: payload.result
-        })
-      }
+      this.setState({
+        result: payload.result,
+        error: payload.error
+      })
     })
   }
   render() {
-    if(this.state.loading) {
+    const { error, result, loading} = this.state;
+    if(loading) {
       return <Loading></Loading>
     }
     return (
       <div className="jest-result-container">
-        <div className="jest-lite-report" dangerouslySetInnerHTML={{__html: toHTML(this.state.result)}}></div>
+        {
+          error ? (
+            <div className="jest-lite-report">
+              <div className="jest-lite-report__errors">
+                {
+                  `${error.stack}`
+                }
+              </div>
+            </div>
+          ) : (
+            <div className="jest-lite-report" dangerouslySetInnerHTML={{__html: toHTML(result) }}></div>
+          )
+        }
       </div>
     )
   }
