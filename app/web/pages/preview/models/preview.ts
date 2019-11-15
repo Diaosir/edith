@@ -17,7 +17,6 @@ export default {
                 })
                 clientWebpack.registerPlugin(new Jest({
                     onResult: (error, result) => {
-                        console.log(error)
                         window.parent.postMessage({
                             type: 'jest-result',
                             payload: {
@@ -25,8 +24,7 @@ export default {
                                 error,
                             }
                         }, '*')
-                    },
-                    containerDom: document.getElementById('app')
+                    }
                 }));
             }
             if (payload.type === 'changeFileList') {

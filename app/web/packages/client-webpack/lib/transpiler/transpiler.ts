@@ -241,8 +241,3 @@ function __edith_require__(modulePath, isForce: boolean = false) {
   }
   return module.exports
 }
-global.process = {
-  env: {
-    NODE_ENV: "production"
-  }
-}

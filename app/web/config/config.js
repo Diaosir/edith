@@ -1,10 +1,10 @@
 import { resolve } from 'path';
-const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 export default {
   disableCSSSourceMap: true,
   hash: true,
   history: 'hash',
   targets: {ios: 8, ie: 9},
+  exportStatic: true,
   define: {
   },
   theme: {

@@ -12,6 +12,9 @@ export default class Button extends Component {
       text: text
     })
   }
+  handleClick = () => {
+    this.changeText('3');
+  }
   render() {
     return (
       <div className="button" onClick={this.handleClick}>{this.props.children}</div>

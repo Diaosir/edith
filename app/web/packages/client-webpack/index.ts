@@ -101,7 +101,7 @@ export default class ClientWebpack{
     } else {
       await Transpiler.rebuildTranspilerModule(fullPath, changeFile.getValue());
       ClientWebpack.plugins.forEach((plugin) => {
-        typeof plugin.reset === 'function' && plugin.reset();
+        typeof plugin.reset === 'function' && plugin.reset(fullPath);
       })
     }
 

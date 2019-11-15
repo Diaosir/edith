@@ -3,6 +3,9 @@ export default class HomeController extends Controller {
   async index() {
     await this.ctx.render('index.html');
   }
+  async vscode() {
+    await this.ctx.render('vscode.html');
+  }
   async api() {
     const ctx = this.ctx;
 

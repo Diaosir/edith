@@ -73,19 +73,19 @@ export default class BrowserFs {
       }
       return previousValue + '/' + currentValue
     })
-    console.log(1111)
     // if(!fs.existsSync(dir)) {
     //   console.log(dir)
     // }
   }
   static async setFileContent(filePath: string, content: string) {
+    if(!filePath) {
+      return;
+    }
     if (!isConfigure) {
-      console.log(filePath)
       await BrowserFs.configure()
     }
     const { dir } = path.parse(filePath);
     await BrowserFs.checkAndMakeDir(dir);
-    console.log(filePath)
     return new Promise((resolve, reject) => {
       try{
         fs.writeFileSync(filePath, content);

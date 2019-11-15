@@ -15,7 +15,7 @@ describe('<Button />', () => {
   it('<Button> handleClick', () => {
     const button = shallow(<Button></Button>);
     expect(button.instance().state.text).toBe('1');
-    button.instance().changeText('2')
-    expect(button.instance().state.text).toBe('2');
+    button.simulate('click');
+    expect(button.instance().state.text).toBe('3');
   });
 })

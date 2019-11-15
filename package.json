@@ -73,6 +73,7 @@
     "source-map": "^0.7.3",
     "terminal-in-react": "^4.3.1",
     "umi": "^2.2.2",
+    "vscode": "^1.1.36",
     "vue-hot-reload-api": "^2.3.4",
     "vue-template-compiler": "^2.6.10",
     "vue-template-es2015-compiler": "^1.9.1"
@@ -85,6 +86,7 @@
     "@types/mongoose": "^5.5.17",
     "@types/react": "^16.0.34",
     "@types/react-dom": "^16.0.3",
+    "@types/vscode": "^1.40.0",
     "antd-mobile": "^2.2.6",
     "autobind-decorator": "^2.4.0",
     "autod": "^3.0.1",

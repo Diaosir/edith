@@ -40,6 +40,19 @@ const routes = [
         _title_default: '333',
       },
       {
+        path: '/index.html',
+        exact: true,
+        component: __IS_BROWSER
+          ? _dvaDynamic({
+              component: () => import('../index.js'),
+              LoadingComponent: require('/Users/fengzhihao/Projects/github/edith/app/web/components/Loading')
+                .default,
+            })
+          : require('../index.js').default,
+        _title: '333',
+        _title_default: '333',
+      },
+      {
         path: '/',
         exact: true,
         component: __IS_BROWSER
@@ -91,6 +104,19 @@ const routes = [
                 .default,
             })
           : require('../test/index.tsx').default,
+        _title: '333',
+        _title_default: '333',
+      },
+      {
+        path: '/vscode',
+        exact: true,
+        component: __IS_BROWSER
+          ? _dvaDynamic({
+              component: () => import('../vscode/index.tsx'),
+              LoadingComponent: require('/Users/fengzhihao/Projects/github/edith/app/web/components/Loading')
+                .default,
+            })
+          : require('../vscode/index.tsx').default,
         _title: '333',
         _title_default: '333',
       },
