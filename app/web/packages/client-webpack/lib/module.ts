@@ -1,8 +1,8 @@
 import File, { FileType } from '@/datahub/project/entities/file';
 import md5 from '@/utils/md5'
-import { defaultLoaderRules } from '../../loader'
-import Transpiler from './transpiler';
-import Context from '../../utils/context'
+import { defaultLoaderRules } from '../loader'
+import Manager from './manager';
+import Context from '../utils/context'
 import * as is from 'is';
 import getExecuteFunction from './eval'
 function hotReLoad(data?) {
@@ -47,7 +47,7 @@ export enum ModuleStatus {
     EXECUTEFAIL,
     COMPLETED,
 }
-export default class TranspilerModule {
+export default class Module {
     public id: string;
     private _denpencies: Map<string, string> = new Map(); //TODO 去重
     private _parents: Array<string> = [];
@@ -102,8 +102,8 @@ export default class TranspilerModule {
         this.code = code;
         this.path = path;
         this.type = File.filenameToFileType(path);
-        this.id = TranspilerModule.getIdByPath(path);
-        this.ctx.manager = Transpiler;
+        this.id = Module.getIdByPath(path);
+        this.ctx.manager = Manager;
         //如果直接传入module，无需编译和执行;
         if (module) { 
             this._isTranslate = true;
@@ -179,7 +179,7 @@ export default class TranspilerModule {
             //过滤掉node_modules
             depNames = depNames.filter(depName => !depName.match(/node_modules/))
             depNames.forEach((depName) => {
-                const transpiler = Transpiler.getTranspilerModuleByPath(depName)
+                const transpiler = Manager.getTranspilerModuleByPath(depName)
                 if (transpiler) {
                     transpiler.reset();
                     transpiler.module.hot = hotReLoad({});
@@ -196,7 +196,7 @@ export default class TranspilerModule {
     }
     public isIncludeChildren(childrenPath: string): boolean {
         let result = false;
-        Transpiler.walk(this.path, (transpilerModule: TranspilerModule) => {
+        Manager.walk(this.path, (transpilerModule: Module) => {
             if (transpilerModule.path === childrenPath) {
                 result = true;
                 return true;
@@ -206,7 +206,7 @@ export default class TranspilerModule {
         return result;
     }
     public removeDenpency(moduleKey: string) {
-        const childrenModule = Transpiler.getTranspilerModuleByPath(this._denpencies.get(moduleKey));
+        const childrenModule = Manager.getTranspilerModuleByPath(this._denpencies.get(moduleKey));
         if (childrenModule) {
             childrenModule.removeParent(this.path);
         }

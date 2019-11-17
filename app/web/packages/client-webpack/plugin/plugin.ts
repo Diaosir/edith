@@ -1,7 +1,7 @@
-import Transpiler from '../lib/transpiler/transpiler'
+import Manager from '../lib/manager'
 import ClientWebpack from '../index'
 export default abstract class Plugin {
-  public manager = Transpiler;
+  public manager = Manager;
   public clientWebpack = ClientWebpack;
   constructor() {
   }

@@ -8,13 +8,13 @@ import BrowserFs from '../browserfs'
 import LazyLoad from './lib/lazyload'
 import Ast from './lib/ast'
 import Packager from './lib/packager';
-import Transpiler from './lib/transpiler/transpiler'
+import Manager from './lib/manager'
 import * as path from 'path'
 import { parse, getAllEnablePaths } from '@/utils/path';
 import * as Loading from '@/components/Loading';
 import Plugin from './plugin/plugin'
 const packaker = new Packager();
-const transpiler = new Transpiler(packaker);
+const transpiler = new Manager(packaker);
 
 export default class ClientWebpack{
   protected template: string = '';
@@ -99,7 +99,7 @@ export default class ClientWebpack{
         console.log(error)
       }
     } else {
-      await Transpiler.rebuildTranspilerModule(fullPath, changeFile.getValue());
+      await Manager.rebuildTranspilerModule(fullPath, changeFile.getValue());
       ClientWebpack.plugins.forEach((plugin) => {
         typeof plugin.reset === 'function' && plugin.reset(fullPath);
       })

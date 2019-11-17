@@ -8,7 +8,6 @@ import parse from './parse';
 import genStyleInjectionCode from './utils/styleInjection'
 import templateCompiler from './template-compiler';
 import styleCompiler from './style-compiler';
-import Transpiler from '@/packages/client-webpack/lib/transpiler/transpiler'
 // When extracting parts from the source vue file, we want to apply the
 // loaders chained before vue-loader, but exclude some loaders that simply
 // produces side effects such as linting.
@@ -16,9 +15,9 @@ import Transpiler from '@/packages/client-webpack/lib/transpiler/transpiler'
 //   return loaderUtils.getRemainingRequest(loaderContext);
 // }
 
-export default async function (code: string, path: string, options: any): Promise<any> {
+export default async function (code: string, path: string, manager: any, options: any): Promise<any> {
   let query: any = {}
-  await Transpiler.addNodeModuleDependenies({
+  await manager.addNodeModuleDependenies({
     'vue-hot-reload-api': '',
     'vue-loader': ''
   });
@@ -66,11 +65,11 @@ export default async function (code: string, path: string, options: any): Promis
   let templateImport: any = `var render, staticRenderFns`
   if (parts.template) {
     const { lang } = parts.template;
-    const { transpiledCode } = await templateCompiler.translate(parts.template.content, templateCompilerOptions, Transpiler);
+    const { transpiledCode } = await templateCompiler.translate(parts.template.content, templateCompilerOptions, manager);
     templateImport = transpiledCode;
     const templateSrc = `${filePath}.${lang || 'template.js'}`
     const depName = `./${fileName}.${lang || 'template.js'}`;
-    await Transpiler.setFileMap(templateSrc, transpiledCode);
+    await manager.setFileMap(templateSrc, transpiledCode);
     templateImport = `import { render, staticRenderFns } from '${depName}'`;
   }
   let scriptImport = `var script = {}`;
@@ -78,7 +77,7 @@ export default async function (code: string, path: string, options: any): Promis
     const lang = parts.script.attrs['lang'] || 'js';
     const scriptSrc = `${filePath}.${lang}`
     const depName = `./${fileName}.${lang}`;
-    await Transpiler.setFileMap(scriptSrc, parts.script.content);
+    await manager.setFileMap(scriptSrc, parts.script.content);
     denpencies.push(depName);
     // await Transpiler.traverse(parts.script.content, scriptSrc, filePath);
     scriptImport = (
@@ -94,7 +93,7 @@ export default async function (code: string, path: string, options: any): Promis
     const { transpiledCode } = await styleCompiler.translate(content, filePath, moduleId, scoped);
     const styleHref = `${filePath}.${lang || 'css'}`
     const depName = `./${fileName}.${lang || 'css'}`;
-    await Transpiler.setFileMap(styleHref, transpiledCode);
+    await manager.setFileMap(styleHref, transpiledCode);
     stylesCode = `import '${depName}'`
     // stylesCode = genStyleInjectionCode(
     //   parts.styles,

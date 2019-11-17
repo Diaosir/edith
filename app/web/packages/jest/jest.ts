@@ -1,9 +1,9 @@
 
 import Plugin from '@/packages/client-webpack/plugin/plugin'
 import Config from './config';
-import Module from '@/packages/client-webpack/lib/transpiler/transpiler-module'
+import Module from '@/packages/client-webpack/lib/module'
 import * as core from './src/core'
-
+import Console from './src/console'
 import * as Enzyme from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 
@@ -98,7 +98,8 @@ export default class Jest extends Plugin {
       ...jestGlobals,
       window: jsdomWindow,
       document: jsdomDocument,
-      global: jsdomWindow
+      global: jsdomWindow,
+      console: new Console()
     }
   }
 }

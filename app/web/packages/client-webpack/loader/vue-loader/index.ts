@@ -16,8 +16,8 @@ export class VueLoader extends BaseLoader {
     async beforeTranslate({ code, path, context }) {
     }
     async translate(ctx: Context, next?: any) {
-        const { transpilingCode, path } = ctx;
-        const { transpiledCode } = await loader(transpilingCode, path, {context: 'test'});
+        const { transpilingCode, path, manager } = ctx;
+        const { transpiledCode } = await loader(transpilingCode, path, manager, {context: 'test'});
         ctx.transpilingCode = transpiledCode;
         await next();
     }

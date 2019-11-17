@@ -1,6 +1,6 @@
 
 import File, { FileType } from '@/datahub/project/entities/file'
-import { setStylesheet } from '../../utils'
+import { setStylesheet } from '../utils'
 const defaultGlobals = {
   process: {
     env: {
