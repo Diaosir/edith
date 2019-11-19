@@ -1,7 +1,14 @@
 import request from '../../utils/request';
-import { stringify } from 'qs';
+
 import File, { FileType } from './entities/file'
 const prefix = '/api'
+const typeToNumber = (fileType: FileType): number => {
+  if(fileType === FileType.FOLDER) {
+    return Number.NEGATIVE_INFINITY;
+  } else {
+    return 1;
+  }
+}
 export default class ProjectServie{
   static getProjectFileList(projectId: number, name: string) {
     return request(`${prefix}/project/${projectId}/tree`, {
@@ -11,7 +18,9 @@ export default class ProjectServie{
       })
     }).then(({ data }) => {
       let fileList = File.generateFileList(data.payload)
-      return fileList
+      return fileList.sort(function(a, b) {
+        return typeToNumber(a.type) - typeToNumber(b.type)
+      })
     })
   }
   

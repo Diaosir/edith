@@ -6,6 +6,7 @@ import ExportFilesystem from '../../../app/service/filesystem';
 import ExportGitlab from '../../../app/service/gitlab';
 import ExportNpm from '../../../app/service/npm';
 import ExportUser from '../../../app/service/user';
+import ExportVscode from '../../../app/service/vscode';
 
 declare module 'egg' {
   interface IService {
@@ -13,5 +14,6 @@ declare module 'egg' {
     gitlab: ExportGitlab;
     npm: ExportNpm;
     user: ExportUser;
+    vscode: ExportVscode;
   }
 }

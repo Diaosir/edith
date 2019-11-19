@@ -18,4 +18,19 @@ export default class HomeController extends Controller {
     // ctx.body = res.data;
     // ctx.status = res.status;
   }
+  async getVscodeExtensionsConfig(ctx) {
+    const config = await ctx.service.vscode.getExtensionsConfig();
+    
+    ctx.body = {
+      code: 200,
+      payload: config
+    }
+  }
+  async getExtension(ctx) {
+    const { extensionName } = ctx.params;
+    console.log(extensionName);
+    ctx.body = {
+      extensionName
+    }
+  }
 }
