@@ -1,5 +1,6 @@
 import BaseLoader from '../loader/babel-loader'
 import { FileType } from '@/datahub/project/entities/file'
+import { URI, UriComponents } from '../lib/Uri'
 interface ILoader {
   translate: Function;
 
@@ -14,6 +15,7 @@ export default class Context {
   public files: Array<any>;
   public transpilingCode: string;
   public denpencies: Array<string>;
+  public resource?: UriComponents;
   public error: any = null; //是否存在错误
   private static _loaders: {
     [propName: string]: any;

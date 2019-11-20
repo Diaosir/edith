@@ -13,9 +13,13 @@ import * as path from 'path'
 import { parse, getAllEnablePaths } from '@/utils/path';
 import * as Loading from '@/components/Loading';
 import Plugin from './plugin/plugin'
+import Memfs from '@/packages/client-webpack/services/file/memfs';
+import { URI } from '@/packages/client-webpack/lib/Uri'
 const packaker = new Packager();
 const transpiler = new Manager(packaker);
-
+const fileSystem = new Memfs();
+const global = window as { [key: string] : any}
+global.fileSystem = fileSystem;
 export default class ClientWebpack{
   protected template: string = '';
   protected document: string;
@@ -30,6 +34,7 @@ export default class ClientWebpack{
     moduleSuffix: ['js', 'jsx', 'ts', 'tsx', 'vue']
   };
   constructor(options: IClientWebpackOption = {}){
+    Manager.fileService.registerProvider('localFs', fileSystem);
   }
   async init(options: IClientWebpackOption = {}) {
     ClientWebpack.options = {
@@ -38,6 +43,7 @@ export default class ClientWebpack{
     };
     this.template = options.template;
     this.document = options.document;
+    await this.createFiles(options.fileList);
     this.buildFileMap(options.fileList);
     await this.build();
     //执行插件的init
@@ -48,6 +54,27 @@ export default class ClientWebpack{
   async registerPlugin(plugin: Plugin) {
     console.log(plugin)
     ClientWebpack.plugins.push(plugin);
+  }
+  async createFiles(fileList: Array<File>) {
+    const scheme = 'localFs';
+    const root = `/${this.name}`
+    await fileSystem.mkdir(URI.parse(`${scheme}:${root}`));
+    const createFile = async (fileList: Array<File> = []) => {
+      if(fileList.length > 0) {
+        await Promise.all(fileList.map( async (file) => {
+          if (file.type === FileType.FOLDER) {
+            await fileSystem.mkdir(URI.parse(`${scheme}:${root}/${file.path}/`));
+          } else {
+            await fileSystem.writeFile(URI.parse(`${scheme}:${root}/${file.path}`), file.getValue(), { create: true, overwrite: true });
+          }
+          if (file.children.length > 0) {
+            await createFile(file.children);
+          }
+        }))
+      }
+    }
+    await createFile(fileList)
+
   }
   public async build() {
     let { code: packageJSON } = ClientWebpack.getFileContentByFilePath(this.formatFilePath('package.json'));

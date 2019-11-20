@@ -6,7 +6,7 @@ import ClientWebpack from '@/packages/client-webpack';
 import { normalize, isNodeModules } from '@/utils/path';
 import * as Loading from '@/components/Loading';
 import Log from './Log'
-
+import FileService from '@/packages/client-webpack/services/file/fileService';
 
 
 function resolve(from: string, to: string) {
@@ -31,6 +31,7 @@ export default class Manager {
   public static loadingComponent: any = Loading;
   public static log: Log = new Log();
   public static globalModules: Map<string, any> = new Map(); //全局模块一个变量
+  public static fileService = new FileService();
   constructor(packaker: Packager) {
     Manager.packager = packaker;
   }
@@ -68,7 +69,7 @@ export default class Manager {
       }
     }
     if (!module.isTraverse) {
-        module.isTraverse = true;
+      module.isTraverse = true;
       await module.translate();
     }
     return module;

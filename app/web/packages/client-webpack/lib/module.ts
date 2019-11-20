@@ -5,6 +5,7 @@ import Manager from './manager';
 import Context from '../utils/context'
 import * as is from 'is';
 import getExecuteFunction from './eval'
+import { URI, UriComponents } from './Uri'
 function hotReLoad(data?) {
     return {
         accept: function() {
@@ -37,6 +38,7 @@ export interface IModuleOption {
     code: string,
     path: string,
     module?: any;
+    uri?: UriComponents
 }
 export enum ModuleStatus {
     LOADING,
@@ -58,6 +60,12 @@ export default class Module {
     protected globals: {
         [key: string] : any;
     } = {};
+    set resource(resource: UriComponents) {
+        this.ctx.resource = resource;
+    }
+    get resource() {
+        return this.ctx.resource;
+    }
     set type(fileType) {
         this.ctx.type = fileType;
     }
@@ -104,6 +112,13 @@ export default class Module {
         this.type = File.filenameToFileType(path);
         this.id = Module.getIdByPath(path);
         this.ctx.manager = Manager;
+        this.resource = URI.revive({
+            path: path,
+            scheme: path.indexOf('node_modules') > -1 ? 'node_modules' : 'localFs',
+            authority: '',
+            query: '',
+            fragment: ''
+        });
         //如果直接传入module，无需编译和执行;
         if (module) { 
             this._isTranslate = true;

@@ -5,6 +5,7 @@ import ProjectService from '@/datahub/project/service';
 
 interface Props {
     dispatch: Function;
+    location: any
   }
 @connect(({ preview, loading}) => ({
     preview,
@@ -15,6 +16,11 @@ export default class PreviewPage extends Component<Props, any> {
         super(props)
     }
     componentDidMount() {
+        const { location: { query }} = this.props;
+        this.props.dispatch({
+            type: 'preview/getProjectFileList',
+            payload: { projectId: 4260, name: query.name || 'test'}
+        })
         window.addEventListener('message', ({data}) => {
             this.props.dispatch({
                 type: 'preview/onMessage',
