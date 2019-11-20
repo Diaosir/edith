@@ -19,7 +19,8 @@
     "noUnusedParameters": false,
     "paths": {
       "@/*": ["*"],
-      "@edith/*": ["packages/*"]
+      "@edith/*": ["packages/*"],
+      "vs/base/common/*": ["packages/vscode/src/common/*"]
     },
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true

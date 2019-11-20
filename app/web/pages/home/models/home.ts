@@ -134,6 +134,7 @@ export default {
         type: 'saveFileList',
         payload: fileList
       })
+      return fileList
     }
   },
   reducers: {

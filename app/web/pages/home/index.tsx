@@ -7,6 +7,8 @@ import  './index.scss';
 import { connect } from 'dva';
 import eventBus from '@/utils/event'
 import * as is from 'is';
+import Preview from '../../components/Vscode/components/Preview'
+import vscodeManager from '@/packages/vscode'
 interface HomeProps {
   dispatch: Function;
   location: any;
@@ -24,6 +26,7 @@ interface HomeProps {
   loading: loading
 }))
 export default class extends React.Component<HomeProps> {
+  public vscodeRef: any = React.createRef()
   constructor(props) {
     super(props);
   }
@@ -33,6 +36,12 @@ export default class extends React.Component<HomeProps> {
     this.props.dispatch({
       type: 'home/getProjectFileList',
       payload: { projectId: 4260, name: query.name || 'test'}
+    }).then((fileList) => {
+      // vscodeManager.init({
+      //   name: query.name,
+      //   fileList,
+      //   container: this.vscodeRef.current
+      // })
     })
     eventBus.on('browser-reload', () => {
       const { home: {vscode: { fileList }}} = this.props;
@@ -59,16 +68,16 @@ export default class extends React.Component<HomeProps> {
     const { home: { vscode: { fileList, editFileList, activeFileId}} } = this.props;
     return (
       <div className="home-page">
+        <div className="vscode" ref={this.vscodeRef}></div>
+        <div className="Preview">
+          <Preview></Preview>
+        </div>
         {/* <MonacoEditor 
           height="90vh" 
           language="css"
           theme='dark'
           /> */}
-          <Vscode
-            dispatch={this.dispatch}
-            data={
-            {fileList, editFileList, activeFileId}
-          } />
+          
       </div>
     ) 
   }

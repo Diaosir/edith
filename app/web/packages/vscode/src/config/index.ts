@@ -10,5 +10,6 @@ export default {
   "workspacePath": "huangzhen",
   "gistRegEx": /^\/\$gist\/.+.*\/.+.*$/,
   "rootPath": "http://localhost:8080",
+  "monacoRootPath": "http://localhost:8100/out-monaco",
   "sendASmile": false
 }

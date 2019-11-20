@@ -6,6 +6,7 @@ export default {
   targets: {ios: 8, ie: 9},
   exportStatic: true,
   define: {
+    
   },
   theme: {
     '@font-size-base': '24px'
@@ -55,7 +56,8 @@ export default {
     'path': 'browserfs/dist/shims/path.js',
     'processGlobal': 'browserfs/dist/shims/process.js',
     'bufferGlobal': 'browserfs/dist/shims/bufferGlobal.js',
-    'bfsGlobal': require.resolve('browserfs')
+    'bfsGlobal': require.resolve('browserfs'),
+    'vs/base/common': resolve(__dirname, '../web/packages/vs/src/common')
   },
   chainWebpack(config, { webpack }) {
     config.output.globalObject('this'); //worker-loader devServer 模式下报错 "window is not defined"

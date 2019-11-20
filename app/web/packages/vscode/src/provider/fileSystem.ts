@@ -3,11 +3,11 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { Event, Emitter } from 'vs/base/common/event';
-import { Disposable, IDisposable } from 'vs/base/common/lifecycle';
-import * as resources from 'vs/base/common/resources';
-import { FileChangeType, FileType, IWatchOptions, IStat, FileSystemProviderErrorCode, FileSystemProviderError, FileWriteOptions, IFileChange, FileDeleteOptions, FileSystemProviderCapabilities, FileOverwriteOptions, IFileSystemProviderWithFileReadWriteCapability } from 'vs/platform/files/common/files';
-import { URI } from 'vs/base/common/uri';
+import { Event, Emitter } from '../common/event';
+import { FileChangeType, FileType, IWatchOptions, IStat, FileSystemProviderErrorCode, FileSystemProviderError, FileWriteOptions, IFileChange, FileDeleteOptions, FileSystemProviderCapabilities, FileOverwriteOptions, IFileSystemProviderWithFileReadWriteCapability } from '../type/file';
+import { URI } from '../common/uri'; 
+import { Disposable, IDisposable } from '../common/lifecycle';
+import * as resources from '../common/resources';
 
 class File implements IStat {
 
@@ -50,13 +50,12 @@ class Directory implements IStat {
 
 export type Entry = File | Directory;
 
-export class InMemoryFileSystemProvider extends Disposable implements IFileSystemProviderWithFileReadWriteCapability {
+export default class InMemoryFileSystemProvider extends Disposable implements IFileSystemProviderWithFileReadWriteCapability {
 
 	readonly capabilities: FileSystemProviderCapabilities = FileSystemProviderCapabilities.FileReadWrite;
 	readonly onDidChangeCapabilities: Event<void> = Event.None;
 
-	root = new Directory('');
-
+  root = new Directory('');
 	// --- manage file metadata
 
 	async stat(resource: URI): Promise<IStat> {
@@ -213,6 +212,7 @@ export class InMemoryFileSystemProvider extends Disposable implements IFileSyste
 
 	watch(resource: URI, opts: IWatchOptions): IDisposable {
 		// ignore, fires for all changes...
+		console.log(resource, opts)
 		return Disposable.None;
 	}
 

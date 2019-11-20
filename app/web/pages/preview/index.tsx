@@ -1,7 +1,8 @@
 import { Component } from 'react'
 import './index.scss'
 import { connect } from 'dva';
-import SpeedDial from '@/components/SpeedDial'
+import ProjectService from '@/datahub/project/service';
+
 interface Props {
     dispatch: Function;
   }
@@ -24,9 +25,6 @@ export default class PreviewPage extends Component<Props, any> {
     render() {
         return (
             <>
-                <div className="SpeedDial">
-                    <SpeedDial />
-                </div>
                 <div className="preview-page" id="app">
                 </div>
             </>

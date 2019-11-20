@@ -24,7 +24,8 @@ export default class Vscode extends Component<Props, any> {
       this.getFiles(query.name).then(fileList => {
         vscodeManager.init({
           name: query.name,
-          fileList
+          fileList,
+          container: document.getElementById('vscode-container')
         })
       })
     }
