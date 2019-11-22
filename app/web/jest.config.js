@@ -21,6 +21,7 @@ module.exports = {
     "**/?(*.)(spec|test).ts?(x)"
   ],
   "setupFiles": [
-    "jsdom-worker"
+    "jsdom-worker",
+    './__jest__setup.js'
   ]
 };

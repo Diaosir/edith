@@ -14,10 +14,16 @@ import { parse, getAllEnablePaths } from '@/utils/path';
 import * as Loading from '@/components/Loading';
 import Plugin from './plugin/plugin'
 import Memfs from '@/packages/client-webpack/services/file/memfs';
+import LocalStorageFileSystem from '@/packages/client-webpack/services/file/localStorageFs';
 import { URI } from '@/packages/client-webpack/lib/Uri'
 const packaker = new Packager();
 const transpiler = new Manager(packaker);
+
 const fileSystem = new Memfs();
+const nodeModulesFileSystem = new LocalStorageFileSystem('node_modules');
+
+
+
 const global = window as { [key: string] : any}
 global.fileSystem = fileSystem;
 export default class ClientWebpack{
@@ -35,6 +41,7 @@ export default class ClientWebpack{
   };
   constructor(options: IClientWebpackOption = {}){
     Manager.fileService.registerProvider('localFs', fileSystem);
+    Manager.fileService.registerProvider('node_modules', nodeModulesFileSystem);
   }
   async init(options: IClientWebpackOption = {}) {
     ClientWebpack.options = {
@@ -52,7 +59,6 @@ export default class ClientWebpack{
     })
   }
   async registerPlugin(plugin: Plugin) {
-    console.log(plugin)
     ClientWebpack.plugins.push(plugin);
   }
   async createFiles(fileList: Array<File>) {
