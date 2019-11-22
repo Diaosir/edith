@@ -19,8 +19,8 @@ export function _onCreate() {
   (runtimeDva.plugins || []).forEach(plugin => {
     app.use(plugin);
   });
-  app.use(require('/Users/fengzhihao/Projects/github/edith/node_modules/_dva-immer@0.4.5@dva-immer/dist/index.js')());
-  app.model({ namespace: 'global', ...(require('/Users/fengzhihao/Projects/github/edith/app/web/models/global.ts').default) });
+  app.use(require('E:/edith/node_modules/.npminstall/dva-immer/0.4.5/dva-immer/dist/index.js')());
+  app.model({ namespace: 'global', ...(require('E:/edith/app/web/models/global.ts').default) });
   return app;
 }
 

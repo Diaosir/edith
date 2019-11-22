@@ -1,4 +1,5 @@
 'use strict';
+const mongoose = require('mongoose');
 
 module.exports = appInfo => {
   const config = exports = {};
@@ -13,6 +14,12 @@ module.exports = appInfo => {
     mapping: {
       '.html': 'nunjucks',
     },
+  };
+
+  exports.mongoose = {
+    url: 'mongodb://127.0.0.1:27017/edith',
+    options: {},
+    // plugins: [createdPlugin, [updatedPlugin, pluginOptions]],
   };
 
   config.assets = {

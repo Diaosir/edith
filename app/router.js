@@ -11,5 +11,6 @@ module.exports = app => {
   router.get('/vscode', controller.home.vscode);
   router.get('/getExtensionsConfig', controller.home.getVscodeExtensionsConfig);
   router.get('/static-extension/:extensionName', controller.home.getExtension);
+  router.get('/user', controller.user.find);
   router.get('*', controller.home.index);
 };

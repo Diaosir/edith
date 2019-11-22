@@ -5,4 +5,11 @@ export default class UserController extends Controller {
     // const result = await ctx.service.user.add();
     // ctx.body = result
   }
+
+  public async find(ctx) {
+    const result = await ctx.service.user.find({});
+    ctx.body = result
+  }
+
+
 }

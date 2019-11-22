@@ -2,7 +2,7 @@ export default app => {
   const mongoose = app.mongoose;
   const Schema = mongoose.Schema;
   const userSchema = new Schema({
-    mobile: {
+    userName: {
         type: String,
         required: true,
     },
