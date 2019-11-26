@@ -1,0 +1,75 @@
+$background: #fff;
+$fontColor: #414141;
+
+.list-page {
+  color: $fontColor;
+  .com-group {
+    font-size: 18px;
+    padding: 20px 0;
+  }
+  .com-list {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .com-wrap {
+    width: 320px;
+    height: 370px;
+    margin: 20px;
+    border: 1px solid #dcdee4;
+    border-radius: 6px;
+    text-align: center;
+  }
+  .com-view {
+    width: 320px;
+    height: 200px;
+    margin: 0 auto;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #dcdee4;
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+
+  }
+  .frame {
+    position: relative;
+    .frame-img {
+      width: 44px;
+      height: 44px;
+      border: 1px solid #dcdee4;
+      border-radius: 50%;
+      position: absolute;
+      top: -22px;
+      right: 22px;
+    }
+  }
+  .com-info {
+    padding: 10px 10px 0;
+    
+    .com-version {
+      padding-bottom: 10px;
+      font-size: 16px;
+      line-height: 16px;
+      // font-size: 14px;
+    }
+    .com-desc {
+      color: #333;
+      font-size: 14px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      display:-webkit-box;
+      -webkit-box-orient:vertical;
+      -webkit-line-clamp:2; 
+
+      overflow:hidden; 
+      text-overflow:ellipsis;
+      display:-webkit-box;
+      /* autoprefixer: off */
+      -webkit-box-orient:vertical;
+      /* autoprefixer: on */
+      -webkit-line-clamp:2; 
+    }
+  }
+  .com-detail {
+    padding: 0 10px;
+  }
+}
