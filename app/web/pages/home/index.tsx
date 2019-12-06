@@ -68,16 +68,11 @@ export default class extends React.Component<HomeProps> {
     const { home: { vscode: { fileList, editFileList, activeFileId}} } = this.props;
     return (
       <div className="home-page">
-        <div className="vscode" ref={this.vscodeRef}></div>
-        <div className="Preview">
-          <Preview></Preview>
-        </div>
-        {/* <MonacoEditor 
-          height="90vh" 
-          language="css"
-          theme='dark'
-          /> */}
-          
+        <Vscode
+            dispatch={this.dispatch}
+            data={
+            {fileList, editFileList, activeFileId}
+          } />
       </div>
     ) 
   }

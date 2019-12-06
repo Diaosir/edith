@@ -1,6 +1,4 @@
 import { URI } from 'vs/base/common/uri';
-import { Event } from 'vs/base/common/event';
-import { IDisposable } from 'vs/base/common/lifecycle';
 /**
  * Possible changes that can occur to a file.
  */
@@ -99,7 +97,7 @@ export interface IFileSystemProvider {
 
 	rename(from: URI, to: URI, opts: FileOverwriteOptions): Promise<void>;
 
-	readFile?(resource: URI): Promise<Uint8Array>;
+	readFile?(resource: URI): Promise<Uint8Array | string>;
 	writeFile?(resource: URI, content: Uint8Array, opts: FileWriteOptions): Promise<void>;
 
 	open?(resource: URI, opts: FileOpenOptions): Promise<number>;
@@ -143,6 +141,15 @@ export class FileSystemProviderError extends Error {
 }
 
 export interface IFileSystemProviderWithFileReadWriteCapability extends IFileSystemProvider {
-	readFile(resource: URI): Promise<Uint8Array>;
+	readFile(resource: URI): Promise<Uint8Array | string>;
 	writeFile(resource: URI, content: Uint8Array, opts: FileWriteOptions): Promise<void>;
+}
+
+export class NotImplementedError extends Error {
+	constructor(message?: string) {
+		super('NotImplemented');
+		if (message) {
+			this.message = message;
+		}
+	}
 }

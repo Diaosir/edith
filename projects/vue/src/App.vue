@@ -9,6 +9,7 @@
 <script>
 import Hello from './components/HelloWorld.vue'
 // import * as Util from './utils';
+import './index.less'
 export default {
   name: 'App',
   components: {
