@@ -8,19 +8,20 @@ export default class HomeController extends Controller {
   }
   async api() {
     const ctx = this.ctx;
-
+    console.log(ctx.path, 'path')
     // const url = 'https://h5.ele.me' + ctx.path.replace(/^\/api/, '') + '?' + ctx.querystring;
 
-    // console.log(url);
-    // const res = await this.ctx.curl(url, {
+    console.log(ctx.service, '-----');
+    // const res = await this.ctx.curl(this.ctx.path, {
     //   method: this.ctx.method,
     // });
+
     // ctx.body = res.data;
     // ctx.status = res.status;
   }
   async getVscodeExtensionsConfig(ctx) {
     const config = await ctx.service.vscode.getExtensionsConfig();
-    
+
     ctx.body = {
       code: 200,
       payload: config

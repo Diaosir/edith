@@ -5,6 +5,7 @@ import 'egg';
 import ExportFilesystem from '../../../app/service/filesystem';
 import ExportGitlab from '../../../app/service/gitlab';
 import ExportNpm from '../../../app/service/npm';
+import ExportProject from '../../../app/service/project';
 import ExportUser from '../../../app/service/user';
 import ExportVscode from '../../../app/service/vscode';
 
@@ -13,6 +14,7 @@ declare module 'egg' {
     filesystem: ExportFilesystem;
     gitlab: ExportGitlab;
     npm: ExportNpm;
+    project: ExportProject;
     user: ExportUser;
     vscode: ExportVscode;
   }

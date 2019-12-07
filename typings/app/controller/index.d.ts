@@ -4,12 +4,14 @@
 import 'egg';
 import ExportGit from '../../../app/controller/git';
 import ExportHome from '../../../app/controller/home';
+import ExportProject from '../../../app/controller/project';
 import ExportUser from '../../../app/controller/user';
 
 declare module 'egg' {
   interface IController {
     git: ExportGit;
     home: ExportHome;
+    project: ExportProject;
     user: ExportUser;
   }
 }

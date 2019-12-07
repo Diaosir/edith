@@ -37,4 +37,17 @@ export default class ProjectServie{
       return ''
     })
   }
+
+  static addProject(param: object) {
+    console.log(param, 'service')
+    return request(`/api/user`, {
+      method: 'POST',
+      body: JSON.stringify(param)
+    }).then(({ data }) => {
+      if (data.code == 200) {
+        return data.payload
+      }
+      return ''
+    })
+  }
 }

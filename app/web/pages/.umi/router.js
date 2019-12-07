@@ -70,8 +70,8 @@ const routes = [
           ? _dvaDynamic({
               app: require('@tmp/dva').getApp(),
               models: () => [
-                import('E:/edith/app/web/pages/list/models/home.ts').then(m => {
-                  return { namespace: 'home', ...m.default };
+                import('E:/edith/app/web/pages/list/models/list.js').then(m => {
+                  return { namespace: 'list', ...m.default };
                 }),
               ],
               component: () => import('../list/index.tsx'),
