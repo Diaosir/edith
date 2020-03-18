@@ -137,7 +137,7 @@ export class Vscode {
     const extensions = this.extensions;
     global.require(['vs/code/browser/workbench/edith', 'vs/code/browser/workbench/memfs'], (workbench, InMemoryFileSystemProvider) => {
       const { WorkspaceProvider, UrlCallbackProvider, CredentialsProvider, create, Uri} = workbench.default;
-      this.fileSystem = new InMemoryFileSystemProvider.InMemoryFileSystemProvider();
+      // this.fileSystem = new InMemoryFileSystemProvider.InMemoryFileSystemProvider();
       this.initFiles(Uri);
       if (Array.isArray(extensions)) {
         extensions.forEach(extension => {

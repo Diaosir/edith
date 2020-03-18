@@ -7,6 +7,7 @@ import { normalize, isNodeModules } from '@/utils/path';
 import * as Loading from '@/components/Loading';
 import Log from './Log'
 import FileService from '@/packages/client-webpack/services/file/fileService';
+import { URI } from './Uri';
 
 
 function resolve(from: string, to: string) {
@@ -45,7 +46,6 @@ export default class Manager {
     now = Date.now()
     Manager.traverseExecute(Manager.entryTanspilerModule);
     console.log('执行代码花了: ' + (Date.now() - now) / 1000 + 's');
-  
   }
   /**
    * 递归编译入口文件找到所有依赖文件
@@ -74,30 +74,33 @@ export default class Manager {
     }
     return module;
   }
-  
   public static async traverseChildren(parentTranspilerPath: string, moduleName: string) {
     const parentModule = Manager.getTranspilerModuleByPath(parentTranspilerPath);
     const basePath = parentModule.path;
     let filename = resolve(basePath, moduleName);
-    let childrenModule: Module = null, code = '';
+    let childrenModule: Module = null, code = '', uri = null;
 
     //如果有全局模块，则直接返回全局变量，新建transpilerModule；
     if(Manager.globalModules.get(moduleName)) { 
       filename = `/node_modules/${moduleName}`, code = '';
       childrenModule = await Manager.traverse(code, filename, parentModule.path, Manager.globalModules.get(moduleName))
-
     } else {
-      const localFileInfo = await ClientWebpack.getFileContentByFilePath(filename);
+      uri = URI.parse(`localFs:${filename}`)
+      const { exit, code: localCode, resource } = await Manager.fileService.readFile(uri);
+      // const localFileInfo = await ClientWebpack.getFileContentByFilePath(filename);
       // TODO 判断获取node_modules还是本地文件
-      if(localFileInfo.code !== undefined) {
-        code = localFileInfo.code;
-        filename = localFileInfo.fullPath
+      if(exit) {
+        code = localCode;
+        filename = resource.path
       } else {
         //排除node_modules中样式文件的引用路径，例如：@import 'a.less';
         if (isNodeModules(moduleName) && ![FileType.LESS, FileType.SCSS, FileType.CSS].includes(parentModule.type)) {
           filename = path.join('/', Manager.projectName, 'node_modules', moduleName);
         }
         const packageFile = await Manager.packager.getPackageFileOnlyPath(filename);
+        // uri = URI.parse(`node_modules:${ packageFile.fullPath}`);
+        // await Manager.fileService.writeFile(uri, packageFile.code);
+        
         code = packageFile.code;
         filename = packageFile.fullPath;
       }
@@ -185,6 +188,7 @@ export default class Manager {
     __edith_require__(entryTanspilerModule.path, true);
   }
   public static async setFileMap(filename, code) {
+    await Manager.fileService.writeFile(URI.parse(`localFs:${filename}`), code);
     ClientWebpack.fileMap.set(filename, code);
   }
   /**

@@ -90,7 +90,7 @@ export const enum FileSystemProviderCapabilities {
 }
 
 export interface IFileSystemProvider {
-	stat(resource: URI): Promise<IStat>;
+	stat(resource: URI, silent?: boolean): Promise<IStat>;
 	mkdir(resource: URI): Promise<void>;
 	readdir(resource: URI): Promise<[string, FileType][]>;
 	delete(resource: URI, opts: FileDeleteOptions): Promise<void>;

@@ -10,23 +10,23 @@ export default {
     },
     effects: {
         *getProjectFileList( { payload }, { call, put, select }) {
-            // const fileList = yield call(() => ProjectService.getProjectFileList(1222, payload.name));
-            // clientWebpack.init({
-            //     template: 'create-react-app',
-            //     fileList: fileList,
-            //     document: ''
-            // })
-            // clientWebpack.registerPlugin(new Jest({
-            //     onResult: (error, result) => {
-            //         window.parent.postMessage({
-            //             type: 'jest-result',
-            //             payload: {
-            //                 result,
-            //                 error,
-            //             }
-            //         }, '*')
-            //     }
-            // }));
+            const fileList = yield call(() => ProjectService.getProjectFileList(1222, payload.name));
+            clientWebpack.init({
+                template: 'create-react-app',
+                fileList: fileList,
+                document: ''
+            })
+            clientWebpack.registerPlugin(new Jest({
+                onResult: (error, result) => {
+                    window.parent.postMessage({
+                        type: 'jest-result',
+                        payload: {
+                            result,
+                            error,
+                        }
+                    }, '*')
+                }
+            }));
         },
         *onMessage({ payload }, { call, put }) {
             if(payload.type === 'init') {

@@ -19,9 +19,9 @@ import { URI } from '@/packages/client-webpack/lib/Uri'
 const packaker = new Packager();
 const transpiler = new Manager(packaker);
 
-const fileSystem = new Memfs();
-const nodeModulesFileSystem = new LocalStorageFileSystem('node_modules');
-
+const fileSystem = new Memfs(); //文件系统
+const nodeModulesFileSystem = new LocalStorageFileSystem('node_modules'); //node_modules
+const globalModulesFileSystem = new Memfs(); //全局变量
 
 
 const global = window as { [key: string] : any}
@@ -42,6 +42,7 @@ export default class ClientWebpack{
   constructor(options: IClientWebpackOption = {}){
     Manager.fileService.registerProvider('localFs', fileSystem);
     Manager.fileService.registerProvider('node_modules', nodeModulesFileSystem);
+    Manager.fileService.registerProvider('global', globalModulesFileSystem);
   }
   async init(options: IClientWebpackOption = {}) {
     ClientWebpack.options = {
@@ -114,7 +115,8 @@ export default class ClientWebpack{
       if(file.type !== FileType.FOLDER) {
         const filePath = this.formatFilePath(file.path)
         ClientWebpack.fileMap.set(filePath, file.getValue());
-        // BrowserFs.setFileContent(filePath,  file.getValue());
+        // BrowserFs.setFileContent(filePath,  file.getValue())
+        Manager.fileService.writeFile(URI.parse(`localFs:${filePath}`), file.getValue());
       }
     })
   }

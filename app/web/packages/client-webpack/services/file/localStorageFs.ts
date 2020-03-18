@@ -1,6 +1,7 @@
 
 import { FileChangeType, FileType, IStat, FileSystemProviderErrorCode, FileSystemProviderError, FileWriteOptions, IFileChange, FileOverwriteOptions, IFileSystemProviderWithFileReadWriteCapability } from './file';
 import { URI } from '../../lib/Uri' 
+import md5 from '@/utils/md5';
 class File implements IStat {
 	type: FileType;
 	ctime: number;
@@ -47,8 +48,8 @@ export default class LocalStorageFileSystemProvider implements IFileSystemProvid
       this.root = new Directory(scheme);
     }
   }
-	async stat(resource: URI): Promise<IStat> {
-		return this._lookup(resource, false);
+	async stat(resource: URI, silent: boolean = false): Promise<IStat> {
+		return this._lookup(resource, silent);
 	}
 
 	async readdir(resource: URI): Promise<[string, FileType][]> {
@@ -65,7 +66,7 @@ export default class LocalStorageFileSystemProvider implements IFileSystemProvid
 	async readFile(resource: URI): Promise<string> {
 
     this._lookupAsFile(resource, false);
-    const data = localStorage.getItem(resource.toString());
+    const data = localStorage.getItem(md5(resource.toString()));
 		if (data) {
 			return data;
 		}
@@ -95,7 +96,7 @@ export default class LocalStorageFileSystemProvider implements IFileSystemProvid
 		}
 		entry.mtime = Date.now();
 		entry.size = content.byteLength;
-    localStorage.setItem(resource.toString(), content.toString());
+    localStorage.setItem(md5(resource.toString()), content.toString());
 		this._fireSoon({ type: FileChangeType.UPDATED, resource });
 	}
 
