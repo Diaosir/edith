@@ -7,9 +7,15 @@
     /* Experimental Options */
     "experimentalDecorators": true,        /* Enables experimental support for ES7 decorators. */
     "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
-    "strictNullChecks": false
+    "strictNullChecks": false,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["*"],
+      "vs/base/common/*": ["packages/vscode/src/common/*"]
+    }
   },
   "include": [
+    
     "index.ts",
     "app/**/*.ts",
     "config/**/*.ts",

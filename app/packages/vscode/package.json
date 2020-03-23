@@ -1,0 +1,4 @@
+{
+  "name": "edith-vscode",
+  "main": "./src/index.ts"
+}
