@@ -14,13 +14,14 @@ import { parse, getAllEnablePaths } from '@/utils/path';
 import * as Loading from '@/components/Loading';
 import Plugin from './plugin/plugin'
 import Memfs from '@/packages/client-webpack/services/file/memfs';
-import LocalStorageFileSystem from '@/packages/client-webpack/services/file/localStorageFs';
 import { URI } from '@/packages/client-webpack/lib/Uri'
+import request from '@/utils/request';
+
 const packaker = new Packager();
 const transpiler = new Manager(packaker);
 
 const fileSystem = new Memfs(); //文件系统
-const nodeModulesFileSystem = new LocalStorageFileSystem('node_modules'); //node_modules
+// const nodeModulesFileSystem = new LocalStorageFileSystem('node_modules'); //node_modules
 const globalModulesFileSystem = new Memfs(); //全局变量
 
 
@@ -41,7 +42,6 @@ export default class ClientWebpack{
   };
   constructor(options: IClientWebpackOption = {}){
     Manager.fileService.registerProvider('localFs', fileSystem);
-    Manager.fileService.registerProvider('node_modules', nodeModulesFileSystem);
     Manager.fileService.registerProvider('global', globalModulesFileSystem);
   }
   async init(options: IClientWebpackOption = {}) {
@@ -90,12 +90,13 @@ export default class ClientWebpack{
         value: packageJSON,
         name: 'package.json'
       });
-      const { entryFilePath, entryFileCode } = this.getEntryFile();
-      // this.packages = this.buildUsedPackages();
-      ClientWebpack.loadingComponent.show();
-      await packaker.init(this.packageFile.getDependencies());
-      await transpiler.init(this.name, entryFileCode, entryFilePath);
-      ClientWebpack.loadingComponent.close();
+      await this.combinationsDependencies(this.packageFile.getDependencies())
+      // const { entryFilePath, entryFileCode } = this.getEntryFile();
+      // // this.packages = this.buildUsedPackages();
+      // ClientWebpack.loadingComponent.show();
+      // await packaker.init(this.packageFile.getDependencies());
+      // await transpiler.init(this.name, entryFileCode, entryFilePath);
+      // ClientWebpack.loadingComponent.close();
     }
   }
   private getEntryFile() {
@@ -170,5 +171,19 @@ export default class ClientWebpack{
    */
   protected formatFilePath(filePath: string) {
     return `/${path.join(this.name, filePath)}`
+  }
+  public async combinationsDependencies(dependencies) {
+    const devStr = Object.keys(dependencies).reduce((preValue, curValue) => {
+      return `${preValue ? preValue + '+': ''}${curValue}@${dependencies[curValue]}`
+    }, '')
+    const { contents } = await request(`/api/v2/package/combinations/${encodeURIComponent(devStr)}`).then(({ data }) => {
+      if (data.code == 200) {
+        return data.payload
+      }
+      return {}
+    })
+    await Promise.all(Object.keys(contents).map( async contentName => {
+      await fileSystem.writeFileAnyway(URI.parse(`localFs:test/${contentName}`), contents[contentName].content, { create: true, overwrite: true });
+    }))
   }
 }

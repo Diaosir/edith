@@ -1,5 +1,4 @@
 import LazyLoad from '../Lazyload';
-import path from 'path'
 interface Idependency {
     semver: string,
     resolved: string,

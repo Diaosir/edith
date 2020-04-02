@@ -38,7 +38,7 @@ function checkStatus(response) {
  * @param  {object} [options] The options we want to pass to "fetch"
  * @return {object}           An object containing either "data" or "err"
  */
-export default async function request(url, options?: any) {
+export default async function request(url, options: any = {}) {
   if (!options.headers) {
     options.headers = {};
   }
@@ -49,6 +49,7 @@ export default async function request(url, options?: any) {
 
   }
   options.headers = {
+    'method': 'GET',
     'Content-type': typeof body === 'string' ? "text/plain;charset=UTF-8" : 'application/json',
     ...options.headers
   }

@@ -1,9 +1,5 @@
 import { Controller } from 'egg';
-import { Get, IgnoreJwtAll, Description, TagsAll } from 'egg-shell-decorators';
-
-@TagsAll('用户')
 export default class HomeController extends Controller {
-  @Get('/:id')
   async getProject() {
     const ctx = this.ctx;
     const { name } = this.ctx.request.body;
