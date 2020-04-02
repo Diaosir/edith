@@ -17,7 +17,7 @@ export default class PreviewPage extends Component<Props, any> {
     }
     componentDidMount() {
         const { location: { query }} = this.props;
-        this.props.dispatch({
+        query.name && this.props.dispatch({
             type: 'preview/getProjectFileList',
             payload: { projectId: 4260, name: query.name || 'test'}
         })

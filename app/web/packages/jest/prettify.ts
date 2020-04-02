@@ -9,7 +9,7 @@ function constructResultsHTML(result) {
   let totalDuration = 0;
   let passed = 0;
   let failed = 0;
-  const testsResultsHTML = result.reduce(
+  const testsResultsHTML = result.testResults.reduce(
     (currentOutput: string, {duration, status, errors, testPath}) => {
       // Casting because the types in Circus.TestStatus
       // Don't correspond with the actual given status

@@ -49,7 +49,6 @@ export default class Jest extends Plugin {
   }
   async init() {
     await this.initJSDOM();
-    console.log(this.dom)
     await this.reset();
   }
   async traverseTestFile() {

@@ -243,7 +243,7 @@ function __edith_require__(modulePath, isForce: boolean = false) {
     transpilter.getModuleFunction().call(module.exports, module, module.exports, __edith_require__);
   } catch (error) {
     module.isLoad = false;
-    throw new Error(error)
+    // throw new Error(error)
   }
   return module.exports
 }

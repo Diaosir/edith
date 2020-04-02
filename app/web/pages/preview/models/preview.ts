@@ -18,7 +18,8 @@ export default {
             })
             clientWebpack.registerPlugin(new Jest({
                 onResult: (error, result) => {
-                    window.parent.postMessage({
+                    console.log(error, result)
+                    window.parent && window.parent.postMessage({
                         type: 'jest-result',
                         payload: {
                             result,
@@ -38,6 +39,7 @@ export default {
                 })
                 clientWebpack.registerPlugin(new Jest({
                     onResult: (error, result) => {
+                        console.log(error, result)
                         window.parent.postMessage({
                             type: 'jest-result',
                             payload: {
