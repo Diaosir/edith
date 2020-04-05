@@ -38,39 +38,12 @@ export default {
   ignoreMomentLocale: true,
   disableCSSModules: true,
   alias: {
-    src: resolve(__dirname, '../web'),
-    assets: resolve(__dirname, '../web/assets'),
-    common: resolve(__dirname, '../web/common'),
-    components: resolve(__dirname, '../web/components'),
-    constants: resolve(__dirname, '../web/constants'),
-    layouts: resolve(__dirname, '../web/layouts'),
-    models: resolve(__dirname, '../web/models'),
-    services: resolve(__dirname, '../web/services'),
-    utils: resolve(__dirname, '../web/utils'),
-    libs: resolve(__dirname, '../web/libs'),
-    enums: resolve(__dirname, '../web/enums'),
-    'packages': resolve(__dirname, '../packages'),
-    '@edith/devtools': resolve(__dirname, '../packages/devtools'),
-    'fs': 'browserfs/dist/shims/fs.js',
-    'buffer': 'browserfs/dist/shims/buffer.js',
-    'path': 'browserfs/dist/shims/path.js',
-    'processGlobal': 'browserfs/dist/shims/process.js',
-    'bufferGlobal': 'browserfs/dist/shims/bufferGlobal.js',
-    'bfsGlobal': require.resolve('browserfs'),
-    'vs/base/common': resolve(__dirname, '../web/packages/vs/src/common')
+    src: resolve(__dirname, 'src'),
+    "@/packages": resolve(__dirname, '../packages'),
+    "client-webpack": resolve(__dirname, '../packages/"client-webpack'),
+    "jest": resolve(__dirname, '../packages/"jest')
   },
   chainWebpack(config, { webpack }) {
     config.output.globalObject('this'); //worker-loader devServer 模式下报错 "window is not defined"
-    // 设置 alias
-    // config.module
-    //       .rule('worker-loader')
-    //       .test(/\.worker\.js$/)
-    //       .use('worker')
-    //         .loader('worker-loader')
-    //         .options({
-    //           inline: true
-    //         })
-    // 删除进度条插件
-    config.plugin('ProvidePlugin').use(webpack.ProvidePlugin, [{ BrowserFS: 'bfsGlobal', process: 'processGlobal', Buffer: 'bufferGlobal'}]);
   }
 };
