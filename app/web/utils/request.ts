@@ -4,7 +4,7 @@ const fetch = function (input, opts?: any) { //定义新的fetch方法, 添加�
     var timeoutId = setTimeout(function () {
       console.log('服务超时，请稍后再试')
       reject(new Error("fetch timeout"))
-    }, opts.timeout || 20000);
+    }, opts.timeout || 100000);
     originalFetch(input, opts).then(
       res => {
         clearTimeout(timeoutId);

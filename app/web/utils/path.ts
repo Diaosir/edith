@@ -37,7 +37,12 @@ export function isNodeModules(filename: string) {
 }
 
 export function resolve(base: string, filename: string) {
-  let result = path.resolve(base, filename);
+  let result = ''
+  if(base.match(/\.\w+$/)) {
+    result = path.resolve(path.dirname(base), filename);
+  } else {
+    result = path.resolve(base, filename);
+  }
   if (result[0] === '/') {
     result = result.split('').splice(1).join('');
   }

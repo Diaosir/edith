@@ -1,4 +1,3 @@
-import { threadId } from 'worker_threads';
 import * as is from 'is'
 interface ITask {
     data: any;
@@ -45,11 +44,12 @@ export default abstract  class BaseLoader {
         return Promise.resolve(new this.Worker());
     }
     async initWorker() {
-        if (this.workers.length === 0) {
-            await Promise.all(
-                Array.from({ length: this.workerCount }, () => this.loadWorker())
-            );
-        }
+        // if (this.workers.length === 0) {
+        //     await Promise.all(
+        //         Array.from({ length: this.workerCount }, () => this.loadWorker())
+        //     );
+        // }
+        await this.loadWorker()
         this.initialized = true;
     }
     async loadWorker() {
@@ -64,17 +64,18 @@ export default abstract  class BaseLoader {
     }
     executeTask({ data, callbacks }, worker: Worker) {
         worker.onmessage = async (message: MessageEvent) => {
-            const { data } = message;
-            if(!is.object(data)) {
+            const { data: result } = message;
+            if(!is.object(result)) {
+                callbacks.forEach(callback => callback('babel result is no object'));
                 return ;
             }
-            if (data.type === 'success') {
-                callbacks.forEach(callback => callback(data.error, data.payload));
+            if (result.type === 'success') {
+                callbacks.forEach(callback => callback(result.error, result.payload));
             }
-            if(data.type === 'error') {
-                callbacks.forEach(callback => callback(data.error));
+            if(result.type === 'error') {
+                callbacks.forEach(callback => callback(result.error));
             }
-            if (data.type === 'error' || data.type === 'success') {
+            if (result.type === 'error' || result.type === 'success') {
                 this.freeWorkers.unshift(worker);
                 this.translateRemainingTasks();
             }

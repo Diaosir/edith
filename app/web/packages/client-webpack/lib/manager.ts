@@ -9,7 +9,6 @@ import Log from './Log'
 import FileService from '@/packages/client-webpack/services/file/fileService';
 import { URI } from './Uri';
 
-
 function resolve(from: string, to: string) {
   //Todo 判断是否为文件或者文件夹
   const { ext } = path.parse(from);
@@ -39,6 +38,7 @@ export default class Manager {
   public async init(projectName: string, code: string, filePath: string) {
     Manager.projectName = projectName;
     let now = Date.now();
+    console.log(filePath)
     Manager.entryTanspilerModule = await Manager.traverse(code, filePath);
     console.log('查找依赖花了: ' + (Date.now() - now) / 1000 + 's')
     now = Date.now()
@@ -53,11 +53,10 @@ export default class Manager {
    */
   public static async traverse(code: string, filePath: string, parentTranspilerPath?: string, __module__export: any = null) {
     
-    const module = Manager.transpilerModules.get(normalize(filePath)) || new Module({code, path: normalize(filePath), module: __module__export});
+    const module = Manager.transpilerModules.get(normalize(filePath)) || new Module({code, path: normalize(filePath), module: __module__export, resource: URI.parse(`localFs:${filePath}`)});
     // transpiler.code = code;
 
     const parentTranspilerTpye = File.filenameToFileType(parentTranspilerPath);
-
     if (module.path) {
       Manager.transpilerModules.set(module.path, module);
 
@@ -77,30 +76,31 @@ export default class Manager {
   public static async traverseChildren(parentTranspilerPath: string, moduleName: string) {
     const parentModule = Manager.getTranspilerModuleByPath(parentTranspilerPath);
     const basePath = parentModule.path;
-    let filename = resolve(basePath, moduleName);
-    let childrenModule: Module = null, code = '', uri = null;
-
+    let filename = ''
+    let childrenModule: Module = null, code = '', uri: URI = null;
+    const node_modules_path = path.join('/', Manager.projectName, 'node_modules');
     //如果有全局模块，则直接返回全局变量，新建transpilerModule；
     if(Manager.globalModules.get(moduleName)) { 
       filename = `/node_modules/${moduleName}`, code = '';
       childrenModule = await Manager.traverse(code, filename, parentModule.path, Manager.globalModules.get(moduleName))
     } else {
-      uri = URI.parse(`localFs:${filename}`)
-      const { exit, code: localCode, resource } = await Manager.fileService.readFile(uri);
-      // const localFileInfo = await ClientWebpack.getFileContentByFilePath(filename);
-      // TODO 判断获取node_modules还是本地文件
-      if(exit) {
-        code = localCode;
-        filename = resource.path
-      } else {
-        //排除node_modules中样式文件的引用路径，例如：@import 'a.less';
+      uri = URI.parse(`localFs:${moduleName}`)
+      filename = await Manager.fileService.resolve(uri, URI.parse(`localFs:${parentTranspilerPath}`), node_modules_path);
+      // if(filename) {
+      //   // const { code: localCode } = await Manager.fileService.readFile(uri.with({
+      //   //   path: filename
+      //   // }));
+      //   code = localCode
+      // }
+      //TODO 本地拿不到，需要去远程获取文件 
+      if(!filename) {
+        console.log(filename, uri.fsPath, parentModule.path)
         if (isNodeModules(moduleName) && ![FileType.LESS, FileType.SCSS, FileType.CSS].includes(parentModule.type)) {
-          filename = path.join('/', Manager.projectName, 'node_modules', moduleName);
+          filename = path.join(node_modules_path, moduleName);
+        } else {
+          filename = resolve(basePath, moduleName);
         }
         const packageFile = await Manager.packager.getPackageFileOnlyPath(filename);
-        // uri = URI.parse(`node_modules:${ packageFile.fullPath}`);
-        // await Manager.fileService.writeFile(uri, packageFile.code);
-        
         code = packageFile.code;
         filename = packageFile.fullPath;
       }
@@ -114,13 +114,13 @@ export default class Manager {
   /**
    * 修改模块代码
    */
-  public static async rebuildTranspilerModule(path: string, newCode: string) {
+  public static async rebuildTranspilerModule(path: string) {
     const targetTranspilerModule = Manager.getTranspilerModuleByPath(path);
-    if (!!targetTranspilerModule && targetTranspilerModule.code !== newCode) {
+    if (!!targetTranspilerModule) {
       Manager.loadingComponent.show()
       try {
         const now = Date.now();
-        await targetTranspilerModule.reset(newCode);
+        await targetTranspilerModule.reset();
         
         if(File.isStyle(targetTranspilerModule.type) && !targetTranspilerModule.isEntry) {
           await Manager.translateAllStyleEntry(targetTranspilerModule.path);
@@ -241,9 +241,13 @@ function __edith_require__(modulePath, isForce: boolean = false) {
   
   try{
     transpilter.getModuleFunction().call(module.exports, module, module.exports, __edith_require__);
+
+    //执行完成，清除编译后代码
+    // transpilter.ctx.transpilingCode = ''
   } catch (error) {
     module.isLoad = false;
-    throw new Error(error)
+    // throw new Error(error)
+    console.log(error)
   }
   return module.exports
 }

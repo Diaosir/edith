@@ -12,11 +12,12 @@ self.addEventListener('message', ( event ) => {
   Sass.clearFiles();
   Sass.importer(async (request, done) => {
     const filename = request.resolved;
+    const file = files[filename]
     try{
-      if(!files[filename]) {
+      if(!file) {
         throw new Error(`this file ${filename} is not found`)
       }
-      Sass.writeFile(filename, files[filename], () => {
+      Sass.writeFile(filename, file, () => {
         done({
           path: filename,
         });
@@ -25,6 +26,7 @@ self.addEventListener('message', ( event ) => {
       done({ error: e.message });
     }
   })
+  const now = Date.now()
   Sass.compile(
     code, 
     {
@@ -32,6 +34,7 @@ self.addEventListener('message', ( event ) => {
       indentedSyntax,
     },
     result => {
+      console.log(`sass worker 编译${path}耗时：${(Date.now() - now) / 1000}s`)
       if (result.status === 0) {
         self.postMessage({
           type: 'success',

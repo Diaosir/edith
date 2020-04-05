@@ -1,7 +1,8 @@
-// import * as babel from '@babel/standalone';
+import * as babel from '@babel/standalone';
 import ReplaceRequire from './plugins/replace-require'
-self.importScripts('https://unpkg.com/@babel/standalone@7.6.4/babel.min.js');
+// self.importScripts('https://unpkg.com/@babel/standalone@7.6.4/babel.min.js');
 const ctx = self
+ctx.Babel = babel
 ctx.addEventListener("message", (event ) => {
   const { data } = event;
   if (data && data.type === 'babel-translate') {
@@ -18,7 +19,9 @@ function translate(code, filepath, babelOptions) {
     plugins: [].concat(babelOptions.plugins, [[ReplaceRequire(denpencies), { path: filepath}]])
   }
   try{
+    const now = Date.now()
     const transformResult = ctx.Babel.transform(code || '', options);
+    console.log(`babel worker 编译${filepath}耗时：${(Date.now() - now) / 1000}s`)
     ctx.postMessage({
       type: `success`,
       payload: {
@@ -36,8 +39,6 @@ function translate(code, filepath, babelOptions) {
     })
   }
 }
-
-
-ctx.postMessage({
-  type: 'ready'
-})
+// ctx.postMessage({
+//   type: 'ready'
+// })

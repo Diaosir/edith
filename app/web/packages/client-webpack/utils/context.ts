@@ -15,7 +15,7 @@ export default class Context {
   public files: Array<any>;
   public transpilingCode: string;
   public denpencies: Array<string>;
-  public resource?: UriComponents;
+  public resource?: URI;
   public error: any = null; //是否存在错误
   private static _loaders: {
     [propName: string]: any;
@@ -40,5 +40,10 @@ export default class Context {
         return _.default
     })
     return Context._loaders[loaderName] = loader;
+  }
+  async timeline(func, after) {
+    const now = Date.now();
+    await func();
+    await after(Date.now() - now);
   }
 }

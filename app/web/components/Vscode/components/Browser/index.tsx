@@ -7,7 +7,7 @@ export default class Browser extends Component<any, any> {
   constructor(props) {
     super(props);
     this.state = {
-      url: 'http://localhost:8000/#/preview'
+      url: 'http://localhost:8001/#/preview'
     }
   }
   componentDidMount() {

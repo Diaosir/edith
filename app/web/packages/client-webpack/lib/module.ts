@@ -38,7 +38,7 @@ export interface IModuleOption {
     code: string,
     path: string,
     module?: any;
-    uri?: UriComponents
+    resource?: URI
 }
 export enum ModuleStatus {
     LOADING,
@@ -60,7 +60,7 @@ export default class Module {
     protected globals: {
         [key: string] : any;
     } = {};
-    set resource(resource: UriComponents) {
+    set resource(resource: URI) {
         this.ctx.resource = resource;
     }
     get resource() {
@@ -106,19 +106,13 @@ export default class Module {
         hot: hotReLoad()
     };
     constructor(options: IModuleOption){
-        const {code, path, module = null } = options;
-        this.code = code;
+        const { path, module = null, resource } = options;
+        // this.code = code;
         this.path = path;
         this.type = File.filenameToFileType(path);
         this.id = Module.getIdByPath(path);
         this.ctx.manager = Manager;
-        this.resource = URI.revive({
-            path: path,
-            scheme: path.indexOf('node_modules') > -1 ? 'node_modules' : 'localFs',
-            authority: '',
-            query: '',
-            fragment: ''
-        });
+        this.resource = resource
         //如果直接传入module，无需编译和执行;
         if (module) { 
             this._isTranslate = true;
@@ -135,7 +129,8 @@ export default class Module {
         }
         const fn = await this.composeTranslateMiddlewares();
         //编译前重新赋值
-        this.transpilingCode = this.code;
+        const { code } = await Manager.fileService.readFile(this.ctx.resource);
+        this.transpilingCode = code;
         await fn(this.ctx);
         if (!this.ctx.error) {
             if (is.array(this.ctx.denpencies)) {
@@ -181,10 +176,11 @@ export default class Module {
     public static getIdByPath(path: string) {
         return md5(path);
     }
-    public async reset(newCode?: string) {
-        if(!!newCode) {
-            this.code = newCode;
-        }
+    public async reset() {
+        // if(!!newCode) {
+        //     this.code = newCode;
+        // }
+        console.log('reset', this.path)
         this._isTranslate = false;
         this.isTraverse = false;
         this.module.isLoad = false;

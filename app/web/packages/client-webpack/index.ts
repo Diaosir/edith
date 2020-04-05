@@ -91,12 +91,15 @@ export default class ClientWebpack{
         name: 'package.json'
       });
       await this.combinationsDependencies(this.packageFile.getDependencies())
-      // const { entryFilePath, entryFileCode } = this.getEntryFile();
-      // // this.packages = this.buildUsedPackages();
-      // ClientWebpack.loadingComponent.show();
+      // let filename = await Manager.fileService.resolve(URI.parse(`localFs:./index.scss`), URI.parse(`localFs:/test/src/index.jsx`), `/test/node_modules`);
+      // console.log(filename)
+      const { entryFilePath, entryFileCode } = this.getEntryFile();
+      // this.packages = this.buildUsedPackages();
+      ClientWebpack.loadingComponent.show();
       // await packaker.init(this.packageFile.getDependencies());
-      // await transpiler.init(this.name, entryFileCode, entryFilePath);
-      // ClientWebpack.loadingComponent.close();
+      // console.log(entryFileCode)
+      await transpiler.init(this.name, entryFileCode, entryFilePath);
+      ClientWebpack.loadingComponent.close();
     }
   }
   private getEntryFile() {
@@ -123,7 +126,9 @@ export default class ClientWebpack{
   }
   public async changeFile(changeFile: File) {
     const fullPath = this.formatFilePath(changeFile.path);
-    ClientWebpack.fileMap.set(fullPath, changeFile.getValue());
+    // ClientWebpack.fileMap.set(fullPath, changeFile.getValue());
+    await fileSystem.writeFileAnyway(URI.parse(`localFs:${fullPath}`), changeFile.getValue());
+
     if (changeFile.name === 'package.json') {
       try{
         this.packageFile = new PackageFile({
@@ -176,12 +181,21 @@ export default class ClientWebpack{
     const devStr = Object.keys(dependencies).reduce((preValue, curValue) => {
       return `${preValue ? preValue + '+': ''}${curValue}@${dependencies[curValue]}`
     }, '')
-    const { contents } = await request(`/api/v2/package/combinations/${encodeURIComponent(devStr)}`).then(({ data }) => {
+    const { contents, dependencyDependencies } = await request(`/api/v2/package/combinations/${encodeURIComponent(devStr)}`).then(({ data }) => {
       if (data.code == 200) {
         return data.payload
       }
       return {}
     })
+    console.log(dependencyDependencies)
+    const deps = new Map();
+    Object.keys(dependencyDependencies).forEach(key => deps.set(key, {
+      name: key,
+      ...dependencyDependencies[key]
+    }))
+    packaker.dependencyDependencies = deps;
+    packaker.contents = contents;
+    // throw new Error('111')
     await Promise.all(Object.keys(contents).map( async contentName => {
       await fileSystem.writeFileAnyway(URI.parse(`localFs:test/${contentName}`), contents[contentName].content, { create: true, overwrite: true });
     }))

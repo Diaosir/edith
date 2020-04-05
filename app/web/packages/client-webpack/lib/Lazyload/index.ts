@@ -72,7 +72,7 @@ export default class Lazyload {
                 })
                 return {
                     code,
-                    fullPath: normalize(fullPath),
+                    fullPath: normalize(fullPath).replace(`@${version}`, ''),
                     isError: status == 404
                 }
             });
@@ -81,6 +81,7 @@ export default class Lazyload {
                 const packageJsonConent = await fetch(`${url}/package.json`).then((response) => response.json()).catch((error) => { return {}});
                 if (packageJsonConent.main) {
                     result = await doFetch(resolve(url, packageJsonConent.main));
+                    result.main = packageJsonConent.main;
                 }
             }
             !result.isError && BrowserFs.setFileContent(result.fullPath, result.code);
