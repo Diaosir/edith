@@ -19,7 +19,7 @@
       "max-classes-per-file": [true, 3, "exclude-class-expressions"]
     },
     "paths": {
-      "component": "app/web/component"
+      "component": "src/component"
     },
-    "rulesDirectory": ["app"]
+    "rulesDirectory": ["src"]
   }

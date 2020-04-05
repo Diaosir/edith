@@ -4,18 +4,10 @@
   "description": "",
   "private": true,
   "scripts": {
-    "start": "egg-scripts start --daemon --env prod",
-    "stop": "egg-scripts stop",
-    "dev": "egg-bin dev -r egg-ts-helper/register",
-    "debug": "egg-bin debug",
+    "start": "umi dev --PORT=3012",
     "build": "npm run umi:build",
     "umi:dev": "umi dev --PORT=3012",
-    "umi:build": "UMI_ENV=prod CI=true umi build",
-    "test": "egg-bin test",
-    "cov": "egg-bin cov",
-    "lint": "eslint .",
-    "ci": "npm run lint && npm run cov",
-    "autod": "autod"
+    "umi:build": "UMI_ENV=prod CI=true umi build"
   },
   "dependencies": {
     "@babel/generator": "^7.6.3",
@@ -50,6 +42,10 @@
     "gonzales-pe": "^4.2.4",
     "hash-sum": "^2.0.0",
     "is": "^3.3.0",
+    "jest-circus": "^25.2.7",
+    "jest-matchers": "^20.0.3",
+    "jest-mock": "^25.2.6",
+    "jest-snapshot": "^25.2.7",
     "js-base64": "^2.5.1",
     "js-md5": "^0.7.3",
     "less": "^3.10.3",

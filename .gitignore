@@ -5,3 +5,4 @@ logs
 .idea
 ./projects
 app/public
+.umi

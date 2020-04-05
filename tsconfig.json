@@ -1,31 +1,27 @@
 {
-  "extends": "./config/tsconfig.json",
-  "compileOnSave": true,
   "compilerOptions": {
-    "target": "es2017",
-    "module": "commonjs",
-    /* Experimental Options */
-    "experimentalDecorators": true,        /* Enables experimental support for ES7 decorators. */
-    "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
-    "strictNullChecks": false,
+    "lib": ["es6", "dom", "scripthost", "es2015.symbol"],
+    "target": "es5",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "jsx": "preserve",
+    "esModuleInterop": true,
+    "sourceMap": true,
     "baseUrl": ".",
+    "declaration": true,
+    "noEmitHelpers": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noImplicitUseStrict": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": false,
+    "downlevelIteration": true,
     "paths": {
-      "@/*": ["*"],
-      "vs/base/common/*": ["packages/vscode/src/common/*"]
-    }
-  },
-  "include": [
-    
-    "index.ts",
-    "app/**/*.ts",
-    "config/**/*.ts",
-    "mock/**/*.ts",
-    "test/**/*.ts"
-  ],
-  "exclude": [
-    "public",
-    "app/public",
-    "app/view",
-    "node_modules"
-  ]
+      "@/*": ["src/*"]
+    },
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true
+  }
 }

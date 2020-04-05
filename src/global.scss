@@ -1,0 +1,18 @@
+// @font-face {
+//   src: url('./assets/fonts/seti.woff') format('woff');
+//   font-family: 'seti';
+//   font-weight: normal;
+//   font-style: normal;
+// }
+// @import './scss/icon-theme.scss';
+html, body {
+  margin: 0;
+  padding: 0;
+}
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  tap-highlight-color: transparent;
+}
