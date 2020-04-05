@@ -5,10 +5,8 @@ import Vscode from '../../components/Vscode'
 // import MonacoEditor from '@monaco-editor/react';
 import  './index.scss';
 import { connect } from 'dva';
-import eventBus from '@/utils/event'
+import eventBus from 'edith-utils/lib/event'
 import * as is from 'is';
-import Preview from '../../components/Vscode/components/Preview'
-import vscodeManager from '@/packages/vscode'
 interface HomeProps {
   dispatch: Function;
   location: any;

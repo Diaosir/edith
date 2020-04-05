@@ -1,6 +1,5 @@
 import { Component } from 'react'
 import './index.scss'
-import * as polished from 'polished';
 import { Tabs, Icon, Tooltip } from 'antd';
 import ControlledEditor from '../ControlledEditor';
 import File from 'edith-types/lib/file';

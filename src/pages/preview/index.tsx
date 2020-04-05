@@ -1,8 +1,6 @@
 import { Component } from 'react'
 import './index.scss'
 import { connect } from 'dva';
-import ProjectService from '@/datahub/project/service';
-
 interface Props {
     dispatch: Function;
     location: any

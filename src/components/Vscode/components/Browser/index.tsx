@@ -1,7 +1,7 @@
 import { Component, createRef } from 'react'
 import './index.scss'
 import { Icon } from 'antd';
-import eventBus from '@/utils/event'
+import eventBus from 'edith-utils/lib//event'
 export default class Browser extends Component<any, any> {
   public browserRef: any = createRef();
   constructor(props) {

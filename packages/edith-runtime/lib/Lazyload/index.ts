@@ -1,8 +1,6 @@
-import LoadWorker from 'worker-loader!./load.worker';
-let caches = {}
 
 import path from 'path'
-import { parse, normalize, resolve } from '@/utils/path'
+import { parse, normalize, resolve } from 'edith-utils/lib/path'
 const ROOT = '/node_modules';
 const UNPKG_URL = 'https://unpkg.com';
 export default class Lazyload {
@@ -19,17 +17,6 @@ export default class Lazyload {
     }
     public static async getPackageFileContent(packageName, version, filepath, projectName: string = '') {
         const url = `${UNPKG_URL}/${packageName}@${version}${filepath ? `/${filepath}` : ''}`;
-        const browserfsFilePath = normalize(path.join(projectName, ROOT, `${packageName}@${version}`, filepath || ''));
-
-        // const {code, fullPath} = await BrowserFs.getFileContent(browserfsFilePath);
-        // if (!!code) {
-        //     return {
-        //         code,
-        //         fullPath
-        //     };
-        // } else {
-        //     console.log(`${browserfsFilePath}不在缓存中`)
-        // }
         async function doFetch(url) {
             let result: any = await fetch(normalize(url)).then(async response => {
                 const { url, status } = response;

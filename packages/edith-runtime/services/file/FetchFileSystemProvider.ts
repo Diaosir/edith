@@ -1,14 +1,17 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-
-import { FileSystemProviderCapabilities, IStat, FileType, FileDeleteOptions, FileOverwriteOptions, FileWriteOptions, FileSystemProviderError, FileSystemProviderErrorCode, IFileSystemProviderWithFileReadWriteCapability, NotImplementedError } from './file';
-import { URI } from '../../lib/Uri' 
-const textEncoder = new TextEncoder();
-
+import { 
+	FileSystemProviderCapabilities, 
+	IStat, 
+	FileType, 
+	FileDeleteOptions, 
+	FileOverwriteOptions, 
+	FileWriteOptions, 
+	FileSystemProviderError, 
+	FileSystemProviderErrorCode, 
+	IFileSystemProviderWithFileReadWriteCapability, 
+	NotImplementedError 
+} from 'edith-types/lib/file/file';
+import { URI } from 'edith-types/lib/uri'
 export class FetchFileSystemProvider implements IFileSystemProviderWithFileReadWriteCapability {
-
 	readonly capabilities = FileSystemProviderCapabilities.Readonly + FileSystemProviderCapabilities.FileReadWrite + FileSystemProviderCapabilities.PathCaseSensitive;
 	// working implementations
 	async readFile(resource: URI): Promise<Uint8Array> {

@@ -1,6 +1,6 @@
-import request from '../../utils/request';
+import request from 'edith-utils/lib/request';
 
-import File, { FileType } from './entities/file'
+import File, { FileType } from 'edith-types/lib/file'
 const prefix = '/api/v2'
 const typeToNumber = (fileType: FileType): number => {
   if(fileType === FileType.FOLDER) {

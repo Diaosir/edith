@@ -1,6 +1,6 @@
 
 import { FileChangeType, FileType, IStat, FileSystemProviderErrorCode, FileSystemProviderError, FileWriteOptions, IFileChange, FileOverwriteOptions, IFileSystemProviderWithFileReadWriteCapability } from './file';
-import { URI } from '../../lib/Uri' 
+import { URI } from 'edith-types/lib/uri'
 import md5 from '@/utils/md5';
 class File implements IStat {
 	type: FileType;

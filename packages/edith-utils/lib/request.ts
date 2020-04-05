@@ -68,3 +68,9 @@ export default async function request(url, options: any = {}) {
   }
   return ret;
 }
+
+
+export async function get(url: string, options?: any): Promise<ApiResponse<any>> {
+  const res: any = await request(url, options);
+  return res.data;
+}

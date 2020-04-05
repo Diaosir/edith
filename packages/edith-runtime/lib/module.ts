@@ -1,11 +1,11 @@
 import File, { FileType } from 'edith-types/lib/file';
-import md5 from '@/utils/md5'
+import md5 from 'edith-utils/lib/md5'
 import { defaultLoaderRules } from '../loader'
 import Manager from './manager';
 import Context from '../utils/context'
 import * as is from 'is';
 import getExecuteFunction from './eval'
-import { URI, UriComponents } from './Uri'
+import { URI } from 'edith-types/lib/uri'
 function hotReLoad(data?) {
     return {
         accept: function() {

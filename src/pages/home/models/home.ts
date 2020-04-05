@@ -1,6 +1,6 @@
 import File, { FileType } from 'edith-types/lib/file'
 import ProjectService from '@/datahub/project/service';
-import eventBus from '@/utils/event'
+import eventBus from 'edith-utils/lib/event'
 
 // const fileList = [
 //   new File(

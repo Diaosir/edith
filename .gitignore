@@ -6,3 +6,4 @@ logs
 ./projects
 app/public
 .umi
+.idea

@@ -1,4 +1,4 @@
-import { parse, normalize, originalResolve} from '@/utils/path'
+import { parse, normalize, originalResolve} from 'edith-utils/lib/path'
 // import Sass from './sass.sync.js'
 self.importScripts([
   'https://unpkg.com/sass.js@0.11.1/dist/sass.sync.js',

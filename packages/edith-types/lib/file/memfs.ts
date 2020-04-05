@@ -1,6 +1,6 @@
 
 import { FileChangeType, FileType, IWatchOptions, IStat, FileSystemProviderErrorCode, FileSystemProviderError, FileWriteOptions, IFileChange, FileDeleteOptions, FileOverwriteOptions, IFileSystemProviderWithFileReadWriteCapability } from './file';
-import { URI } from '../../lib/Uri' 
+import { URI } from 'edith-types/lib/uri' 
 const textEncoder = new TextEncoder();
 class File implements IStat {
 	type: FileType;

@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable func-names */
-import * as path from '@/utils/path'
+import * as path from 'edith-utils/lib/path'
 export default function(loaderContext, files) {
   return {
     install(less, pluginManager) {

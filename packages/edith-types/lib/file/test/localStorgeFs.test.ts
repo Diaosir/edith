@@ -1,5 +1,5 @@
 import LocalStorageFs from '../localStorageFs'
-import { URI } from '../../../lib/Uri'
+import { URI } from 'edith-types/lib/uri'
 const { TextEncoder } = require('@exodus/text-encoding-utf8')
 const fileSystem = new LocalStorageFs('node_module');
 const textDecoder = new TextEncoder();

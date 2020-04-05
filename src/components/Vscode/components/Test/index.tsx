@@ -1,5 +1,5 @@
 import { Component  } from 'react';
-import eventBus from '@/utils/event'
+import eventBus from 'edith-utils/lib/event'
 import { toHTML } from 'edith-jest/prettify'
 import './prettify.less'
 import Loading from '@/components/Loading'

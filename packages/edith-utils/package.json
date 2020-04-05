@@ -1,0 +1,14 @@
+{
+  "name": "edith-utils",
+  "version": "1.0.0",
+  "description": "",
+  "main": "lib/",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Diaosir",
+  "license": "MIT",
+  "dependencies": {
+    "path": "^0.12.7"
+  }
+}

@@ -1,4 +1,4 @@
-import { URI } from 'vs/base/common/uri';
+import { URI } from 'edith-types/lib/uri'
 /**
  * Possible changes that can occur to a file.
  */

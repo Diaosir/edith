@@ -1,6 +1,11 @@
-import { IFileSystemProvider, FileWriteOptions, IStat, FileType} from './file'
-import { getAllEnablePaths, resolve } from '@/utils/path';
-import { URI, UriComponents } from '../../lib/Uri'
+import { 
+  IFileSystemProvider, 
+  FileWriteOptions, 
+  IStat, 
+  FileType
+} from 'edith-types/lib/file/file';
+import { getAllEnablePaths, resolve } from 'edith-utils/lib/path';
+import { URI } from 'edith-types/lib/uri' 
 import * as path from 'path'
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder()

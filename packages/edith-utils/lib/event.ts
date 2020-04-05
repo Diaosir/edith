@@ -1,5 +1,4 @@
 import is from 'is';
-import EventEmitter from 'eventemitter3'
 class MyEventEmitter {
     protected eventNames:  {
         [key: string]: Array<any>

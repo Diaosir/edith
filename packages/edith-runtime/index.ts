@@ -6,13 +6,12 @@ import PackageFile from './type/packageFile'
 import Packager from './lib/packager';
 import Manager from './lib/manager'
 import * as path from 'path'
-import { getAllEnablePaths } from '@/utils/path';
+import { getAllEnablePaths } from 'edith-utils/lib/path';
 import * as Loading from '@/components/Loading';
 import Plugin from './plugin/plugin'
-import Memfs from 'edith-runtime/services/file/memfs';
-import { URI } from 'edith-runtime/lib/Uri'
-import request from '@/utils/request';
-
+import Memfs from 'edith-types/lib/file/memfs';
+import { URI } from 'edith-types/lib/uri'
+import api from 'edith-utils/lib/api';
 const packaker = new Packager();
 const transpiler = new Manager(packaker);
 
@@ -26,7 +25,6 @@ global.fileSystem = fileSystem;
 export default class ClientWebpack{
   protected template: string = '';
   protected document: string;
-  private entryFile: File | null;
   private packageFile: PackageFile;
   protected packages: Array<string>;
   public name: string = 'test'
@@ -174,16 +172,12 @@ export default class ClientWebpack{
     return `/${path.join(this.name, filePath)}`
   }
   public async combinationsDependencies(dependencies) {
-    const devStr = Object.keys(dependencies).reduce((preValue, curValue) => {
-      return `${preValue ? preValue + '+': ''}${curValue}@${dependencies[curValue]}`
-    }, '')
-    const { contents, dependencyDependencies } = await request(`/api/v2/package/combinations/${encodeURIComponent(devStr)}`).then(({ data }) => {
-      if (data.code == 200) {
-        return data.payload
+    const { contents, dependencyDependencies } = await api.v2.packages.combinations(dependencies).then((res) => {
+      if (res.code == 200) {
+        return res.payload
       }
-      return {}
+      return null
     })
-    console.log(dependencyDependencies)
     const deps = new Map();
     Object.keys(dependencyDependencies).forEach(key => deps.set(key, {
       name: key,

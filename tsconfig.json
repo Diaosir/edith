@@ -27,7 +27,9 @@
       "edith-runtime/*": ["packages/edith-runtime/*"],
       "edith-vscode": ["packages/edith-vscode"],
       "edith-types/*": ["packages/edith-types/*"],
-      "edith-types": ["packages/edith-types"]
+      "edith-types": ["packages/edith-types"],
+      "edith-devtools": ["packages/edith-devtools"],
+      "edith-utils/*": ["packages/edith-utils/*"]
     },
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true

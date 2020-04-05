@@ -3,11 +3,11 @@ import Module from './module'
 import Packager from './packager'
 import * as path from 'path';
 import ClientWebpack from '..';
-import { normalize, isNodeModules } from '@/utils/path';
+import { normalize, isNodeModules } from 'edith-utils/lib/path';
 import * as Loading from '@/components/Loading';
 import Log from './Log'
 import FileService from '../services/file/fileService';
-import { URI } from './Uri';
+import { URI } from 'edith-types/lib/uri';
 function resolve(from: string, to: string) {
   //Todo 判断是否为文件或者文件夹
   const { ext } = path.parse(from);
