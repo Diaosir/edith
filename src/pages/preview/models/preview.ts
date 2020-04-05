@@ -1,6 +1,6 @@
-import File from '@/datahub/project/entities/file'
-import ClientWebpack from '@/packages/client-webpack';
-import Jest from '@/packages/jest'
+import File from 'edith-types/lib/file'
+import ClientWebpack from 'edith-runtime';
+import Jest from 'edith-jest'
 import ProjectService from '@/datahub/project/service';
 
 const clientWebpack = new ClientWebpack();

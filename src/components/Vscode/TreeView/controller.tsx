@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import Icon from '@/components/icons';
-import { FileType } from '@/datahub/project/entities/file'
+import { FileType } from 'edith-types/lib/file'
 import PostAdd from '@material-ui/icons/PostAdd';
 import CreateNewFolder from '@material-ui/icons/CreateNewFolder';
 import Refresh from '@material-ui/icons/Refresh';

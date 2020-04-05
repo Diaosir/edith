@@ -1,6 +1,6 @@
 import { Component  } from 'react';
 import eventBus from '@/utils/event'
-import { toHTML } from '@/packages/jest/prettify'
+import { toHTML } from 'edith-jest/prettify'
 import './prettify.less'
 import Loading from '@/components/Loading'
 export default class Test extends Component<any, any>{

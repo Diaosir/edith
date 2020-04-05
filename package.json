@@ -42,10 +42,6 @@
     "gonzales-pe": "^4.2.4",
     "hash-sum": "^2.0.0",
     "is": "^3.3.0",
-    "jest-circus": "^25.2.7",
-    "jest-matchers": "^20.0.3",
-    "jest-mock": "^25.2.6",
-    "jest-snapshot": "^25.2.7",
     "js-base64": "^2.5.1",
     "js-md5": "^0.7.3",
     "less": "^3.10.3",
@@ -78,7 +74,6 @@
   "devDependencies": {
     "@babel/types": "^7.6.3",
     "@exodus/text-encoding-utf8": "^1.0.2",
-    "@jest/types": "^24.9.0",
     "@types/jest": "^24.0.18",
     "@types/mongodb": "^3.3.2",
     "@types/mongoose": "^5.5.17",

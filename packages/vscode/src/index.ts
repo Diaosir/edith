@@ -1,5 +1,5 @@
 import configuration from './config';
-import File, { FileType } from '@/datahub/project/entities/file'
+import File, { FileType } from 'edith-types/lib/file'
 import FileSystem from './provider/fileSystem'
 import { vscode } from './manager'
 interface VscodeOptions {

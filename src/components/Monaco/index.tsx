@@ -3,9 +3,7 @@ import monaco from './monaco';
 import themes from './themes'
 import './index.scss'
 import TypingsFetcherWorker from 'worker-loader?publicPath=/&name=monaco-typings-ata.[hash:8].worker.js!./workers/fetch-dependency-typings';
-import BrowserFs from '@/packages/browserfs'
-import * as path from 'path'
-import File, { FileType } from '@/datahub/project/entities/file'
+import File, { FileType } from 'edith-types/lib/file'
 import importAutoCompletions from './plugins/importAutoCompletions'
 interface MonacoEditorProps {
   value: string;

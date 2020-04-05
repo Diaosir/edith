@@ -1,0 +1,14 @@
+{
+  "name": "edith-runtime",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "huangzhen@qq.com",
+  "license": "ISC",
+  "dependencies": {
+    "browserfs": "^1.4.3"
+  }
+}

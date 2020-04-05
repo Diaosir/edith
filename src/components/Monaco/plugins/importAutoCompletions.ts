@@ -1,5 +1,5 @@
 import * as path from 'path'
-import File, { FileType } from '@/datahub/project/entities/file';
+import File, { FileType } from 'edith-types/lib/file';
 let isFirstRegister = true;
 export default function registerImportAutoCompletions(monaco, options) {
   if (!isFirstRegister) {

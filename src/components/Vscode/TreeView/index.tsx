@@ -6,7 +6,7 @@ import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 import Folder from '@material-ui/icons/Folder';
 import FolderOpen from '@material-ui/icons/FolderOpen';
 import StyledTreeItem from './TreeItem'
-import File, { FileType } from '@/datahub/project/entities/file'
+import File, { FileType } from 'edith-types/lib/file'
 import './index.scss'
 import Controller from './controller'
 import * as polished from 'polished';

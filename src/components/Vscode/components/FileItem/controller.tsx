@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import Icon from '@/components/icons';
-import { FileType } from '@/datahub/project/entities/file'
+import { FileType } from 'edith-types/lib/file'
 interface Props {
   type: FileType;
   onAddFolder?: Function;

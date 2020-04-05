@@ -1,7 +1,7 @@
 import { Component } from 'react'
 import Menu from './Menu'
 import TreeView from './TreeView'
-import File, { FileType } from '@/datahub/project/entities/file';
+import File, { FileType } from 'edith-types/lib/file';
 import TopBar from './components/TopBar'
 import './index.scss'
 import MonacoEditor from './MonacoEditor'

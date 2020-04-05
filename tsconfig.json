@@ -20,7 +20,14 @@
     "downlevelIteration": true,
     "paths": {
       "@/*": ["src/*"],
-      "@/packages/*": ["packages/*"]
+      "@/packages/*": ["packages/*"],
+      "edith-jest": ["packages/edith-jest"],
+      "edith-jest/*": ["packages/edith-jest/*"],
+      "edith-runtime": ["packages/edith-runtime"],
+      "edith-runtime/*": ["packages/edith-runtime/*"],
+      "edith-vscode": ["packages/edith-vscode"],
+      "edith-types/*": ["packages/edith-types/*"],
+      "edith-types": ["packages/edith-types"]
     },
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true

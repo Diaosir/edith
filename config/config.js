@@ -40,8 +40,10 @@ export default {
   alias: {
     src: resolve(__dirname, 'src'),
     "@/packages": resolve(__dirname, '../packages'),
-    "client-webpack": resolve(__dirname, '../packages/"client-webpack'),
-    "jest": resolve(__dirname, '../packages/"jest')
+    "edith-runtime": resolve(__dirname, '../packages/edith-runtime'),
+    "edith-jest": resolve(__dirname, '../packages/edith-jest'),
+    "edith-vscode": resolve(__dirname, '../packages/edith-vscode'),
+    "edith-types": resolve(__dirname, '../packages/edith-types')
   },
   chainWebpack(config, { webpack }) {
     config.output.globalObject('this'); //worker-loader devServer 模式下报错 "window is not defined"

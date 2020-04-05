@@ -3,7 +3,7 @@ import './index.scss'
 import * as polished from 'polished';
 import { Tabs, Icon, Tooltip } from 'antd';
 import ControlledEditor from '../ControlledEditor';
-import File from '@/datahub/project/entities/file';
+import File from 'edith-types/lib/file';
 
 const { TabPane } = Tabs;
 interface State {

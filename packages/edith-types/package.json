@@ -1,0 +1,11 @@
+{
+  "name": "edith-types",
+  "version": "1.0.0",
+  "description": "",
+  "main": "lib/",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Diaosir",
+  "license": "MIT"
+}

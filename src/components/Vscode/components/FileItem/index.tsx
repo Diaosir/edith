@@ -1,5 +1,5 @@
 import { Component, createRef } from 'react'
-import File, { FileType } from '@/datahub/project/entities/file';
+import File, { FileType } from 'edith-types/lib/file';
 import './index.scss'
 import Icon from '../../../../components/icons'
 import * as polished from 'polished';

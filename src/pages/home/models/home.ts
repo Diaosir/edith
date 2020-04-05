@@ -1,4 +1,4 @@
-import File, { FileType } from '@/datahub/project/entities/file'
+import File, { FileType } from 'edith-types/lib/file'
 import ProjectService from '@/datahub/project/service';
 import eventBus from '@/utils/event'
 

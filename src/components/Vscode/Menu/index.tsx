@@ -1,6 +1,6 @@
 import { Component } from 'react'
 import FileItem from '../components/FileItem'
-import File from '@/datahub/project/entities/file';
+import File from 'edith-types/lib/file';
 import './index.scss'
 interface MenuProps {
   fileList?: Array<File>;

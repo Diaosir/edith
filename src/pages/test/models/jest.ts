@@ -1,4 +1,4 @@
-import File from '@/datahub/project/entities/file'
+import File from 'edith-types/lib/file'
 
 export default {
     namespace: 'jest',

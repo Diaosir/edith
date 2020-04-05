@@ -2,7 +2,6 @@ import { Component } from 'react'
 import './index.scss'
 import { Tabs } from 'antd';
 import Browser from '../Browser'
-import DevTools from '../../../../packages/devtools'
 import Test from '../Test';
 const { TabPane } = Tabs;
 export default class Preview extends Component<any, any> {
@@ -67,9 +66,6 @@ export default class Preview extends Component<any, any> {
             </TabPane>
           ))}
         </Tabs>
-        <div className="dev-tools-container">
-          <DevTools/>
-        </div>
       </div>
     )
   }
