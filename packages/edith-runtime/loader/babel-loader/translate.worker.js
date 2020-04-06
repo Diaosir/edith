@@ -51,7 +51,7 @@ function translate(code, filepath, babelOptions) {
   try{
     const now = Date.now()
     const transformResult = ctx.Babel.transform(code || '', options);
-    console.log(`babel worker 编译${filepath}耗时：${(Date.now() - now) / 1000}s`)
+    // console.log(`babel worker 编译${filepath}耗时：${(Date.now() - now) / 1000}s`)
     ctx.postMessage({
       type: `success`,
       payload: {

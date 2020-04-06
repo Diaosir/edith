@@ -1,7 +1,8 @@
 
 import { FileChangeType, FileType, IWatchOptions, IStat, FileSystemProviderErrorCode, FileSystemProviderError, FileWriteOptions, IFileChange, FileDeleteOptions, FileOverwriteOptions, IFileSystemProviderWithFileReadWriteCapability } from './file';
 import { URI } from 'edith-types/lib/uri' 
-const textEncoder = new TextEncoder();
+const { TextEncoder } = require('@exodus/text-encoding-utf8')
+const textEncoder: any = new TextEncoder();
 class File implements IStat {
 	type: FileType;
 	ctime: number;
@@ -70,7 +71,7 @@ export default class InMemoryFileSystemProvider implements IFileSystemProviderWi
 		throw new FileSystemProviderError('file not found', FileSystemProviderErrorCode.FileNotFound);
 	}
 
-	async writeFile(resource: URI, content: Uint8Array | string, opts: FileWriteOptions): Promise<void> {
+	async writeFile(resource: URI, content: Uint8Array, opts: FileWriteOptions): Promise<void> {
 		let basename = this._basename(resource.path);
 		let parent = this._lookupParentDirectory(resource);
 		let entry = parent.entries.get(basename);
@@ -279,6 +280,6 @@ export default class InMemoryFileSystemProvider implements IFileSystemProviderWi
         await this.mkdir(uri);
       }
 		}
-		await this.writeFile(resource, content, opts)
+		await this.writeFile(resource, textEncoder.encode(content), opts)
 	}
 }

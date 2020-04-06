@@ -4,6 +4,7 @@ import Worker from 'worker-loader!./translate.worker.js';
 import { FileType } from 'edith-types/lib/file'
 import Context from '../../utils/context'
 import { boundClass } from 'autobind-decorator'
+import { getDependenciesModulesFiles } from '../../utils'
 
 @boundClass
 export class LessLoader extends BaseLoader {
@@ -32,13 +33,8 @@ export class LessLoader extends BaseLoader {
         let denpencies = await this.beforeTranslate({transpilingCode, path, manager});
         //如果为less，仅编译入口文件
         if (isEntry) {
-            await new Promise((resolve, reject) => {
-                let modules = {};
-                manager.transpilerModules.forEach((transpilerModule) => {
-                    if ([FileType.LESS, FileType.CSS].includes(transpilerModule.type)) {
-                        modules[transpilerModule.path] = transpilerModule.code;
-                    }
-                })
+            await new Promise(async (resolve, reject) => {
+                let modules = await getDependenciesModulesFiles(manager.transpilerModules, (module) => [FileType.LESS, FileType.CSS].includes(module.type))
                 this.pushTaskToQueue(path, {
                     code: transpilingCode,
                     path: path,

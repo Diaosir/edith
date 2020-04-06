@@ -8,6 +8,7 @@ import parse from './parse';
 import genStyleInjectionCode from './utils/styleInjection'
 import templateCompiler from './template-compiler';
 import styleCompiler from './style-compiler';
+import { URI } from 'edith-types/lib/uri'
 // When extracting parts from the source vue file, we want to apply the
 // loaders chained before vue-loader, but exclude some loaders that simply
 // produces side effects such as linting.
@@ -69,7 +70,7 @@ export default async function (code: string, path: string, manager: any, options
     templateImport = transpiledCode;
     const templateSrc = `${filePath}.${lang || 'template.js'}`
     const depName = `./${fileName}.${lang || 'template.js'}`;
-    await manager.setFileMap(templateSrc, transpiledCode);
+    await manager.fileService.writeFile(URI.parse(`localFs:${templateSrc}`), transpiledCode);
     templateImport = `import { render, staticRenderFns } from '${depName}'`;
   }
   let scriptImport = `var script = {}`;
@@ -77,7 +78,7 @@ export default async function (code: string, path: string, manager: any, options
     const lang = parts.script.attrs['lang'] || 'js';
     const scriptSrc = `${filePath}.${lang}`
     const depName = `./${fileName}.${lang}`;
-    await manager.setFileMap(scriptSrc, parts.script.content);
+    await manager.fileService.writeFile(URI.parse(`localFs:${scriptSrc}`), parts.script.content);
     denpencies.push(depName);
     // await Transpiler.traverse(parts.script.content, scriptSrc, filePath);
     scriptImport = (
@@ -93,7 +94,7 @@ export default async function (code: string, path: string, manager: any, options
     const { transpiledCode } = await styleCompiler.translate(content, filePath, moduleId, scoped);
     const styleHref = `${filePath}.${lang || 'css'}`
     const depName = `./${fileName}.${lang || 'css'}`;
-    await manager.setFileMap(styleHref, transpiledCode);
+    await manager.fileService.writeFile(URI.parse(`localFs:${styleHref}`), transpiledCode);
     stylesCode = `import '${depName}'`
     // stylesCode = genStyleInjectionCode(
     //   parts.styles,

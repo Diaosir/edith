@@ -1,10 +1,11 @@
 import BaseLoader from '../base-loader'
 import Worker from 'worker-loader!./translate.worker.js';
 import { FileType } from 'edith-types/lib/file'
-import { setStylesheet, deleteStylesheet} from '../../utils'
+import { setStylesheet, getDependenciesModulesFiles } from '../../utils'
 import getSassDependencies  from "./get-sass-dependencies";
 import Context from '../../utils/context'
 import { boundClass } from 'autobind-decorator'
+import * as _ from 'lodash'
 @boundClass
 export  class SassLoader extends BaseLoader {
   constructor(options?) {
@@ -21,20 +22,16 @@ export  class SassLoader extends BaseLoader {
       return denpencies;
   }
   async translate(ctx: Context, next?: any){
-    const { transpilingCode, path, manager, isEntry } = ctx;
+    const { transpilingCode, path, manager, isEntry, node_modules_path } = ctx;
     let denpencies = await this.beforeTranslate({transpilingCode, path, manager});
     if (isEntry) {
-      await new Promise((resolve, reject) => {
-        let modules = {};
-        manager.transpilerModules.forEach((transpilerModule) => {
-            if ([FileType.SCSS, FileType.CSS].includes(transpilerModule.type)) {
-                modules[transpilerModule.path] = transpilerModule.code;
-            }
-        })
+      await new Promise(async (resolve, reject) => {
+        let files = await getDependenciesModulesFiles(manager.transpilerModules, (module) => [FileType.SCSS, FileType.CSS].includes(module.type))
         this.pushTaskToQueue(path, {
             code: transpilingCode,
             path: path,
-            files: modules
+            files: files,
+            node_modules_path: node_modules_path
         },  (error, result) => {
             ctx.error = error;
             ctx.transpilingCode = !error ? result.code : '';

@@ -1,8 +1,9 @@
 
-import path from 'path'
+import * as path from 'path'
 import { parse, normalize, resolve } from 'edith-utils/lib/path'
 const ROOT = '/node_modules';
 const UNPKG_URL = 'https://unpkg.com';
+console.log(path)
 export default class Lazyload {
     constructor(packageName: string, version: string) {
         
@@ -23,11 +24,7 @@ export default class Lazyload {
                 const parseUrl =  parse(url);
                 const code = await response.text();
                 const dir = parseUrl.dir.replace(UNPKG_URL, path.join(projectName, ROOT))
-                const fullPath = path.format({
-                    ...parseUrl,
-                    dir: dir,
-                    base: parseUrl.base
-                })
+                const fullPath = `${dir}/${parseUrl.base}`
                 return {
                     code,
                     fullPath: normalize(fullPath).replace(`@${version}`, ''),

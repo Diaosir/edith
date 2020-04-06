@@ -1,5 +1,5 @@
 import File, { FileType } from 'edith-types/lib/file';
-export interface IClientWebpackOption {
+export interface IEdithRuntimeOption {
     template?: string;
     fileList?: Array<File>;
     document?: string;

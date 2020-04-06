@@ -1,12 +1,12 @@
 import File, { FileType } from 'edith-types/lib/file';
 import Module from './module'
 import Packager from './packager'
-import * as path from 'path';
-import ClientWebpack from '..';
+import * as path from 'path-browserify';
+import EdithRuntime from '..';
 import { normalize, isNodeModules } from 'edith-utils/lib/path';
 import * as Loading from '@/components/Loading';
 import Log from './Log'
-import FileService from '../services/file/fileService';
+import FileService from 'edith-types/lib/file/fileService';
 import { URI } from 'edith-types/lib/uri';
 function resolve(from: string, to: string) {
   //Todo 判断是否为文件或者文件夹
@@ -21,7 +21,7 @@ export const isDir = (filepath) => {
  * 编译阶段
  */
 export default class Manager {
-  public static clientWebpack: any = ClientWebpack;
+  public static EdithRuntime: any = EdithRuntime;
   public static transpilerModules: Map<string, Module> = new Map();
   public static denpenciesIdMap: Map<string, string> = new Map();
   public static packager: Packager;
@@ -54,7 +54,15 @@ export default class Manager {
    */
   public static async traverse(code: string, filePath: string, parentTranspilerPath?: string, __module__export: any = null) {
     
-    const module = Manager.transpilerModules.get(normalize(filePath)) || new Module({code, path: normalize(filePath), module: __module__export, resource: URI.parse(`localFs:${filePath}`)});
+    const module = 
+      Manager.transpilerModules.get(normalize(filePath)) || 
+      new Module({
+        code, 
+        path: normalize(filePath), 
+        module: __module__export, 
+        resource: URI.parse(`localFs:${filePath}`),
+        node_modules_path: path.join('/', Manager.projectName, 'node_modules')
+      });
     // transpiler.code = code;
 
     const parentTranspilerTpye = File.filenameToFileType(parentTranspilerPath);
@@ -96,14 +104,18 @@ export default class Manager {
       //TODO 本地拿不到，需要去远程获取文件 
       if(!filename) {
         console.log(filename, uri.fsPath, parentModule.path)
-        if (isNodeModules(moduleName) && ![FileType.LESS, FileType.SCSS, FileType.CSS].includes(parentModule.type)) {
+        if (isNodeModules(moduleName)) {
           filename = path.join(node_modules_path, moduleName);
         } else {
           filename = resolve(basePath, moduleName);
         }
         const packageFile = await Manager.packager.getPackageFileOnlyPath(filename);
-        code = packageFile.code;
-        filename = packageFile.fullPath;
+        if(packageFile.fullPath) {
+          await Manager.fileService.writeFile(uri.with({
+            path: packageFile.fullPath
+          }), packageFile.code)
+          filename = packageFile.fullPath;
+        }
       }
       childrenModule = await Manager.traverse(code, filename, parentModule.path);
     }
@@ -190,7 +202,7 @@ export default class Manager {
   }
   public static async setFileMap(filename, code) {
     await Manager.fileService.writeFile(URI.parse(`localFs:${filename}`), code);
-    ClientWebpack.fileMap.set(filename, code);
+    // EdithRuntime.fileMap.set(filename, code);
   }
   /**
    *

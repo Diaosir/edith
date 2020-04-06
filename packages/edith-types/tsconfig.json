@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "lib": ["es6", "dom", "scripthost", "es2015.symbol"],
+    "target": "es5",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "jsx": "preserve",
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "declaration": true,
+    "noEmitHelpers": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noImplicitUseStrict": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "downlevelIteration": true,
+    "paths": {
+      "edith-jest": ["../edith-jest"],
+      "edith-jest/*": ["../edith-jest/*"],
+      "edith-runtime": ["../edith-runtime"],
+      "edith-runtime/*": ["../edith-runtime/*"],
+      "edith-vscode": ["../edith-vscode"],
+      "edith-types/*": ["../edith-types/*"],
+      "edith-types": ["../edith-types"],
+      "edith-devtools": ["../edith-devtools"],
+      "edith-utils/*": ["../edith-utils/*"]
+    },
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true
+  }
+}

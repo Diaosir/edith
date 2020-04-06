@@ -1,5 +1,5 @@
 const SPLIT_PATH_RE = /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[js|ts|jsx|css|jpg|png|tsx|json|html|less|scss][^.\/]*|))(?:[\/]*)$/;
-import path from 'path';
+import path from 'path-browserify';
 export function parse(pathString: string) {
   if (typeof pathString !== 'string') {
     throw new TypeError(

@@ -8,5 +8,5 @@ export default async function combinations(dependencies: CombinationsParamters):
   const devStr = Object.keys(dependencies).reduce((preValue, curValue) => {
     return `${preValue ? preValue + '+': ''}${curValue}@${dependencies[curValue]}`
   }, '')
-  return get(`/api/v2/package/combinations/${devStr}`);
+  return get(`/api/v2/package/combinations/${encodeURIComponent(devStr)}`);
 }

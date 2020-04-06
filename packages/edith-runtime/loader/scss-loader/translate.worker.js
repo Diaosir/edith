@@ -6,25 +6,28 @@ self.importScripts([
 
 self.postMessage('ready');
 self.addEventListener('message', ( event ) => {
-  const { code, path, indentedSyntax , files } = event.data.payload;
+  const { code, path, indentedSyntax , files, node_modules_path } = event.data.payload;
   const { dir: _path } = parse(path)
   Sass._path = _path;
   Sass.clearFiles();
   Sass.importer(async (request, done) => {
-    const filename = request.resolved;
-    const file = files[filename]
-    try{
-      if(!file) {
-        throw new Error(`this file ${filename} is not found`)
-      }
-      Sass.writeFile(filename, file, () => {
-        done({
-          path: filename,
-        });
-      });
-    } catch(e) {
-      done({ error: e.message });
+    const { resolved, current } = request;
+    console.log(node_modules_path)
+    let filename = resolved;
+    let file = files[filename]
+    if(!file) {
+      filename = originalResolve(node_modules_path, current);
+      file = files[filename];
     }
+    if(!file) {
+      console.log(files, filename)
+      throw new Error(`this file ${filename} is not found1111`)
+    }
+    Sass.writeFile(filename, file, () => {
+      done({
+        path: filename,
+      });
+    });
   })
   const now = Date.now()
   Sass.compile(

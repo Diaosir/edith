@@ -1,6 +1,5 @@
-import BaseLoader from '../loader/babel-loader'
 import { FileType } from 'edith-types/lib/file'
-import { URI, UriComponents } from '../lib/Uri'
+import { URI } from 'edith-types/lib/uri'
 interface ILoader {
   translate: Function;
 
@@ -16,6 +15,7 @@ export default class Context {
   public transpilingCode: string;
   public denpencies: Array<string>;
   public resource?: URI;
+  public node_modules_path: string = '';
   public error: any = null; //是否存在错误
   private static _loaders: {
     [propName: string]: any;

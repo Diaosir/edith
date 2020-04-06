@@ -1,5 +1,5 @@
 import {
-  IClientWebpackOption
+  IEdithRuntimeOption
 } from './type/index';
 import File, { FileType } from 'edith-types/lib/file';
 import PackageFile from './type/packageFile'
@@ -11,18 +11,16 @@ import * as Loading from '@/components/Loading';
 import Plugin from './plugin/plugin'
 import Memfs from 'edith-types/lib/file/memfs';
 import { URI } from 'edith-types/lib/uri'
-import api from 'edith-utils/lib/api';
+const fileSystem = new Memfs(); //文件系统
 const packaker = new Packager();
 const transpiler = new Manager(packaker);
-
-const fileSystem = new Memfs(); //文件系统
 // const nodeModulesFileSystem = new LocalStorageFileSystem('node_modules'); //node_modules
 const globalModulesFileSystem = new Memfs(); //全局变量
 
 
 const global = window as { [key: string] : any}
 global.fileSystem = fileSystem;
-export default class ClientWebpack{
+export default class EdithRuntime{
   protected template: string = '';
   protected document: string;
   private packageFile: PackageFile;
@@ -31,16 +29,16 @@ export default class ClientWebpack{
   public static fileMap: Map<string, string> = new Map();
   public static loadingComponent: any = Loading;
   public static plugins: Array<Plugin> = [];
-  public static options: IClientWebpackOption = {
+  public static options: IEdithRuntimeOption = {
     moduleSuffix: ['js', 'jsx', 'ts', 'tsx', 'vue']
   };
-  constructor(options: IClientWebpackOption = {}){
+  constructor(options: IEdithRuntimeOption = {}){
     Manager.fileService.registerProvider('localFs', fileSystem);
     Manager.fileService.registerProvider('global', globalModulesFileSystem);
   }
-  async init(options: IClientWebpackOption = {}) {
-    ClientWebpack.options = {
-      ...ClientWebpack.options,
+  async init(options: IEdithRuntimeOption = {}) {
+    EdithRuntime.options = {
+      ...EdithRuntime.options,
       ...options
     };
     this.template = options.template;
@@ -49,12 +47,12 @@ export default class ClientWebpack{
     this.buildFileMap(options.fileList);
     await this.build();
     //执行插件的init
-    ClientWebpack.plugins.forEach((plugin) => {
+    EdithRuntime.plugins.forEach((plugin) => {
       typeof plugin.init === 'function' && plugin.init();
     })
   }
   async registerPlugin(plugin: Plugin) {
-    ClientWebpack.plugins.push(plugin);
+    EdithRuntime.plugins.push(plugin);
   }
   async createFiles(fileList: Array<File>) {
     const scheme = 'localFs';
@@ -78,27 +76,27 @@ export default class ClientWebpack{
 
   }
   public async build() {
-    let { code: packageJSON } = ClientWebpack.getFileContentByFilePath(this.formatFilePath('package.json'));
+    let { code: packageJSON } = EdithRuntime.getFileContentByFilePath(this.formatFilePath('package.json'));
     if (!!packageJSON) {
       this.packageFile = new PackageFile({
         value: packageJSON,
         name: 'package.json'
       });
-      await this.combinationsDependencies(this.packageFile.getDependencies())
+      // await this.combinationsDependencies(this.packageFile.getDependencies())
       // let filename = await Manager.fileService.resolve(URI.parse(`localFs:./index.scss`), URI.parse(`localFs:/test/src/index.jsx`), `/test/node_modules`);
       // console.log(filename)
       const { entryFilePath, entryFileCode } = this.getEntryFile();
       // this.packages = this.buildUsedPackages();
-      ClientWebpack.loadingComponent.show();
-      // await packaker.init(this.packageFile.getDependencies());
+      EdithRuntime.loadingComponent.show();
+      await packaker.init(this.packageFile.getDependencies());
       // console.log(entryFileCode)
       await transpiler.init(this.name, entryFileCode, entryFilePath);
-      ClientWebpack.loadingComponent.close();
+      EdithRuntime.loadingComponent.close();
     }
   }
   private getEntryFile() {
     const entryFilePath = this.packageFile.getEntryFilePath();
-    const { code, fullPath } = ClientWebpack.getFileContentByFilePath(this.formatFilePath(entryFilePath));
+    const { code, fullPath } = EdithRuntime.getFileContentByFilePath(this.formatFilePath(entryFilePath));
     return {
       entryFilePath: fullPath,
       entryFileCode: code
@@ -112,7 +110,7 @@ export default class ClientWebpack{
     File.recursion(fileList, (file: File) => {
       if(file.type !== FileType.FOLDER) {
         const filePath = this.formatFilePath(file.path)
-        ClientWebpack.fileMap.set(filePath, file.getValue());
+        EdithRuntime.fileMap.set(filePath, file.getValue());
         // BrowserFs.setFileContent(filePath,  file.getValue())
         Manager.fileService.writeFile(URI.parse(`localFs:${filePath}`), file.getValue());
       }
@@ -120,7 +118,7 @@ export default class ClientWebpack{
   }
   public async changeFile(changeFile: File) {
     const fullPath = this.formatFilePath(changeFile.path);
-    // ClientWebpack.fileMap.set(fullPath, changeFile.getValue());
+    // EdithRuntime.fileMap.set(fullPath, changeFile.getValue());
     await fileSystem.writeFileAnyway(URI.parse(`localFs:${fullPath}`), changeFile.getValue());
 
     if (changeFile.name === 'package.json') {
@@ -135,7 +133,7 @@ export default class ClientWebpack{
       }
     } else {
       await Manager.rebuildTranspilerModule(fullPath);
-      ClientWebpack.plugins.forEach((plugin) => {
+      EdithRuntime.plugins.forEach((plugin) => {
         typeof plugin.reset === 'function' && plugin.reset();
       })
     }
@@ -146,13 +144,13 @@ export default class ClientWebpack{
    * @param filePath 
    */
   public static getFileContentByFilePath(filePath) {
-    let allList = getAllEnablePaths(ClientWebpack.options.moduleSuffix, filePath);
-    let code = ClientWebpack.fileMap.get(filePath);
+    let allList = getAllEnablePaths(EdithRuntime.options.moduleSuffix, filePath);
+    let code = EdithRuntime.fileMap.get(filePath);
    
     if (code === undefined) {
       for(let i = 0; i < allList.length; i++) {
         filePath = allList[i];
-        if ((code = ClientWebpack.fileMap.get(filePath)) !== undefined) {
+        if ((code = EdithRuntime.fileMap.get(filePath)) !== undefined) {
           break;
         }
       }
@@ -166,28 +164,9 @@ export default class ClientWebpack{
    * 格式化文件路径
    * @protected
    * @param {string} filePath
-   * @memberof ClientWebpack
+   * @memberof EdithRuntime
    */
   protected formatFilePath(filePath: string) {
     return `/${path.join(this.name, filePath)}`
-  }
-  public async combinationsDependencies(dependencies) {
-    const { contents, dependencyDependencies } = await api.v2.packages.combinations(dependencies).then((res) => {
-      if (res.code == 200) {
-        return res.payload
-      }
-      return null
-    })
-    const deps = new Map();
-    Object.keys(dependencyDependencies).forEach(key => deps.set(key, {
-      name: key,
-      ...dependencyDependencies[key]
-    }))
-    packaker.dependencyDependencies = deps;
-    packaker.contents = contents;
-    // throw new Error('111')
-    await Promise.all(Object.keys(contents).map( async contentName => {
-      await fileSystem.writeFileAnyway(URI.parse(`localFs:test/${contentName}`), contents[contentName].content, { create: true, overwrite: true });
-    }))
   }
 }

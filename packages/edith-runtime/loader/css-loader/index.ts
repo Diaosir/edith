@@ -20,7 +20,7 @@ export class CssLoader extends BaseLoader {
     async translate(ctx: Context, next?: any) {
         try{
             const { transpilingCode } = ctx;
-            const result = await postcss([ autoprefixer ]).process(transpilingCode);
+            const result = await postcss([ autoprefixer ]).process(transpilingCode || '');
             result.warnings().forEach(warn => {
                 console.warn(warn.toString())
             })

@@ -66,7 +66,7 @@ export default abstract  class BaseLoader {
         worker.onmessage = async (message: MessageEvent) => {
             const { data: result } = message;
             if(!is.object(result)) {
-                callbacks.forEach(callback => callback('babel result is no object'));
+                // callbacks.forEach(callback => callback(result));
                 return ;
             }
             if (result.type === 'success') {

@@ -9,6 +9,7 @@
   "author": "huangzhen@qq.com",
   "license": "ISC",
   "dependencies": {
-    "browserfs": "^1.4.3"
+    "lodash": "^4.17.15",
+    "path-browserify": "^1.0.1"
   }
 }

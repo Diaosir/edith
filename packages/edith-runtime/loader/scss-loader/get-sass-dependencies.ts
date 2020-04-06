@@ -1,5 +1,5 @@
 const Walker = require('node-source-walk');
-import { parse } from 'path'
+import * as path from 'path-browserify'
 import * as postcssScss from 'postcss-scss';
 /**
  *
@@ -14,7 +14,7 @@ function isImportStatement(node) {
 function extractDependencies(importStatementNode) {
   let { params: filename } = importStatementNode;
   filename = filename.replace(/["']/g, '');
-  if (parse(filename).ext === '') {
+  if (path.parse(filename).ext === '') {
     return `${filename}.scss`;
   }
   return filename

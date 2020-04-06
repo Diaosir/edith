@@ -1,10 +1,17 @@
 import LazyLoad from '../Lazyload';
-interface Idependency {
+import api from 'edith-utils/lib/api';
+import Manager from '../manager'
+import { URI } from 'edith-types/lib/uri'
+import _ from 'lodash'
+interface IdependencyDependency {
     semver: string,
     resolved: string,
-    parents: Set<String>,
-    children: Set<String>,
-    entry: string,
+    parents: Array<string>;
+    children?: Set<String>,
+    name: string
+}
+interface Idependency{
+    version: string;
     name: string
 }
 export default class Packager {
@@ -14,60 +21,59 @@ export default class Packager {
             requires?: Array<string>
         }
     };
-    public dependencyTree: any;
-    public dependencyDependencies: Map<string, Idependency> = new Map()
+    public dependencies: Array<Idependency> = [];
+    public dependencyDependencies: Map<string, IdependencyDependency> = new Map();
     constructor(){
-        
+
     }
     public async init(dependencies) {
-        await this.generateDependencies(dependencies);
-        console.log(this.dependencyDependencies)
+       await this.combinationsDependencies(dependencies);
+       console.log(this)
     }
-    public formatDependencies(dependencies) {
-        return Object.keys(dependencies).map(name => {
-            return {
-                name,
-                semver: dependencies[name],
-                version: dependencies.vesion
-            }
-        })
-    }
-    protected async generateDependencies(dependencies: any, isTraverseChildren: Boolean = true) {
-        const _super = this;
-        // const deps = this.formatDependencies(dependencies)
-        await travsedDendencyDependencies(dependencies);
-        // for( let i = 0; i < deps.length; i++) {
-        //     travsedDendencyDependencies(deps[i]);
-        // }
-        async function travsedDendencyDependencies(dependencies, parent: string = '') {
-            if (!dependencies || Object.keys(dependencies).length === 0) {
-                return
-            }
-            const deps = _super.formatDependencies(dependencies)
-            for( let i = 0; i < deps.length; i++) {
-                if (!_super.dependencyDependencies.get(deps[i].name)) {
-                    const { dependencies, name, version, main } = await LazyLoad.loadPackageJson(deps[i].name, deps[i].semver);
-                    _super.setDependencyDependencies({ name, version, semver: deps[i].semver, entry: main}, parent, dependencies);
-                    isTraverseChildren && await travsedDendencyDependencies(dependencies, deps[i].name);
-                }
-            }
-        }
-    }
-    protected setDependencyDependencies(dependency, parent: string, children: Set<String>) {
-        const dep = this.dependencyDependencies.get(dependency.name);
-        if (dep) {
-            dep.parents.add(parent);
-        } else {
-            this.dependencyDependencies.set(dependency.name, {
-                children: children,
-                parents: new Set([parent]),
-                semver: dependency.semver,
-                resolved: dependency.version,
-                entry: dependency.entry,
-                name: dependency.name
-            })
-        }
-    }
+    // public formatDependencies(dependencies) {
+    //     return Object.keys(dependencies).map(name => {
+    //         return {
+    //             name,
+    //             semver: dependencies[name],
+    //             version: dependencies.vesion
+    //         }
+    //     })
+    // }
+    // protected async generateDependencies(dependencies: any, isTraverseChildren: Boolean = true) {
+    //     const _super = this;
+    //     // const deps = this.formatDependencies(dependencies)
+    //     await travsedDendencyDependencies(dependencies);
+    //     // for( let i = 0; i < deps.length; i++) {
+    //     //     travsedDendencyDependencies(deps[i]);
+    //     // }
+    //     async function travsedDendencyDependencies(dependencies, parent: string = '') {
+    //         if (!dependencies || Object.keys(dependencies).length === 0) {
+    //             return
+    //         }
+    //         const deps = _super.formatDependencies(dependencies)
+    //         for( let i = 0; i < deps.length; i++) {
+    //             if (!_super.dependencyDependencies.get(deps[i].name)) {
+    //                 const { dependencies, name, version, main } = await LazyLoad.loadPackageJson(deps[i].name, deps[i].semver);
+    //                 _super.setDependencyDependencies({ name, version, semver: deps[i].semver, entry: main}, parent, dependencies);
+    //                 isTraverseChildren && await travsedDendencyDependencies(dependencies, deps[i].name);
+    //             }
+    //         }
+    //     }
+    // }
+    // protected setDependencyDependencies(dependency, parent: string, children: Set<String>) {
+    //     const dep = this.dependencyDependencies.get(dependency.name);
+    //     if (dep) {
+    //         dep.parents.add(parent);
+    //     } else {
+    //         this.dependencyDependencies.set(dependency.name, {
+    //             children: children,
+    //             parents: new Set([parent]),
+    //             semver: dependency.semver,
+    //             resolved: dependency.version,
+    //             name: dependency.name
+    //         })
+    //     }
+    // }
     public async getPackageFileOnlyPath(filepath: string) {
         // const { ext, dir, name } = path.parse(filepath);
         const dependency = this.getDependencyByFilePath(filepath);
@@ -122,6 +128,38 @@ export default class Packager {
         return matchDependency[0];
     }
     public async addRootDependency(dependencies: any, isTraverseChildren: Boolean = false) {
-        await this.generateDependencies(dependencies, isTraverseChildren );
+        
+        await this.combinationsDependencies(dependencies);
+        // await this.generateDependencies(dependencies, isTraverseChildren );
+    }
+    public async combinationsDependencies(dependencies) {
+        const { payload: { contents, dependencyDependencies, dependencies: combinationsDependencies } } = await api.v2.packages.combinations(dependencies)
+        Object.keys(dependencyDependencies).forEach(key => this.dependencyDependencies.set(key, {
+            name: key,
+            ...dependencyDependencies[key]
+        }))
+        this.contents = {
+            ...this.contents,
+            ...contents
+        };
+        await Promise.all(combinationsDependencies.map(async item => {
+            try{
+                const code = contents[`/node_modules/${item.name}/package.json`].content;
+                const json = JSON.parse(code)
+                this.dependencyDependencies.set(item.name, {
+                    name: item.name,
+                    resolved: json.version,
+                    semver: item.version,
+                    parents: []
+                })
+            }catch(error) {
+                console.log(error)
+            }
+        }))
+        this.dependencies = this.dependencies.concat(combinationsDependencies);
+        // throw new Error('111')
+        await Promise.all(Object.keys(contents).map( async contentName => {
+            await Manager.fileService.writeFile(URI.parse(`localFs:test/${contentName}`), contents[contentName].content, { create: true, overwrite: true });
+        }))
     }
 }

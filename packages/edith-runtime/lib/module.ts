@@ -38,7 +38,8 @@ export interface IModuleOption {
     code: string,
     path: string,
     module?: any;
-    resource?: URI
+    resource?: URI;
+    node_modules_path: string;
 }
 export enum ModuleStatus {
     LOADING,
@@ -72,7 +73,7 @@ export default class Module {
     get type() {
         return this.ctx.type;
     }
-    set code(newCode){
+     set code(newCode){
         this.ctx.code = newCode;
     }
     get code() {
@@ -106,13 +107,14 @@ export default class Module {
         hot: hotReLoad()
     };
     constructor(options: IModuleOption){
-        const { path, module = null, resource } = options;
+        const { path, module = null, resource, node_modules_path } = options;
         // this.code = code;
         this.path = path;
         this.type = File.filenameToFileType(path);
         this.id = Module.getIdByPath(path);
         this.ctx.manager = Manager;
         this.resource = resource
+        this.ctx.node_modules_path = node_modules_path;
         //如果直接传入module，无需编译和执行;
         if (module) { 
             this._isTranslate = true;
@@ -250,5 +252,9 @@ export default class Module {
         } else {
             console.warn('globals must be a object')
         }
+    }
+    public async getCode(): Promise<string> {
+        const { code } = await Manager.fileService.readFile(this.ctx.resource);
+        return code;
     }
 }
