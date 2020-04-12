@@ -67,6 +67,7 @@ export function doCompileStyle(
   let result, code, outMap
   const errors: any[] = []
   try {
+    console.log(plugins)
     result = postcss(plugins).process(source, postCSSOptions)
     // In async mode, return a promise.
     if (options.isAsync) {

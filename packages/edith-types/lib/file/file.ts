@@ -153,3 +153,41 @@ export class NotImplementedError extends Error {
 		}
 	}
 }
+
+export class File implements IStat {
+	type: FileType;
+	ctime: number;
+	mtime: number;
+	size: number;
+
+	name: string;
+	data?: Uint8Array;
+
+	constructor(name: string) {
+		this.type = FileType.File;
+		this.ctime = Date.now();
+		this.mtime = Date.now();
+		this.size = 0;
+		this.name = name;
+	}
+}
+
+export class Directory implements IStat {
+
+	type: FileType;
+	ctime: number;
+	mtime: number;
+	size: number;
+
+	name: string;
+	entries: Map<string, File | Directory>;
+
+	constructor(name: string) {
+		this.type = FileType.Directory;
+		this.ctime = Date.now();
+		this.mtime = Date.now();
+		this.size = 0;
+		this.name = name;
+		this.entries = new Map();
+	}
+}

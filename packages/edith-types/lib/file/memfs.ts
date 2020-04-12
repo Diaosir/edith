@@ -1,45 +1,8 @@
 
-import { FileChangeType, FileType, IWatchOptions, IStat, FileSystemProviderErrorCode, FileSystemProviderError, FileWriteOptions, IFileChange, FileDeleteOptions, FileOverwriteOptions, IFileSystemProviderWithFileReadWriteCapability } from './file';
+import { FileChangeType, FileType, File, Directory, IStat, FileSystemProviderErrorCode, FileSystemProviderError, FileWriteOptions, IFileChange, FileDeleteOptions, FileOverwriteOptions, IFileSystemProviderWithFileReadWriteCapability } from './file';
 import { URI } from 'edith-types/lib/uri' 
 const { TextEncoder } = require('@exodus/text-encoding-utf8')
 const textEncoder: any = new TextEncoder();
-class File implements IStat {
-	type: FileType;
-	ctime: number;
-	mtime: number;
-	size: number;
-
-	name: string;
-	data?: Uint8Array;
-
-	constructor(name: string) {
-		this.type = FileType.File;
-		this.ctime = Date.now();
-		this.mtime = Date.now();
-		this.size = 0;
-		this.name = name;
-	}
-}
-
-class Directory implements IStat {
-
-	type: FileType;
-	ctime: number;
-	mtime: number;
-	size: number;
-
-	name: string;
-	entries: Map<string, File | Directory>;
-
-	constructor(name: string) {
-		this.type = FileType.Directory;
-		this.ctime = Date.now();
-		this.mtime = Date.now();
-		this.size = 0;
-		this.name = name;
-		this.entries = new Map();
-	}
-}
 
 export type Entry = File | Directory;
 
@@ -153,9 +116,9 @@ export default class InMemoryFileSystemProvider implements IFileSystemProviderWi
 
 	// --- lookup
 
-	private _lookup(uri: URI, silent: false): Entry;
-	private _lookup(uri: URI, silent: boolean): Entry | undefined;
-	private _lookup(uri: URI, silent: boolean): Entry | undefined {
+	protected _lookup(uri: URI, silent: false): Entry;
+	protected _lookup(uri: URI, silent: boolean): Entry | undefined;
+	protected _lookup(uri: URI, silent: boolean): Entry | undefined {
 		let parts = uri.path.split('/');
 		let entry: Entry = this.root;
 		for (const part of parts) {
@@ -178,7 +141,10 @@ export default class InMemoryFileSystemProvider implements IFileSystemProviderWi
 		return entry;
 	}
 
-	private _lookupAsDirectory(uri: URI, silent: boolean): Directory {
+	protected _lookupAsDirectory(uri: URI, silent: boolean): Directory {
+		if(uri.fsPath === '') {
+			return this.root;
+		}
 		let entry = this._lookup(uri, silent);
 		if (entry instanceof Directory) {
 			return entry;
@@ -186,7 +152,7 @@ export default class InMemoryFileSystemProvider implements IFileSystemProviderWi
 		throw new FileSystemProviderError('file not a directory', FileSystemProviderErrorCode.FileNotADirectory);
 	}
 
-	private _lookupAsFile(uri: URI, silent: boolean): File {
+	protected _lookupAsFile(uri: URI, silent: boolean): File {
 		let entry = this._lookup(uri, silent);
 		if (entry instanceof File) {
 			return entry;
@@ -194,7 +160,7 @@ export default class InMemoryFileSystemProvider implements IFileSystemProviderWi
 		throw new FileSystemProviderError('file is a directory', FileSystemProviderErrorCode.FileIsADirectory);
 	}
 
-	private _lookupParentDirectory(uri: URI): Directory {
+	protected _lookupParentDirectory(uri: URI): Directory {
 		const dirname = this._dirname(uri.path);
 		return this._lookupAsDirectory(uri.with({
 			path: dirname
@@ -203,10 +169,10 @@ export default class InMemoryFileSystemProvider implements IFileSystemProviderWi
 
 	// --- manage file events
 
-	private _bufferedChanges: IFileChange[] = [];
-	private _fireSoonHandle?: any;
+	protected _bufferedChanges: IFileChange[] = [];
+	protected _fireSoonHandle?: any;
 
-	private _fireSoon(...changes: IFileChange[]): void {
+	protected _fireSoon(...changes: IFileChange[]): void {
 		this._bufferedChanges.push(...changes);
 
 		if (this._fireSoonHandle) {
@@ -217,7 +183,7 @@ export default class InMemoryFileSystemProvider implements IFileSystemProviderWi
 			this._bufferedChanges.length = 0;
 		}, 5);
 	}
-	private _basename(path: string): string {
+	protected _basename(path: string): string {
 		path = this._rtrim(path, '/');
 		if (!path) {
 			return '';
@@ -226,7 +192,7 @@ export default class InMemoryFileSystemProvider implements IFileSystemProviderWi
 		return path.substr(path.lastIndexOf('/') + 1);
 	}
 
-	private _dirname(path: string): string {
+	protected _dirname(path: string): string {
 		path = this._rtrim(path, '/');
 		if (!path) {
 			return '/';
@@ -235,7 +201,7 @@ export default class InMemoryFileSystemProvider implements IFileSystemProviderWi
 		return path.substr(0, path.lastIndexOf('/'));
 	}
 
-	private _rtrim(haystack: string, needle: string): string {
+	protected _rtrim(haystack: string, needle: string): string {
 		if (!haystack || !needle) {
 			return haystack;
 		}
@@ -276,7 +242,7 @@ export default class InMemoryFileSystemProvider implements IFileSystemProviderWi
         path: file
       })
       const stat = await this.stat(uri, true);
-      if(!stat) { //不存在
+			if(!stat) { //不存在
         await this.mkdir(uri);
       }
 		}

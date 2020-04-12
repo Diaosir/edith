@@ -11,36 +11,24 @@ export interface ILoader {
     execute: () => Function;
 }
 export { default as BaseLoader } from './base-loader'
-//TODO 动态加载
-// export default function Loader(type: FileType, options?: any) {
-//     if (cacheLoader[type]) {
-//         return cacheLoader[type];
-//     }
-//     if(type === FileType.CSS) {
-//         return cacheLoader[type] = CssLoader
-//     }
-//     if(type === FileType.LESS) {
-//         return LessLoader;
-//     }
-//     if ([FileType.JS,FileType.JSX, FileType.TS, FileType.TSX].includes(type)) {
-//         return BabelLoader;
-//     }
-//     if (type === FileType.VUE) {
-//         return VueLoader;
-//     }
-//     if (type === FileType.SCSS) {
-//         return SassLoader;
-//     }
-//     throw new Error(`not loader to handle ${type}`)
-// }
 
 export const defaultLoaderRules = {
-    [FileType.LESS]: ['less', 'css'],
-    [FileType.SCSS]: ['scss', 'css'],
-    [FileType.JSX]: ['babel'],
-    [FileType.JS]: ['babel'],
-    [FileType.TS]: ['babel'],
-    [FileType.TSX]: ['babel'],
-    [FileType.VUE]: ['vue', 'babel'],
-    [FileType.CSS]: ['css']
+    [FileType.LESS]: ['less-loader', 'css-loader'],
+    [FileType.SCSS]: ['scss-loader', 'css-loader'],
+    [FileType.JSX]: ['babel-loader'],
+    [FileType.JS]: ['babel-loader'],
+    [FileType.TS]: ['babel-loader'],
+    [FileType.TSX]: ['babel-loader'],
+    [FileType.VUE]: ['vue-loader', 'babel-loader'],
+    [FileType.CSS]: ['css-loader']
 }
+export function formatLoader(code: string) {
+    const loaders = code.replace(/^-?!+/, "")
+    .replace(/!!+/g, "!")
+    .split("!")
+    const filename = loaders.pop();
+    return {
+        filename,
+        loaders
+    }
+  }

@@ -8,6 +8,7 @@ import * as Loading from '@/components/Loading';
 import Log from './Log'
 import FileService from 'edith-types/lib/file/fileService';
 import { URI } from 'edith-types/lib/uri';
+import { formatLoader } from '../loader'
 function resolve(from: string, to: string) {
   //Todo 判断是否为文件或者文件夹
   const { ext } = path.parse(from);
@@ -53,21 +54,22 @@ export default class Manager {
    * @param entryFile
    */
   public static async traverse(code: string, filePath: string, parentTranspilerPath?: string, __module__export: any = null) {
-    
+    const { filename, loaders } = formatLoader(filePath);
     const module = 
-      Manager.transpilerModules.get(normalize(filePath)) || 
+      Manager.transpilerModules.get(normalize(filename)) || 
       new Module({
         code, 
         path: normalize(filePath), 
         module: __module__export, 
-        resource: URI.parse(`localFs:${filePath}`),
-        node_modules_path: path.join('/', Manager.projectName, 'node_modules')
+        resource: URI.parse(`localFs:${filename}`),
+        node_modules_path: path.join('/', Manager.projectName, 'node_modules'),
+        loaders
       });
     // transpiler.code = code;
 
     const parentTranspilerTpye = File.filenameToFileType(parentTranspilerPath);
     if (module.path) {
-      Manager.transpilerModules.set(module.path, module);
+      Manager.transpilerModules.set(filePath, module);
 
       if (parentTranspilerPath) {
         module.addParent(parentTranspilerPath);
@@ -82,17 +84,23 @@ export default class Manager {
     }
     return module;
   }
-  public static async traverseChildren(parentTranspilerPath: string, moduleName: string) {
+  public static async traverseChildren(parentTranspilerPath: string, dependency: string) {
     const parentModule = Manager.getTranspilerModuleByPath(parentTranspilerPath);
     const basePath = parentModule.path;
     let filename = ''
     let childrenModule: Module = null, code = '', uri: URI = null;
     const node_modules_path = path.join('/', Manager.projectName, 'node_modules');
+    let moduleName = dependency
     //如果有全局模块，则直接返回全局变量，新建transpilerModule；
     if(Manager.globalModules.get(moduleName)) { 
       filename = `/node_modules/${moduleName}`, code = '';
       childrenModule = await Manager.traverse(code, filename, parentModule.path, Manager.globalModules.get(moduleName))
     } else {
+      const res = formatLoader(moduleName);
+      const loaders = res.loaders || []
+      if(res && res.filename) {
+        moduleName = res.filename;
+      } 
       uri = URI.parse(`localFs:${moduleName}`)
       filename = await Manager.fileService.resolve(uri, URI.parse(`localFs:${parentTranspilerPath}`), node_modules_path);
       // if(filename) {
@@ -103,13 +111,12 @@ export default class Manager {
       // }
       //TODO 本地拿不到，需要去远程获取文件 
       if(!filename) {
-        console.log(filename, uri.fsPath, parentModule.path)
         if (isNodeModules(moduleName)) {
           filename = path.join(node_modules_path, moduleName);
         } else {
           filename = resolve(basePath, moduleName);
         }
-        const packageFile = await Manager.packager.getPackageFileOnlyPath(filename);
+        const packageFile: any = await Manager.packager.getPackageFileOnlyPath(filename);
         if(packageFile.fullPath) {
           await Manager.fileService.writeFile(uri.with({
             path: packageFile.fullPath
@@ -117,11 +124,11 @@ export default class Manager {
           filename = packageFile.fullPath;
         }
       }
-      childrenModule = await Manager.traverse(code, filename, parentModule.path);
+      childrenModule = await Manager.traverse(code, `${ loaders.length > 0 ? `!!${loaders.join('!')}!${filename}` : filename}`, parentModule.path);
     }
     if (childrenModule && childrenModule.path) {
       parentModule.addDenpency(moduleName ,childrenModule.path);
-      Manager.setDenpenciesIdMap(basePath, moduleName, childrenModule.path);
+      Manager.setDenpenciesIdMap(basePath, dependency, childrenModule.path);
     }
   }
   /**

@@ -3,6 +3,9 @@ import api from 'edith-utils/lib/api';
 import Manager from '../manager'
 import { URI } from 'edith-types/lib/uri'
 import _ from 'lodash'
+import FetchFs from 'edith-types/lib/file/fetchFs';
+const unpkgFileSystem = new FetchFs('unpkg', 'https://unpkg.com');
+import path from 'path-browserify'
 interface IdependencyDependency {
     semver: string,
     resolved: string,
@@ -99,7 +102,18 @@ export default class Packager {
         filePath: string,
         projectName?: string
     }) {
-        return await LazyLoad.getPackageFileContent(data.name, data.version, data.filePath, data.projectName);
+        // const uri = URI.parse(`unpkg:/${data.name}${data.version ? `@${data.version}` : ''}${data.filePath ? `/${data.filePath}` : ''}`);
+        const uri = URI.parse(`unpkg:/${path.join(`${data.name}${data.version ? `@${data.version}` : ''}`, `${data.filePath ? `/${data.filePath}` : ''}`)}`);
+        const code: any = await unpkgFileSystem.readFile(uri);
+        const reg = /\/\/realFilename=([\s\S]+)$/;
+        const realFilename = code.match(reg)[1];
+        return {
+            code: code.replace(reg, ''),
+            fullPath: path.join(data.projectName, 'node_modules', realFilename)
+        }
+        // const res = await LazyLoad.getPackageFileContent(data.name, data.version, data.filePath, data.projectName);
+        // console.log(res)
+        // return res;
     }
     /**
      *
@@ -158,8 +172,8 @@ export default class Packager {
         }))
         this.dependencies = this.dependencies.concat(combinationsDependencies);
         // throw new Error('111')
-        await Promise.all(Object.keys(contents).map( async contentName => {
-            await Manager.fileService.writeFile(URI.parse(`localFs:test/${contentName}`), contents[contentName].content, { create: true, overwrite: true });
-        }))
+        // await Promise.all(Object.keys(contents).map( async contentName => {
+        //     await Manager.fileService.writeFile(URI.parse(`localFs:test/${contentName}`), contents[contentName].content, { create: true, overwrite: true });
+        // }))
     }
 }

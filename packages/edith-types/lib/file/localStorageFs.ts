@@ -1,74 +1,45 @@
 
-import { FileChangeType, FileType, IStat, FileSystemProviderErrorCode, FileSystemProviderError, FileWriteOptions, IFileChange, FileOverwriteOptions, IFileSystemProviderWithFileReadWriteCapability } from './file';
+import {File, Directory, FileChangeType, FileType, IStat, FileSystemProviderErrorCode, FileSystemProviderError, FileWriteOptions, IFileChange, FileOverwriteOptions, IFileSystemProviderWithFileReadWriteCapability } from './file';
 import { URI } from 'edith-types/lib/uri'
-import md5 from '@/utils/md5';
-class File implements IStat {
-	type: FileType;
-	ctime: number;
-	mtime: number;
-	size: number;
-	name: string;
-	constructor(name: string) {
-		this.type = FileType.File;
-		this.ctime = Date.now();
-		this.mtime = Date.now();
-		this.size = 0;
-		this.name = name;
-	}
-}
-
-class Directory implements IStat {
-
-	type: FileType;
-	ctime: number;
-	mtime: number;
-	size: number;
-	name: string;
-	entries: Map<string, File | Directory>;
-	constructor(name: string) {
-		this.type = FileType.Directory;
-		this.ctime = Date.now();
-		this.mtime = Date.now();
-		this.size = 0;
-		this.name = name;
-		this.entries = new Map();
-	}
-}
+import Memfs from './memfs'
+const { TextEncoder } = require('@exodus/text-encoding-utf8')
+const textEncoder: any = new TextEncoder();
 
 export type Entry = File | Directory;
 
-export default class LocalStorageFileSystemProvider implements IFileSystemProviderWithFileReadWriteCapability {
-  public fileCache: Map<string, string> = new Map();
+export default class LocalStorageFileSystemProvider extends Memfs implements IFileSystemProviderWithFileReadWriteCapability {
+	public fileCache: Map<string, string> = new Map();
+	private _isInit: boolean = false;
   root = new Directory('file');
   public scheme: string = 'file';
   // --- manage file metadata
   constructor(scheme) {
+		super();
     if (scheme) {
       this.scheme = scheme;
       this.root = new Directory(scheme);
-    }
-  }
-	async stat(resource: URI, silent: boolean = false): Promise<IStat> {
-		return this._lookup(resource, silent);
-	}
-
-	async readdir(resource: URI): Promise<[string, FileType][]> {
-		const entry = this._lookupAsDirectory(resource, false);
-		let result: [string, FileType][] = [];
-		for (const [name, child] of entry.entries) {
-			result.push([name, child.type]);
 		}
-		return result;
-	}
-
+		this.init()
+  }
 	// --- manage file contents
-
-	async readFile(resource: URI): Promise<string> {
-
+	async init() {
+		if(this._isInit) {
+			return;
+		}
+		const localStorageKeys = Object.keys(window.localStorage);
+		const reg = new RegExp(`^${this.scheme}:`)
+		await Promise.all(localStorageKeys.filter(item => item.match(reg)).map(async item => {
+			const content = window.localStorage.getItem(item);
+			await this.writeFileAnyway(URI.parse(item), content);
+		}))
+		this._isInit = true;
+	}
+	async readFile(resource: URI): Promise<Uint8Array> {
+		await this.init()
     this._lookupAsFile(resource, false);
-    const data = localStorage.getItem(md5(resource.toString()));
+    const data = localStorage.getItem(resource.toString());
 		if (data) {
-			return data;
+			return textEncoder.encode(data);
 		}
 		throw new FileSystemProviderError('file not found', FileSystemProviderErrorCode.FileNotFound);
 	}
@@ -96,7 +67,7 @@ export default class LocalStorageFileSystemProvider implements IFileSystemProvid
 		}
 		entry.mtime = Date.now();
 		entry.size = content.byteLength;
-    localStorage.setItem(md5(resource.toString()), content.toString());
+    localStorage.setItem(resource.toString(), content.toString());
 		this._fireSoon({ type: FileChangeType.UPDATED, resource });
 	}
 
@@ -143,133 +114,39 @@ export default class LocalStorageFileSystemProvider implements IFileSystemProvid
 		this._fireSoon({ type: FileChangeType.UPDATED, resource: dirname }, { resource, type: FileChangeType.DELETED });
 	}
 
-	async mkdir(resource: URI): Promise<void> {
-		let basename = this._basename(resource.path);
-		let dirname = resource.with({
-			path: this._dirname(resource.path)
-		});
-		let parent = this._lookupAsDirectory(dirname, false);
+	// async mkdir(resource: URI): Promise<void> {
+	// 	let basename = this._basename(resource.path);
+	// 	let dirname = resource.with({
+	// 		path: this._dirname(resource.path)
+	// 	});
+	// 	let parent = this._lookupAsDirectory(dirname, false);
 
-		let entry = new Directory(basename);
-		parent.entries.set(entry.name, entry);
-		parent.mtime = Date.now();
-		parent.size += 1;
-		this._fireSoon({ type: FileChangeType.UPDATED, resource: dirname }, { type: FileChangeType.ADDED, resource });
+	// 	let entry = new Directory(basename);
+	// 	parent.entries.set(entry.name, entry);
+	// 	parent.mtime = Date.now();
+	// 	parent.size += 1;
+	// 	this._fireSoon({ type: FileChangeType.UPDATED, resource: dirname }, { type: FileChangeType.ADDED, resource });
+	// }
+	async writeFileAnyway(resource: URI, content: string, opts: FileWriteOptions = { create: true, overwrite: true}) {
+		let dirname = this._dirname(resource.path)
+    let parts = dirname.split('/');
+    let file = ''
+    for (const part of parts) {
+      if(part === ''){
+        continue;
+      }
+      file += `/${part}`
+      const uri = resource.with({
+        path: file
+      })
+      const stat = await this.stat(uri, true);
+			if(!stat) { //不存在
+        await this.mkdir(uri);
+      }
+		}
+		await this.writeFile(resource, textEncoder.encode(content), opts)
 	}
-
-	// --- lookup
-
-	private _lookup(uri: URI, silent: false): Entry;
-	private _lookup(uri: URI, silent: boolean): Entry | undefined;
-	private _lookup(uri: URI, silent: boolean): Entry | undefined {
-		let parts = uri.path.split('/');
-		let entry: Entry = this.root;
-		for (const part of parts) {
-			if (!part) {
-				continue;
-			}
-			let child: Entry | undefined;
-			if (entry instanceof Directory) {
-				child = entry.entries.get(part);
-			}
-			if (!child) {
-				if (!silent) {
-					throw new FileSystemProviderError('file not found', FileSystemProviderErrorCode.FileNotFound);
-				} else {
-					return undefined;
-				}
-			}
-			entry = child;
-		}
-		return entry;
-	}
-
-	private _lookupAsDirectory(uri: URI, silent: boolean): Directory {
-		let entry = this._lookup(uri, silent);
-		if (entry instanceof Directory) {
-			return entry;
-		}
-		throw new FileSystemProviderError('file not a directory', FileSystemProviderErrorCode.FileNotADirectory);
-	}
-
-	private _lookupAsFile(uri: URI, silent: boolean): File {
-		let entry = this._lookup(uri, silent);
-		if (entry instanceof File) {
-			return entry;
-		}
-		throw new FileSystemProviderError('file is a directory', FileSystemProviderErrorCode.FileIsADirectory);
-	}
-
-	private _lookupParentDirectory(uri: URI): Directory {
-		const dirname = this._dirname(uri.path);
-		return this._lookupAsDirectory(uri.with({
-			path: dirname
-		}), false);
-	}
-
-	// --- manage file events
-
-	private _bufferedChanges: IFileChange[] = [];
-	private _fireSoonHandle?: any;
-
-	private _fireSoon(...changes: IFileChange[]): void {
-		this._bufferedChanges.push(...changes);
-
-		if (this._fireSoonHandle) {
-			clearTimeout(this._fireSoonHandle);
-		}
-
-		this._fireSoonHandle = setTimeout(() => {
-			this._bufferedChanges.length = 0;
-		}, 5);
-	}
-	private _basename(path: string): string {
-		path = this._rtrim(path, '/');
-		if (!path) {
-			return '';
-		}
-
-		return path.substr(path.lastIndexOf('/') + 1);
-	}
-
-	private _dirname(path: string): string {
-		path = this._rtrim(path, '/');
-		if (!path) {
-			return '/';
-		}
-
-		return path.substr(0, path.lastIndexOf('/'));
-	}
-
-	private _rtrim(haystack: string, needle: string): string {
-		if (!haystack || !needle) {
-			return haystack;
-		}
-
-		const needleLen = needle.length,
-			haystackLen = haystack.length;
-
-		if (needleLen === 0 || haystackLen === 0) {
-			return haystack;
-		}
-
-		let offset = haystackLen,
-			idx = -1;
-
-		while (true) {
-			idx = haystack.lastIndexOf(needle, offset - 1);
-			if (idx === -1 || idx + needleLen !== offset) {
-				break;
-			}
-			if (idx === 0) {
-				return '';
-			}
-			offset = idx;
-		}
-
-		return haystack.substring(0, offset);
-  }
-  private _isInThisProvider(resource: URI) {
+  protected _isInThisProvider(resource: URI) {
     const scheme = resource.scheme;
     return scheme === this.scheme
   }

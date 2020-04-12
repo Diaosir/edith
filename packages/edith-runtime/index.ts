@@ -14,9 +14,9 @@ import { URI } from 'edith-types/lib/uri'
 const fileSystem = new Memfs(); //文件系统
 const packaker = new Packager();
 const transpiler = new Manager(packaker);
+
 // const nodeModulesFileSystem = new LocalStorageFileSystem('node_modules'); //node_modules
 const globalModulesFileSystem = new Memfs(); //全局变量
-
 
 const global = window as { [key: string] : any}
 global.fileSystem = fileSystem;

@@ -14,7 +14,7 @@ function hotReLoad(data?) {
         data
     }
 }
-function compose(middlewares: Array<Function>): Function {
+function compose(middlewares: Array<Function>, middlewaresOptions: Array<any>): Function {
     if (!Array.isArray(middlewares)) throw new TypeError('Middleware stack must be an array!')
     for(const fn of middlewares) {
         if (typeof fn !== 'function') throw new TypeError('Middleware must be composed of functions!')
@@ -26,6 +26,12 @@ function compose(middlewares: Array<Function>): Function {
             return Promise.resolve()
         }
         try {
+            if(middlewaresOptions[index]) {
+                ctx.options = {
+                    ...middlewaresOptions[index],
+                    ...ctx.options
+                }
+            }
             return Promise.resolve(fn(ctx, dispatch.bind(null, index + 1)))
         } catch(error) {
             return Promise.reject(error);
@@ -40,6 +46,7 @@ export interface IModuleOption {
     module?: any;
     resource?: URI;
     node_modules_path: string;
+    loaders: Array<string>;
 }
 export enum ModuleStatus {
     LOADING,
@@ -58,6 +65,7 @@ export default class Module {
     private _isTranslate: boolean = false;
     public ctx: Context = new Context();
     public status: ModuleStatus;
+    public loaders: Array<string> = [];
     protected globals: {
         [key: string] : any;
     } = {};
@@ -107,7 +115,7 @@ export default class Module {
         hot: hotReLoad()
     };
     constructor(options: IModuleOption){
-        const { path, module = null, resource, node_modules_path } = options;
+        const { path, module = null, resource, node_modules_path, loaders } = options;
         // this.code = code;
         this.path = path;
         this.type = File.filenameToFileType(path);
@@ -115,6 +123,7 @@ export default class Module {
         this.ctx.manager = Manager;
         this.resource = resource
         this.ctx.node_modules_path = node_modules_path;
+        this.loaders = loaders;
         //如果直接传入module，无需编译和执行;
         if (module) { 
             this._isTranslate = true;
@@ -149,24 +158,25 @@ export default class Module {
         }
     }
     public async composeTranslateMiddlewares() {
-        const loaderList = defaultLoaderRules[this.type];
+        const loaderList = this.loaders.length > 0 ? this.loaders: defaultLoaderRules[this.type];
         if (!Array.isArray(loaderList) || loaderList.length === 0) {
             throw new Error(`not loader to handle this file: ${this.path}`);
         }
         const middlewares = new Array(loaderList.length);
-        
+        const middlewaresOptions = new Array(loaderList.length);
         //必须确保loader的顺序
         if (Array.isArray(loaderList) && loaderList.length > 0) {
             await Promise.all(loaderList.map( async (loaderName, index) => {
-                const loader = await this.ctx.getLoader(loaderName);
+                const { loader, options } = await this.ctx.getLoader(loaderName);
                 if (loader) {
-                    middlewares[index] = (loader.translate);
+                    middlewares[index] = loader.translate;
+                    middlewaresOptions[index] = options;
                 } else {
                     throw new Error(`can not load this loader: ${loaderName}`);
                 }
             }))
         }
-        return compose(middlewares);
+        return compose(middlewares, middlewaresOptions);
     }
     public getModuleFunction() {
         return getExecuteFunction({

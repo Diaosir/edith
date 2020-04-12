@@ -187,27 +187,32 @@ export default class FileServie implements IFileService {
     const packageResource = resource.with({
       path: resolve(resource.fsPath, 'package.json')
     });
-    let filename = ''
+    let filenames = [];
     try{
       const fileProvider = this.getProvider(packageResource.scheme);
       const json = await fileProvider.readFile(packageResource);
       const packageJson = JSON.parse(typeof json === 'string' ? json : textDecoder.decode(json));
       const entry = resolve(resource.fsPath, packageJson.main || 'index.js');
       const browserMaps = this._tryBrowserPath(packageJson.browser, packageResource.fsPath)
-      filename = browserMaps[entry] || entry;
+      if(is.object(browserMaps) && browserMaps[entry]) {
+        filenames.push(browserMaps[entry])
+      }
+      if(entry) {
+        filenames.push(entry);
+      }
     } catch(error) {
       error.path = packageResource.fsPath;
       error.message = 'Error parsing ' +  packageResource.fsPath + ': ' + error.message;
-      console.log(error)
-      // throw error
     }
-    if(!filename) return false;
-    const entryResource = resource.with({ path : filename });
-    const { stat, resource: realEntryResource} = await this.stat(entryResource);
-    if(resource.fsPath === '/test/node_modules/@emotion/is-prop-valid') {
-      console.log('sadsad: ', entryResource)
+    if(filenames.length === 0) return false;
+    for(let i = 0; i < filenames.length; i++) {
+      const entryResource = resource.with({ path : filenames[i] });
+      const { stat, resource: realEntryResource} = await this.stat(entryResource);
+      if(stat) {
+        return realEntryResource.fsPath;
+      }
     }
-    return stat ? realEntryResource.fsPath : ''
+    return '';
   }
   /**
    * Rewrite the paths of the browser aliases to the relative path to the package
