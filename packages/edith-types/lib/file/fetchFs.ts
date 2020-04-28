@@ -4,14 +4,14 @@ import { URI } from 'edith-types/lib/uri'
 import md5 from 'edith-utils/lib/md5';
 import MemFs from './memfs'
 import LocalStorageFs from './localStorageFs';
+import IndexedDBFs from './indexedDBFs'
 const { TextEncoder, TextDecoder} = require('@exodus/text-encoding-utf8')
 import superagent from 'superagent'
 import { resolve, join } from 'path-browserify'
 const textDecoder = new TextDecoder()
 export type Entry = File | Directory;
-
-export default class FetchStorageFileSystemProvider extends LocalStorageFs implements IFileSystemProviderWithFileReadWriteCapability {
-  public fileCache: Map<string, string> = new Map();
+export default class FetchStorageFileSystemProvider extends IndexedDBFs implements IFileSystemProviderWithFileReadWriteCapability {
+  public fetchCache: WeakMap<URI, any> = new WeakMap();
 	public scheme: string = 'remote';
 	public host: string;
 	constructor(scheme: string, host?: string) {
@@ -36,7 +36,15 @@ export default class FetchStorageFileSystemProvider extends LocalStorageFs imple
 			return typeof cache === 'string' ? cache : textDecoder.decode(cache);
 		} catch(error){
 		}
-    const data: any = await this._fetchFile(resource);
+		const cached = this.fetchCache.get(resource);
+		let promise = null;
+		if(!!cached) {
+			promise = cached;
+		} else {
+			promise = this._fetchFile(resource);
+			this.fetchCache.set(resource, promise);
+		}
+    const data: any = await promise;
 		if (data) {
 			return data;
 		}
@@ -44,6 +52,7 @@ export default class FetchStorageFileSystemProvider extends LocalStorageFs imple
 	}
 	private async _fetchFile(resource: URI): Promise<string> {
 		const host = this.host;
+		const url = `${host}${resource.fsPath}`;
 		async function doFetch(url) {
 			let result = await superagent.get(url).then((response) => {
 				const code = response.text || (response.body ? response.body.toString() : '');
@@ -73,7 +82,6 @@ export default class FetchStorageFileSystemProvider extends LocalStorageFs imple
 			}
 			return result;
 		}
-		const url = `${host}${resource.fsPath}`;
 		console.log(url)
 		let { code, responseURL } = await doFetch(url);
 		const realFilename = this._getRealFilename(responseURL);
