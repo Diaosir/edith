@@ -9,6 +9,7 @@
   "author": "Diaosir",
   "license": "MIT",
   "dependencies": {
+    "eventemitter3": "^4.0.4",
     "path-browserify": "^1.0.1"
   }
 }

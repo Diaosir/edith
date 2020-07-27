@@ -1,4 +1,6 @@
 import * as is from 'is'
+import IndexedDBFs from 'edith-types/lib/file/indexedDBFs';
+const translateCacheFileSystem = new IndexedDBFs('translate');
 interface ITask {
     data: any;
     options?: any;
@@ -18,6 +20,7 @@ export default abstract  class BaseLoader {
     runningTasks: {
         [id: string]: (error: Error, message: Object) => void;
     };
+    translateCacheFileSystem: IndexedDBFs = translateCacheFileSystem;
     constructor(options: any = {}) {
         this.path = options.path;
         this.Worker = options.worker;

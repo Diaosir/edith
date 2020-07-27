@@ -1,3 +1,6 @@
+/**
+ * document: ./src/documents/preview.ejs
+ */
 import { Component } from 'react'
 import './index.scss'
 import { connect } from 'dva';

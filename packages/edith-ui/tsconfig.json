@@ -21,7 +21,18 @@
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "paths": {
+      "edith-jest": ["../edith-jest"],
+      "edith-jest/*": ["../edith-jest/*"],
+      "edith-runtime": ["../edith-runtime"],
+      "edith-runtime/*": ["../edith-runtime/*"],
+      "edith-vscode": ["../edith-vscode"],
+      "edith-types/*": ["../edith-types/*"],
+      "edith-types": ["../edith-types"],
+      "edith-devtools": ["../edith-devtools"],
+      "edith-utils/*": ["../edith-utils/*"]
+    }
   },
   "include": ["components/**/*", "stories/**/*"],
   "exclude": ["node_modules", "build", "scripts"]

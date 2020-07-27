@@ -15,14 +15,15 @@ export default class IndexedDBFsFileSystemProvider implements IFileSystemProvide
 	public scheme: string = 'indexedDb';
   public db_instance: IDBDatabase;
   public dbVersion: number = 2;
-  public dbName: string = 'node_modules';
+  public dbName: string = 'edith-web-db';
   root = new Directory('');
 	constructor(scheme: string) {
-    this.scheme = scheme
+		this.scheme = scheme
+		this.dbName =  `edith-web-db-${scheme}`;
     this._init();
   }
   private async _init() {
-    const db = await this._getDbInstance();
+		const db = await this._getDbInstance();
     if(db) {
       const transaction = db.transaction(this.scheme, "readwrite");
       let objectStore = transaction.objectStore(this.scheme);
@@ -37,7 +38,21 @@ export default class IndexedDBFsFileSystemProvider implements IFileSystemProvide
       };
       this.db_instance = db;
     }
-  }
+	}
+	private async _createObjectStore(db, storeConfig: {
+		scheme: string;
+		indexs: Array<any>;
+	}) {
+		if(!db){
+			return;
+		}
+		let objectStore = db.createObjectStore(storeConfig.scheme, { 
+			keyPath: 'path'
+		});
+		storeConfig.indexs.map((item) => {
+			objectStore.createIndex.apply(objectStore, item);
+		})
+	}
   private async _getDbInstance() {
     const _this = this;
     if(!!this.db_instance) {
@@ -46,20 +61,22 @@ export default class IndexedDBFsFileSystemProvider implements IFileSystemProvide
     const db: any = await new Promise((resolve, reject) => {
       var res = indexedDB.open(this.dbName, this.dbVersion);
       res.onsuccess = function (ev: Event) {
-          resolve(res.result)
+				resolve(res.result)
       };
       res.onerror = function (ev: Event) {
           resolve(false)
       };
       res.onupgradeneeded = function(event) {
-        let db = res.result;
-        let objectStore = db.createObjectStore(_this.scheme, { 
-          keyPath: 'path'
-        });
-        objectStore.createIndex('path', 'path', {
-          unique: true    
-        });
-        objectStore.createIndex('value', 'value');
+				let db = res.result;
+				_this._createObjectStore(db, {
+					scheme: _this.scheme,
+					indexs: [
+						['path', 'path', {
+							unique: true    
+						}],
+						['value', 'value']
+					]
+				})
       };
     })
     this.db_instance = db;

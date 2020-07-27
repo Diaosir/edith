@@ -172,8 +172,8 @@ export default class Packager {
         }))
         this.dependencies = this.dependencies.concat(combinationsDependencies);
         // throw new Error('111')
-        // await Promise.all(Object.keys(contents).map( async contentName => {
-        //     await Manager.fileService.writeFile(URI.parse(`localFs:test/${contentName}`), contents[contentName].content, { create: true, overwrite: true });
-        // }))
+        await Promise.all(Object.keys(contents).map( async contentName => {
+            await Manager.fileService.writeFile(URI.parse(`localFs:test/${contentName}`), contents[contentName].content, { create: true, overwrite: true });
+        }))
     }
 }

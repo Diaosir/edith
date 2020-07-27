@@ -2,7 +2,7 @@ import { resolve } from 'path';
 export default {
   disableCSSSourceMap: true,
   hash: true,
-  history: 'hash',
+  exportStatic: true,
   targets: { ios: 8, ie: 9 },
   exportStatic: true,
   define: {

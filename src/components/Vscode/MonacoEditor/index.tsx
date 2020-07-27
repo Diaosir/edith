@@ -117,7 +117,8 @@ export default class EditorGroup extends Component<any, State> {
                     onChange={this.handleEditorChange.bind(this, file)}
                     theme='dark' 
                     modules={modules}
-                    />
+                    dependencies={this.props.dependencies}
+                  />
                 </TabPane>
               ))}
             </Tabs>

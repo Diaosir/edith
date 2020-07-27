@@ -7,7 +7,7 @@ self.importScripts([
 
 const ROOT_URL = `https://cdn.jsdelivr.net/`;
 
-const loadedTypings = [];
+self.loadedTypings = [];
 
 /**
  * Send the typings library to the editor, the editor can then add them to the
@@ -232,16 +232,15 @@ async function fetchAndAddDependencies(dependencies) {
   const fetchedPaths = {};
 
   const depNames = Object.keys(dependencies);
-
   await Promise.all(
     depNames.map(async dep => {
       try {
-        if (!loadedTypings.includes(dep)) {
-          loadedTypings.push(dep);
-
+        if (!self.loadedTypings.includes(dep)) {
+          self.loadedTypings.push(dep);
+          const version = dependencies[dep];
           const depVersion = await doFetch(
-            `https://data.jsdelivr.com/v1/package/resolve/npm/${dep}@${
-              dependencies[dep]
+            `https://data.jsdelivr.com/v1/package/resolve/npm/${dep}${version ? '@' : ''}${
+              version
             }`
           )
             .then(x => JSON.parse(x))

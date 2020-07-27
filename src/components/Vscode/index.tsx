@@ -47,6 +47,7 @@ export default class Vscode extends Component<VscodeProps, any>{
   }
   render(){
     const { fileList, editFileList, activeFileId } = this.props.data;
+    const dependencies = this.getDenpencies();
     return (
       <div className="vscode">
         <TopBar></TopBar>
@@ -88,7 +89,7 @@ export default class Vscode extends Component<VscodeProps, any>{
                     title={'denpencies'}
                   >
                     <Denpencies
-                      data={this.getDenpencies()}
+                      data={dependencies}
                       dispatch={this.props.dispatch}
                     />
                   </ExpansionPanel>
@@ -103,6 +104,7 @@ export default class Vscode extends Component<VscodeProps, any>{
                     activeFileId={activeFileId}
                     dispatch={this.props.dispatch}
                     modules={fileList}
+                    dependencies={dependencies}
                   />
                 }
                 RightComponent={

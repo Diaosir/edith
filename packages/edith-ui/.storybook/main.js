@@ -1,3 +1,4 @@
+const  { resolve } = require('path');
 module.exports = {
   stories: ['../stories/**/*.stories.(js|ts|tsx|jsx)', '../components/**/*.stories.(js|ts|tsx|jsx)'],
   addons: ['@storybook/addon-actions', '@storybook/addon-links'],
@@ -16,6 +17,15 @@ module.exports = {
     });
     config.resolve.extensions.push('.ts', '.tsx');
     config.devtool = "source-map"
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'edith-runtime': resolve(__dirname, '../../edith-runtime'),
+      'edith-jest': resolve(__dirname, '../../edith-jest'),
+      'edith-vscode': resolve(__dirname, '../../edith-vscode'),
+      'edith-types': resolve(__dirname, '../../edith-types'),
+      'edith-devtools': resolve(__dirname, '../../edith-devtools'),
+      'edith-utils': resolve(__dirname, '../../edith-utils'),
+    }
     return config;
   }
 };

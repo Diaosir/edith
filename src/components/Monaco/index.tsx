@@ -31,7 +31,7 @@ export default class MonacoEditor extends Component<MonacoEditorProps, any> {
   public monacoRef: any = createRef();
   public containerRef: any = createRef();
   public currentModel: any = null;
-  public typingsFetcherWorker: any = null;
+  static typingsFetcherWorker: any = null;
   public static models: Map<string, any> = new Map();
   public static hasReg
   tsConfig?: {
@@ -45,9 +45,6 @@ export default class MonacoEditor extends Component<MonacoEditorProps, any> {
     value: '',
     theme: 'dark',
     dependencies: {
-      'react': '16.11.0',
-      'react-dom': '16.11.0',
-      'antd-mobile': '2.3.1'
     }
   };
   constructor(props) {
@@ -79,7 +76,8 @@ export default class MonacoEditor extends Component<MonacoEditorProps, any> {
       noEmit: true,
       allowJs: true,
       typeRoots: ['node_modules/@types'],
-      newLine: monaco.languages.typescript.NewLineKind.LineFeed
+      newLine: monaco.languages.typescript.NewLineKind.LineFeed,
+      ...existingConfig
     }
     monaco.languages.typescript.typescriptDefaults.setCompilerOptions(
       compilerDefaults
@@ -89,8 +87,8 @@ export default class MonacoEditor extends Component<MonacoEditorProps, any> {
     );
 
     monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
-      noSemanticValidation: true,
-      noSyntaxValidation: true,
+      // noSemanticValidation: true,
+      // noSyntaxValidation: true,
     });
 
   }
@@ -140,28 +138,27 @@ export default class MonacoEditor extends Component<MonacoEditorProps, any> {
   }
   componentDidMount() {
     monaco.init().then(monaco => {
-      console.log(monaco)
       this.monacoRef.current = monaco;
       this.monacoReady();
     })
   }
   fetchDependencyTypings = (dependencies: Object) => {
     const monaco = this.monacoRef.current;
-    if (this.typingsFetcherWorker) {
+    if (MonacoEditor.typingsFetcherWorker) {
       monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions(
         {
           noSemanticValidation: true,
           noSyntaxValidation: true,
         }
       );
-      this.typingsFetcherWorker.postMessage({ dependencies });
+      MonacoEditor.typingsFetcherWorker.postMessage({ dependencies });
     }
   };
   componentWillUnmount() {
     window.removeEventListener('resize', this.resizeEditor);
-    if (this.typingsFetcherWorker) {
-      this.typingsFetcherWorker.terminate();
-    }
+    // if (MonacoEditor.typingsFetcherWorker) {
+    //   MonacoEditor.typingsFetcherWorker.terminate();
+    // }
   }
   resizeEditor = () => {
     this.forceUpdate(() => {
@@ -189,8 +186,10 @@ export default class MonacoEditor extends Component<MonacoEditorProps, any> {
     }
   };
   setupTypeWorker = () => {
-    this.typingsFetcherWorker = new TypingsFetcherWorker();
-    this.typingsFetcherWorker.addEventListener('message', event => {
+    if(!MonacoEditor.typingsFetcherWorker) {
+      MonacoEditor.typingsFetcherWorker = new TypingsFetcherWorker();
+    }
+    MonacoEditor.typingsFetcherWorker.addEventListener('message', event => {
       console.log(event)
       const regex = /node_modules\/(@types\/.*?)\//;
       Object.keys(event.data).forEach((path: string) => {

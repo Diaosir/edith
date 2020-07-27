@@ -6,6 +6,7 @@ import Context from '../utils/context'
 import * as is from 'is';
 import getExecuteFunction from './eval'
 import { URI } from 'edith-types/lib/uri'
+import TranslateDecorator from './Timeline/translate';
 function hotReLoad(data?) {
     return {
         accept: function() {
@@ -133,6 +134,7 @@ export default class Module {
             }
         }
     }
+    @TranslateDecorator()
     public async translate(isForce: boolean = false) {
         //TODO 处理less类型
         if (!isForce && this._isTranslate){

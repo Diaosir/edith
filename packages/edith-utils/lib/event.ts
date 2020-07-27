@@ -1,10 +1,10 @@
-import is from 'is';
+const is = require('is')
 class MyEventEmitter {
     protected eventNames:  {
         [key: string]: Array<any>
     } = {};
     protected emitCaches: {
-        [key: string]: Array<any>;
+        [key: string]: Array<any> | undefined;
     } = {}
     public on(eventName: string, callback: Function) {
         if(!!this.emitCaches[eventName]) {
@@ -19,7 +19,7 @@ class MyEventEmitter {
         //     this.eventNames[eventName].push(callback);
         // }
     }
-    public emit(eventName: string, ...args) {
+    public emit(eventName: string, ...args: any) {
         if(is.array(this.eventNames[eventName]) && this.eventNames[eventName].length > 0) {
             this.eventNames[eventName].forEach((callback: Function) => {
                 callback.apply(null, args);
